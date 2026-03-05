@@ -20,10 +20,18 @@ export default function Login() {
     setLoading(true)
     try {
       const { ok, status, data } = await authApi.loginWithStatus(email, password)
-      if (status === 403 && (data as { code?: string }).code === 'SOLICITUD_FARMACIA_PENDIENTE') {
-        setSolicitudPendiente(true)
-        setError((data as { error?: string }).error || 'Tu solicitud está siendo verificada por el administrador.')
-        return
+      if (status === 403) {
+        const code = (data as { code?: string }).code
+        if (code === 'SOLICITUD_FARMACIA_PENDIENTE') {
+          setSolicitudPendiente(true)
+          setError((data as { error?: string }).error || 'Tu solicitud de farmacia está siendo verificada por el administrador.')
+          return
+        }
+        if (code === 'SOLICITUD_DELIVERY_PENDIENTE') {
+          setSolicitudPendiente(true)
+          setError((data as { error?: string }).error || 'Tu solicitud de delivery está siendo verificada por el administrador.')
+          return
+        }
       }
       if (ok && (data as { token?: string; user?: unknown }).token && (data as { user?: unknown }).user) {
         const d = data as { token: string; user: { role?: string; email?: string; id?: string; nombre?: string; apellido?: string } }

@@ -37,10 +37,11 @@ export const authApi = {
     nombre: string
     apellido: string
     direccion: string
+    telefono?: string
     email: string
     password: string
   }) => {
-    const res = await fetch(`${API}/auth/register-cliente`, {
+    const res = await fetch(`${API}/auth/register/cliente`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),

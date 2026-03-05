@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { masterApi, type EstadisticasMaster } from '../../api'
+import { masterApi, type EstadisticasMaster, type UsuarioMaster, type FarmaciaMaster } from '../../api'
 import './AdminDashboard.css'
 
 function formatDateLocal(d: Date): string {
@@ -24,6 +24,8 @@ export default function AdminDashboard() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [stats, setStats] = useState<EstadisticasMaster | null>(null)
   const [loading, setLoading] = useState(true)
+  const [clientesRegistrados, setClientesRegistrados] = useState<number | null>(null)
+  const [farmaciasRegistradas, setFarmaciasRegistradas] = useState<number | null>(null)
   const desdeParam = searchParams.get('fechaDesde') ?? ''
   const hastaParam = searchParams.get('fechaHasta') ?? ''
   const [fechaDesde, setFechaDesde] = useState(desdeParam)
@@ -45,6 +47,32 @@ export default function AdminDashboard() {
     setFechaHasta(hastaParam)
     loadStats(desdeParam, hastaParam)
   }, [desdeParam, hastaParam])
+
+  useEffect(() => {
+    let cancelled = false
+    async function loadTotalesGlobales() {
+      try {
+        const [usuarios, farmacias] = await Promise.all([
+          masterApi.usuarios(),
+          masterApi.farmacias(),
+        ])
+        if (cancelled) return
+        const clientes = (usuarios as UsuarioMaster[]).filter(
+          (u) => (u.role || '').toLowerCase() === 'cliente',
+        ).length
+        setClientesRegistrados(clientes)
+        setFarmaciasRegistradas((farmacias as FarmaciaMaster[]).length)
+      } catch {
+        if (cancelled) return
+        setClientesRegistrados(null)
+        setFarmaciasRegistradas(null)
+      }
+    }
+    loadTotalesGlobales()
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   function handlePreset(preset: 'hoy' | 'semana' | 'mes') {
     const { fechaDesde: d, fechaHasta: h } = getRangePreset(preset)
@@ -109,6 +137,18 @@ export default function AdminDashboard() {
             <div className="dash-m-card">
               <span className="dash-m-card-value">{stats.totalClientes}</span>
               <span className="dash-m-card-label">Clientes</span>
+            </div>
+            <div className="dash-m-card">
+              <span className="dash-m-card-value">
+                {clientesRegistrados != null ? clientesRegistrados : '—'}
+              </span>
+              <span className="dash-m-card-label">Clientes registrados (total)</span>
+            </div>
+            <div className="dash-m-card">
+              <span className="dash-m-card-value">
+                {farmaciasRegistradas != null ? farmaciasRegistradas : '—'}
+              </span>
+              <span className="dash-m-card-label">Farmacias registradas</span>
             </div>
             <div className="dash-m-card dash-m-card-ventas">
               <span className="dash-m-card-value">$ {Number(stats.totalVentas).toFixed(2)}</span>

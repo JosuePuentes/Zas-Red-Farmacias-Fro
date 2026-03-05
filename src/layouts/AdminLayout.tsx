@@ -26,10 +26,10 @@ export default function AdminLayout() {
       <nav className="layout-nav">
         <NavLink to="/admin" end>Dashboard</NavLink>
         <NavLink to="/admin/pedidos">Pedidos</NavLink>
-        <NavLink to="/admin/usuarios">Usuarios</NavLink>
+        <NavLink to="/admin/usuarios">Clientes</NavLink>
         <NavLink to="/admin/farmacias">Farmacias</NavLink>
         <NavLink to="/admin/solicitudes-farmacia">Solic. farmacia</NavLink>
-        <NavLink to="/admin/delivery">Repartidores</NavLink>
+        <NavLink to="/admin/delivery">Delivery</NavLink>
       </nav>
       <main className="layout-main">
         <Routes>
