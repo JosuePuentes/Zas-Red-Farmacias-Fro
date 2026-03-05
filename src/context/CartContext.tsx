@@ -35,11 +35,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CarritoItem[]>(loadCart)
   const [openCart, setOpenCart] = useState(false)
 
-  const persist = useCallback((next: CarritoItem[]) => {
-    setItems(next)
-    saveCart(next)
-  }, [])
-
   const addItem = useCallback((producto: Producto, cantidad: number, farmaciaId: string) => {
     if (cantidad < 1) return
     setItems((prev) => {
