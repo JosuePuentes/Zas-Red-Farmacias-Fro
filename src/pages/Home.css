@@ -4,6 +4,23 @@
   display: flex;
   flex-direction: column;
   background: var(--color-bg);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Manchas de agua / textura de fondo */
+.home::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 10% 20%, rgba(14, 116, 144, 0.06) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 60% at 85% 15%, rgba(14, 116, 144, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse 45% 35% at 70% 80%, rgba(14, 116, 144, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse 55% 45% at 25% 70%, rgba(14, 116, 144, 0.05) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 50% at 50% 40%, rgba(14, 116, 144, 0.03) 0%, transparent 45%);
 }
 
 .home-banner {
@@ -11,13 +28,27 @@
   color: white;
   padding: 0.6rem 1rem;
   padding-top: calc(0.6rem + var(--safe-top));
-  text-align: center;
   flex-shrink: 0;
+  position: relative;
+  z-index: 2;
 }
 
 .home-banner-inner {
   max-width: 1200px;
   margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.home-banner-text {
+  text-align: left;
+}
+
+.home-banner-text.center {
+  text-align: center;
 }
 
 .home-banner-label {
@@ -33,6 +64,40 @@
   opacity: 0.95;
 }
 
+.home-banner-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.btn-banner {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  border-radius: var(--radius);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn-banner.btn-primary {
+  background: rgba(255,255,255,0.95);
+  color: var(--color-primary);
+}
+
+.btn-banner.btn-primary:hover {
+  background: white;
+}
+
+.btn-banner.btn-secondary {
+  background: rgba(255,255,255,0.2);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.5);
+}
+
+.btn-banner.btn-secondary:hover {
+  background: rgba(255,255,255,0.3);
+}
+
 .home-content {
   flex: 1;
   display: flex;
@@ -42,6 +107,8 @@
   margin: 0 auto;
   width: 100%;
   max-width: 520px;
+  position: relative;
+  z-index: 1;
 }
 
 /* Hero */
@@ -176,23 +243,6 @@
 .home-dot.active {
   background: white;
   transform: scale(1.2);
-}
-
-/* Botones principales */
-.home-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  width: 100%;
-  margin-bottom: 2rem;
-}
-
-.btn-home {
-  width: 100%;
-  justify-content: center;
-  padding: 1rem 1.25rem;
-  font-size: 1rem;
-  border-radius: var(--radius-lg);
 }
 
 /* Secciones genéricas */
@@ -456,21 +506,6 @@
 
   .home-slide-text p {
     font-size: 1rem;
-  }
-
-  .home-actions {
-    flex-direction: row;
-    justify-content: center;
-    gap: 1rem;
-    max-width: 480px;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 2.5rem;
-  }
-
-  .btn-home {
-    width: auto;
-    min-width: 180px;
   }
 
   .home-section-title {

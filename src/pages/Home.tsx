@@ -3,38 +3,14 @@ import { Link } from 'react-router-dom'
 import './Home.css'
 
 const SLIDES = [
-  {
-    id: 1,
-    title: 'Farmacias de confianza',
-    subtitle: 'Red de farmacias en todo el país',
-    className: 'slide-farmacia',
-    image: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1200&q=80',
-  },
-  {
-    id: 2,
-    title: 'Medicamentos a tu alcance',
-    subtitle: 'Todo lo que necesitas en un solo lugar',
-    className: 'slide-medicamentos',
-    image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=1200&q=80',
-  },
-  {
-    id: 3,
-    title: 'Delivery a domicilio',
-    subtitle: 'Recibe tus pedidos donde estés',
-    className: 'slide-delivery',
-    image: 'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=1200&q=80',
-  },
-  {
-    id: 4,
-    title: 'Marcas y laboratorios',
-    subtitle: 'Productos de calidad en Venezuela',
-    className: 'slide-laboratorios',
-    image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=1200&q=80',
-  },
+  { id: 1, title: 'Farmacias de confianza', subtitle: 'Red de farmacias en todo el país', className: 'slide-farmacia', image: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1200&q=80' },
+  { id: 2, title: 'Medicamentos a tu alcance', subtitle: 'Todo lo que necesitas en un solo lugar', className: 'slide-medicamentos', image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=1200&q=80' },
+  { id: 3, title: 'Delivery a domicilio', subtitle: 'Recibe tus pedidos donde estés', className: 'slide-delivery', image: 'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=1200&q=80' },
+  { id: 4, title: 'Marcas y laboratorios', subtitle: 'Productos de calidad en Venezuela', className: 'slide-laboratorios', image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=1200&q=80' },
 ]
 
 const MARCAS = [
-  { id: 'la-sante', name: 'La Sante Venezolano', image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&q=80' },
+  { id: 'la-sante', name: 'La Sante', image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&q=80' },
   { id: 'cofasa', name: 'Cofasa', image: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=400&q=80' },
   { id: 'biotech', name: 'Biotech', image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=400&q=80' },
   { id: 'genven', name: 'Genven', image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&q=80' },
@@ -55,8 +31,14 @@ export default function Home() {
     <div className="home">
       <aside className="home-banner">
         <div className="home-banner-inner">
-          <span className="home-banner-label">Red de farmacias</span>
-          <p>Medicamentos, cuidado personal y delivery a domicilio · Venezuela</p>
+          <div className="home-banner-text">
+            <span className="home-banner-label">Red de farmacias</span>
+            <p>Medicamentos, cuidado personal y delivery a domicilio · Venezuela</p>
+          </div>
+          <div className="home-banner-actions">
+            <Link to="/login" className="btn btn-primary btn-banner">Iniciar sesión</Link>
+            <Link to="/registro" className="btn btn-secondary btn-banner">Crear cuenta</Link>
+          </div>
         </div>
       </aside>
 
@@ -102,15 +84,6 @@ export default function Home() {
               />
             ))}
           </div>
-        </section>
-
-        <section className="home-actions">
-          <Link to="/login" className="btn btn-primary btn-home">
-            Iniciar sesión
-          </Link>
-          <Link to="/registro" className="btn btn-secondary btn-home">
-            Crear cuenta
-          </Link>
         </section>
 
         {/* Marcas con las que trabajamos */}

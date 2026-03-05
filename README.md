@@ -49,6 +49,20 @@ Si el backend corre en otro puerto, crea `.env` con `VITE_API_URL=http://localho
 4. Mostrar tasa BCV (GET `/api/config`) arriba a la derecha en cliente, farmacia y delivery.
 5. Los tipos en `src/types/index.ts` se pueden ajustar a los DTOs del backend.
 
+## Dónde subir cada foto
+
+Todas las imágenes van en la carpeta **`public/`** (o en subcarpetas dentro de `public/`). Las rutas en el código usan `/` como raíz (ej. `/logo.png`, `/images/delivery.jpg`).
+
+| Uso | Ruta donde subir el archivo |
+|-----|-----------------------------|
+| **Logo y favicon** (pestaña del navegador y cabecera) | `public/logo.png` |
+| **Carrusel del Home** (4 imágenes: farmacias, medicamentos, delivery, marcas) | `public/images/carrusel/1.jpg`, `2.jpg`, `3.jpg`, `4.jpg` |
+| **Marcas** (La Sante, Cofasa, Biotech, Genven, Letti) | `public/images/marcas/la-sante.png`, `cofasa.png`, `biotech.png`, `genven.png`, `letti.png` |
+| **Sección “Delivery a domicilio”** | `public/images/delivery.jpg` |
+| **Sección “Medicamentos y más”** | `public/images/medicamentos.jpg` |
+
+Ahora la app usa imágenes de respaldo (Unsplash). Cuando tengas tus fotos, súbelas a las rutas de la tabla y en `src/pages/Home.tsx` cambia las URLs de `SLIDES`, `MARCAS` y los `<img>` de las secciones delivery y medicamentos por esas rutas (ej. `image: '/images/carrusel/1.jpg'`).
+
 ## Build
 
 ```bash
