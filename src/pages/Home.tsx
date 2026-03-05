@@ -8,22 +8,37 @@ const SLIDES = [
     title: 'Farmacias de confianza',
     subtitle: 'Red de farmacias en todo el país',
     className: 'slide-farmacia',
-    image: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1200&q=80',
   },
   {
     id: 2,
     title: 'Medicamentos a tu alcance',
     subtitle: 'Todo lo que necesitas en un solo lugar',
     className: 'slide-medicamentos',
-    image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=1200&q=80',
   },
   {
     id: 3,
+    title: 'Delivery a domicilio',
+    subtitle: 'Recibe tus pedidos donde estés',
+    className: 'slide-delivery',
+    image: 'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=1200&q=80',
+  },
+  {
+    id: 4,
     title: 'Marcas y laboratorios',
     subtitle: 'Productos de calidad en Venezuela',
     className: 'slide-laboratorios',
-    image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=1200&q=80',
   },
+]
+
+const MARCAS = [
+  { id: 'la-sante', name: 'La Sante Venezolano', image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&q=80' },
+  { id: 'cofasa', name: 'Cofasa', image: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=400&q=80' },
+  { id: 'biotech', name: 'Biotech', image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=400&q=80' },
+  { id: 'genven', name: 'Genven', image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&q=80' },
+  { id: 'letti', name: 'Letti', image: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=400&q=80' },
 ]
 
 export default function Home() {
@@ -38,17 +53,16 @@ export default function Home() {
 
   return (
     <div className="home">
-      {/* Franja superior para publicidad */}
       <aside className="home-banner">
         <div className="home-banner-inner">
-          <span className="home-banner-label">Publicidad</span>
-          <p>Espacio para tu anuncio · Contáctanos</p>
+          <span className="home-banner-label">Red de farmacias</span>
+          <p>Medicamentos, cuidado personal y delivery a domicilio · Venezuela</p>
         </div>
       </aside>
 
       <div className="home-content">
-        {/* Logo y mensaje principal */}
         <header className="home-hero">
+          <img src="/logo.png" alt="Zas! - Red de farmacias" className="home-logo-img" />
           <h1 className="home-logo">Zas!</h1>
           <p className="home-tagline">
             Deja de estar buscando o ruleteando de farmacia en farmacia para conseguir tus medicamentos.
@@ -58,7 +72,6 @@ export default function Home() {
           </p>
         </header>
 
-        {/* Carrusel de imágenes */}
         <section className="home-carousel-wrap">
           <div
             className="home-carousel"
@@ -91,7 +104,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Acciones principales */}
         <section className="home-actions">
           <Link to="/login" className="btn btn-primary btn-home">
             Iniciar sesión
@@ -101,7 +113,70 @@ export default function Home() {
           </Link>
         </section>
 
-        {/* ¿Tienes farmacia? ¿Quieres ser delivery? */}
+        {/* Marcas con las que trabajamos */}
+        <section className="home-section home-marcas">
+          <h2 className="home-section-title">Marcas que nos respaldan</h2>
+          <p className="home-section-subtitle">
+            Trabajamos con laboratorios y distribuidores de confianza para ofrecerte productos de calidad.
+          </p>
+          <div className="home-marcas-grid">
+            {MARCAS.map((marca) => (
+              <div key={marca.id} className="home-marca-card">
+                <div
+                  className="home-marca-img"
+                  style={{ backgroundImage: `url(${marca.image})` }}
+                />
+                <span className="home-marca-name">{marca.name}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Delivery con foto */}
+        <section className="home-section home-delivery">
+          <div className="home-split">
+            <div className="home-split-media">
+              <img
+                src="https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=800&q=80"
+                alt="Delivery a domicilio"
+              />
+            </div>
+            <div className="home-split-content">
+              <h2 className="home-section-title">Delivery a domicilio</h2>
+              <p>
+                Recibe tus medicamentos y productos de farmacia donde estés. Nuestra red de repartidores
+                te lleva todo con rapidez y cuidado. Pedidos validados por tu farmacia de confianza.
+              </p>
+              <Link to="/registro-delivery" className="btn btn-primary">
+                Quiero ser repartidor
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* Medicamentos y productos con foto */}
+        <section className="home-section home-medicamentos">
+          <div className="home-split home-split-reverse">
+            <div className="home-split-media">
+              <img
+                src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&q=80"
+                alt="Medicamentos y productos de farmacia"
+              />
+            </div>
+            <div className="home-split-content">
+              <h2 className="home-section-title">Medicamentos y más</h2>
+              <p>
+                Catálogo amplio de medicamentos, vitaminas, cuidado personal y productos de farmacia.
+                Busca por nombre, filtra por farmacia y agrega al carrito. Precios en $ y Bs según tasa BCV.
+              </p>
+              <Link to="/login" className="btn btn-primary">
+                Ver catálogo
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* CTAs: farmacia y delivery */}
         <section className="home-ctas">
           <Link to="/login" className="home-cta-card home-cta-farmacia">
             <span className="home-cta-icon">🏥</span>
@@ -119,6 +194,7 @@ export default function Home() {
 
         <footer className="home-footer">
           <p>Comercio de medicamentos farmacéuticos · Venezuela</p>
+          <p className="home-footer-legal">Zas! — Red de farmacias y delivery</p>
         </footer>
       </div>
     </div>

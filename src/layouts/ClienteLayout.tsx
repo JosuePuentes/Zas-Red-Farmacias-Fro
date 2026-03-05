@@ -13,7 +13,10 @@ export default function ClienteLayout() {
   return (
     <div className="layout">
       <header className="layout-header">
-        <h1>Zas!</h1>
+        <div className="layout-header-brand">
+          <img src="/logo.png" alt="Zas!" className="layout-logo" />
+          <h1>Zas!</h1>
+        </div>
         <button type="button" className="btn btn-secondary" onClick={() => { logout(); navigate('/') }}>
           Salir
         </button>

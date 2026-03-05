@@ -18,6 +18,18 @@
   padding-top: calc(0.75rem + var(--safe-top));
 }
 
+.layout-header-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.layout-logo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
 .layout-header h1 {
   margin: 0;
   font-size: 1.25rem;
@@ -54,12 +66,34 @@
   flex: 1;
   padding: 1rem;
   overflow-y: auto;
+  width: 100%;
 }
 
 @media (min-width: 768px) {
   .layout-main {
     max-width: 720px;
     margin: 0 auto;
-    width: 100%;
+    padding: 1.25rem 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .layout-main {
+    max-width: 960px;
+    padding: 1.5rem 2rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .layout-header {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .layout-nav {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    max-width: 960px;
+    margin: 0 auto;
   }
 }
