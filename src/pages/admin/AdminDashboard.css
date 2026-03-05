@@ -1,0 +1,121 @@
+.dashboard-master h2 {
+  margin-bottom: 0.5rem;
+  font-size: 1.25rem;
+}
+
+.dash-m-desc {
+  color: var(--color-text-muted);
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.dash-m-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.dash-m-filtros-label {
+  font-weight: 500;
+  margin-right: 0.25rem;
+}
+
+.dash-m-btn-preset {
+  padding: 0.4rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: var(--color-card);
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: var(--color-text);
+}
+
+.dash-m-btn-preset:hover {
+  background: #f1f5f9;
+}
+
+.dash-m-form-fecha {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.dash-m-form-fecha input[type="date"] {
+  padding: 0.4rem 0.5rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.dash-m-btn-filtrar {
+  padding: 0.4rem 0.75rem;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.dash-m-btn-filtrar:hover {
+  background: var(--color-primary-dark);
+}
+
+.dash-m-loading,
+.dash-m-empty {
+  color: var(--color-text-muted);
+  padding: 1rem 0;
+}
+
+.dash-m-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.dash-m-card {
+  background: var(--color-card);
+  padding: 1rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.dash-m-card-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.dash-m-card-label {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.dash-m-card-ventas .dash-m-card-value {
+  color: var(--color-success);
+}
+
+.dash-m-ver-pedidos {
+  margin-bottom: 1rem;
+}
+
+.dash-m-ver-pedidos .dash-m-link {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background: var(--color-accent-light);
+  color: var(--color-primary-dark);
+  border-radius: 8px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.dash-m-ver-pedidos .dash-m-link:hover {
+  background: #cffafe;
+}

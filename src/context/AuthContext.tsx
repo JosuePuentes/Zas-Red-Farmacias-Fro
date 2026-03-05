@@ -4,6 +4,7 @@ import type { User, UserRole } from '../types'
 interface AuthContextType {
   user: User | null
   login: (email: string, password: string) => Promise<{ user: User } | { error: string }>
+  setAuth: (token: string, user: User) => void
   logout: () => void
   isAuthenticated: boolean
 }
@@ -36,9 +37,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { user: mockUser }
   }, [])
 
+  const setAuth = useCallback((token: string, u: User) => {
+    localStorage.setItem('zas_token', token)
+    const role = (u.role || '').toString().toLowerCase()
+    const emailNorm = (u.email || '').toString().toLowerCase().trim()
+    const normalized = role === 'master' || emailNorm === 'admin@zas.com' ? { ...u, role: 'admin' as UserRole } : u
+    setUser(normalized)
+    localStorage.setItem('zas_user', JSON.stringify(normalized))
+  }, [])
+
   const logout = useCallback(() => {
     setUser(null)
     localStorage.removeItem('zas_user')
+    localStorage.removeItem('zas_token')
   }, [])
 
   return (
@@ -46,6 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         user,
         login,
+        setAuth,
         logout,
         isAuthenticated: !!user,
       }}

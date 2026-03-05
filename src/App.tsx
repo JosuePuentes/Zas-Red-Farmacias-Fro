@@ -6,6 +6,7 @@ import Home from './pages/Home'
 import Login from './pages/Login'
 import RegisterCliente from './pages/RegisterCliente'
 import RegisterDelivery from './pages/RegisterDelivery'
+import RegisterFarmacia from './pages/RegisterFarmacia'
 
 // Portales por rol
 import AdminLayout from './layouts/AdminLayout'
@@ -51,6 +52,7 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<RegisterCliente />} />
         <Route path="/registro-delivery" element={<RegisterDelivery />} />
+        <Route path="/registro-farmacia" element={<RegisterFarmacia />} />
         <Route path="/dashboard" element={<RedirectByRole />} />
 
         <Route

@@ -151,11 +151,11 @@ export default function Home() {
 
         {/* CTAs: farmacia y delivery */}
         <section className="home-ctas">
-          <Link to="/login" className="home-cta-card home-cta-farmacia">
+          <Link to="/registro-farmacia" className="home-cta-card home-cta-farmacia">
             <span className="home-cta-icon">🏥</span>
             <h3>¿Tienes una farmacia?</h3>
-            <p>Únete a nuestra red y llega a más clientes. Forma parte de Zas!</p>
-            <span className="home-cta-link">Más información →</span>
+            <p>Únete a nuestra red y llega a más clientes. Registrarse como farmacia.</p>
+            <span className="home-cta-link">Registrarse como farmacia →</span>
           </Link>
           <Link to="/registro-delivery" className="home-cta-card home-cta-delivery">
             <span className="home-cta-icon">🛵</span>

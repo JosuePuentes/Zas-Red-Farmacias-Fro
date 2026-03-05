@@ -1,14 +1,18 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-// TODO: mostrar total compra + costo delivery (según dirección + GPS), método de pago (pago móvil, transferencia, zelle, binance), subir comprobante, procesar
+import { useCart } from '../../context/CartContext'
+// TODO: costo delivery según dirección + GPS, POST pedido con comprobante
 export default function ClienteCheckout() {
   const [metodo, setMetodo] = useState('')
   const [comprobante, setComprobante] = useState<File | null>(null)
   const navigate = useNavigate()
+  const { totalPrice, clearCart } = useCart()
+  const costoDelivery = 0 // TODO: calcular según dirección
 
   function handleProcesar() {
     if (!metodo || !comprobante) return
     // TODO: POST pedido con comprobante
+    clearCart()
     navigate('/cliente')
   }
 
@@ -16,9 +20,9 @@ export default function ClienteCheckout() {
     <div className="container">
       <h2>Completar compra</h2>
       <div className="card">
-        <p><strong>Subtotal:</strong> $ 0,00</p>
-        <p><strong>Costo delivery:</strong> $ 0,00 (según tu dirección y ubicación)</p>
-        <p><strong>Total:</strong> $ 0,00</p>
+        <p><strong>Subtotal:</strong> $ {totalPrice.toFixed(2)}</p>
+        <p><strong>Costo delivery:</strong> $ {costoDelivery.toFixed(2)} (según tu dirección y ubicación)</p>
+        <p><strong>Total:</strong> $ {(totalPrice + costoDelivery).toFixed(2)}</p>
       </div>
       <div className="card">
         <h3>Método de pago</h3>
