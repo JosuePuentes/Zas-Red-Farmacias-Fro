@@ -1,0 +1,279 @@
+.home {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+}
+
+/* Franja publicidad arriba */
+.home-banner {
+  background: linear-gradient(135deg, var(--color-primary) 0%, #0c636d 100%);
+  color: white;
+  padding: 0.5rem 1rem;
+  padding-top: calc(0.5rem + var(--safe-top));
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.home-banner-inner {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.home-banner-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.9;
+}
+
+.home-banner-inner p {
+  margin: 0.15rem 0 0 0;
+  font-size: 0.85rem;
+  opacity: 0.95;
+}
+
+.home-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem 1rem 2rem;
+  max-width: 480px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Hero: logo y mensaje principal */
+.home-hero {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.home-logo {
+  font-size: 2.75rem;
+  font-weight: 800;
+  color: var(--color-primary);
+  margin: 0 0 0.75rem 0;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.home-tagline {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--color-text);
+  margin: 0 0 0.5rem 0;
+  max-width: 340px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.home-tagline-accent {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-primary-dark);
+  margin: 0;
+}
+
+.home-tagline-accent strong {
+  color: var(--color-primary);
+}
+
+/* Carrusel */
+.home-carousel-wrap {
+  width: 100%;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.home-carousel {
+  display: flex;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.home-slide {
+  min-width: 100%;
+  aspect-ratio: 16 / 10;
+  display: flex;
+  align-items: flex-end;
+  padding: 1.25rem;
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--color-primary);
+}
+
+.home-slide-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.home-slide-text {
+  position: relative;
+  z-index: 1;
+  color: white;
+  text-align: left;
+}
+
+.home-slide-text h2 {
+  margin: 0 0 0.2rem 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.home-slide-text p {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.95;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Fallback si no hay imagen; las imágenes se setean por inline style */
+.slide-farmacia { background-color: #0e7490; }
+.slide-medicamentos { background-color: #059669; }
+.slide-laboratorios { background-color: #b45309; }
+
+.home-carousel-dots {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  z-index: 2;
+}
+
+.home-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.5);
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.home-dot:hover {
+  background: rgba(255,255,255,0.8);
+}
+
+.home-dot.active {
+  background: white;
+  transform: scale(1.2);
+}
+
+/* Botones principales */
+.home-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+.btn-home {
+  width: 100%;
+  justify-content: center;
+  padding: 1rem 1.25rem;
+  font-size: 1rem;
+  border-radius: var(--radius-lg);
+}
+
+/* Cards: farmacia y delivery */
+.home-ctas {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.home-cta-card {
+  display: block;
+  background: var(--color-card);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-soft);
+  text-align: left;
+  text-decoration: none;
+  color: var(--color-text);
+  border: 2px solid transparent;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.home-cta-card:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 6px 24px rgba(14, 116, 144, 0.12);
+}
+
+.home-cta-farmacia {
+  border-left: 4px solid var(--color-primary);
+}
+
+.home-cta-delivery {
+  border-left: 4px solid var(--color-accent);
+}
+
+.home-cta-icon {
+  font-size: 1.75rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.home-cta-card h3 {
+  margin: 0 0 0.35rem 0;
+  font-size: 1.1rem;
+  color: var(--color-primary-dark);
+}
+
+.home-cta-card p {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+
+.home-cta-link {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.home-cta-delivery .home-cta-link {
+  color: var(--color-accent);
+}
+
+/* Footer */
+.home-footer {
+  margin-top: auto;
+  padding-top: 1.5rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.home-footer p {
+  margin: 0;
+}
+
+@media (min-width: 400px) {
+  .home-logo {
+    font-size: 3rem;
+  }
+
+  .home-tagline {
+    font-size: 1.05rem;
+  }
+
+  .home-slide-text h2 {
+    font-size: 1.25rem;
+  }
+}
