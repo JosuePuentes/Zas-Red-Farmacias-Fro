@@ -41,6 +41,19 @@ Este frontend ya está configurado con proxy Vite:
 
 Si el backend corre en otro puerto, crea `.env` con `VITE_API_URL=http://localhost:PUERTO`.
 
+### Despliegue en Vercel (solo frontend)
+
+En Vercel solo se despliega el frontend. Las peticiones a `/api/*` no llegan a ningún backend: `vercel.json` reescribe todo a `index.html`, por eso un POST a `/api/auth/login` devuelve **405 Method Not Allowed**.
+
+**Solución:** en el proyecto de Vercel, configura la variable de entorno:
+
+- **Nombre:** `VITE_API_URL`
+- **Valor:** URL pública del backend (origen, sin `/api`), por ejemplo:
+  - `https://tu-backend.railway.app`
+  - `https://tu-backend.onrender.com`
+
+Vuelve a desplegar para que el build tome la variable. El frontend enviará entonces las peticiones al backend real en lugar de a `/api` del mismo dominio.
+
 ## Sincronizar con el backend
 
 1. En `src/context/AuthContext.tsx`: reemplazar el `login` mock por `POST /api/auth/login` y guardar el usuario (incluido `role`) que devuelva; enviar el token en `Authorization: Bearer <token>` en las peticiones.

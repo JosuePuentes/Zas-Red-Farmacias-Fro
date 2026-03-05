@@ -1,4 +1,7 @@
-const API = '/api'
+// En producción (Vercel) no hay proxy: VITE_API_URL debe apuntar al backend real.
+// En desarrollo, si no hay VITE_API_URL, usamos '/api' y el proxy de Vite lo reenvía.
+const BASE = import.meta.env.VITE_API_URL || ''
+const API = BASE ? `${BASE.replace(/\/$/, '')}/api` : '/api'
 
 function getToken(): string | null {
   return localStorage.getItem('zas_token')
