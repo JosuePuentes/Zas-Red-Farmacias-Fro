@@ -17,14 +17,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   })
 
   const login = useCallback(async (email: string, password: string) => {
-    // TODO: reemplazar por llamada al backend
+    // TODO: reemplazar por llamada al backend; normalizar role igual (master / admin@zas.com → admin)
     // const res = await fetch('/api/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) })
-    // const data = await res.json(); if (data.user) setUser(data.user); return data
+    // const data = await res.json(); if (data.user) setUser(normalizeUser(data.user)); return data
     if (!email || !password) return { error: 'Correo y contraseña requeridos' }
+    let role = (localStorage.getItem('zas_mock_role') as UserRole) || 'cliente'
+    const emailNorm = email.trim().toLowerCase()
+    if (role === 'master' || emailNorm === 'admin@zas.com') role = 'admin'
     const mockUser: User = {
       id: '1',
       email,
-      role: (localStorage.getItem('zas_mock_role') as UserRole) || 'cliente',
+      role,
       nombre: 'Usuario',
       apellido: 'Prueba',
     }

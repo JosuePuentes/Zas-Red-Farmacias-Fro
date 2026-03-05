@@ -18,11 +18,18 @@ export default function Login() {
       setError(result.error)
       return
     }
-    const role = result.user.role
-    if (role === 'admin') navigate('/admin')
-    else if (role === 'farmacia') navigate('/farmacia')
-    else if (role === 'delivery') navigate('/delivery')
-    else navigate('/cliente')
+    const role = (result.user.role || '').toString().toLowerCase()
+    const emailNorm = (result.user.email || email || '').toString().toLowerCase().trim()
+    const esMaster = role === 'master' || role === 'admin' || emailNorm === 'admin@zas.com'
+    if (esMaster) {
+      navigate('/admin', { replace: true })
+    } else if (role === 'farmacia') {
+      navigate('/farmacia', { replace: true })
+    } else if (role === 'delivery') {
+      navigate('/delivery', { replace: true })
+    } else {
+      navigate('/cliente', { replace: true })
+    }
   }
 
   return (

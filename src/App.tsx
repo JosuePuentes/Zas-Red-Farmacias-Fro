@@ -13,12 +13,18 @@ import ClienteLayout from './layouts/ClienteLayout'
 import FarmaciaLayout from './layouts/FarmaciaLayout'
 import DeliveryLayout from './layouts/DeliveryLayout'
 
+function isMasterUser(user: { role?: string; email?: string } | null): boolean {
+  if (!user) return false
+  const role = (user.role || '').toString().toLowerCase()
+  const emailNorm = (user.email || '').toString().toLowerCase().trim()
+  return role === 'master' || role === 'admin' || emailNorm === 'admin@zas.com'
+}
+
 function RedirectByRole() {
   const { user } = useAuth()
   if (!user) return <Navigate to="/" replace />
+  if (isMasterUser(user)) return <Navigate to="/admin" replace />
   switch (user.role) {
-    case 'admin':
-      return <Navigate to="/admin" replace />
     case 'farmacia':
       return <Navigate to="/farmacia" replace />
     case 'delivery':
@@ -32,7 +38,8 @@ function RedirectByRole() {
 function ProtectedRoute({ children, roles }: { children: React.ReactNode; roles: string[] }) {
   const { user, isAuthenticated } = useAuth()
   if (!isAuthenticated || !user) return <Navigate to="/" replace />
-  if (!roles.includes(user.role)) return <Navigate to="/" replace />
+  const allowed = roles.includes(user.role) || (roles.includes('admin') && isMasterUser(user))
+  if (!allowed) return <Navigate to="/" replace />
   return <>{children}</>
 }
 

@@ -1,6 +1,6 @@
 // Tipos para sincronizar con el backend cuando esté listo
 
-export type UserRole = 'admin' | 'cliente' | 'farmacia' | 'delivery'
+export type UserRole = 'admin' | 'cliente' | 'farmacia' | 'delivery' | 'master'
 
 export interface User {
   id: string
