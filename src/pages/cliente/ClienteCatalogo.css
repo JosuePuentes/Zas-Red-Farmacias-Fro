@@ -47,6 +47,18 @@
   color: var(--color-primary);
 }
 
+.cliente-catalogo-info .product-precio-original {
+  display: inline-block;
+  margin-right: 0.5rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}
+
+.cliente-catalogo-info .product-precio-descuento {
+  display: inline-block;
+}
+
 .cliente-catalogo-actions {
   width: 100%;
   margin-top: 0.5rem;

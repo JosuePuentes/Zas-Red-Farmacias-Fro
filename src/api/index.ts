@@ -20,6 +20,8 @@ export async function request<T = unknown>(endpoint: string, options: RequestIni
   return data as T
 }
 
+// ===================== AUTENTICACIÓN =====================
+
 export const authApi = {
   loginWithStatus: async (email: string, password: string) => {
     const res = await fetch(`${API}/auth/login`, {
@@ -28,6 +30,22 @@ export const authApi = {
       body: JSON.stringify({ email, password }),
     })
     const data = await res.json().catch(() => ({})) as { token?: string; user?: unknown; error?: string; message?: string; code?: string }
+    return { ok: res.ok, status: res.status, data }
+  },
+  registerCliente: async (body: {
+    cedula: string
+    nombre: string
+    apellido: string
+    direccion: string
+    email: string
+    password: string
+  }) => {
+    const res = await fetch(`${API}/auth/register-cliente`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+    const data = await res.json().catch(() => ({})) as { token?: string; user?: unknown; error?: string; message?: string }
     return { ok: res.ok, status: res.status, data }
   },
 }
@@ -44,6 +62,8 @@ export const solicitudFarmaciaApi = {
     estadoUbicacion?: string
   }) => request('/solicitud-farmacia', { method: 'POST', body: JSON.stringify(body) }),
 }
+
+// ===================== TIPOS MASTER =====================
 
 export interface SolicitudFarmacia {
   _id: string
@@ -82,9 +102,45 @@ export interface UsuarioMaster {
   email: string
   role: string
   nombre?: string
+  apellido?: string
+  cedula?: string
+  direccion?: string
+  telefono?: string
   farmaciaId?: { nombreFarmacia?: string }
 }
 
+export interface FarmaciaMaster {
+  _id: string
+  nombreFarmacia: string
+  rif: string
+  direccion: string
+  telefono: string
+  email?: string
+  estado?: string
+}
+
+export interface DeliveryMaster {
+  _id: string
+  email: string
+  nombre?: string
+  apellido?: string
+  cedula?: string
+  telefono?: string
+}
+
+export interface SolicitudDeliveryMaster {
+  _id: string
+  tipoVehiculo: string
+  cedula: string
+  nombresCompletos: string
+  direccion: string
+  telefono: string
+  correo: string
+  numeroLicencia: string
+  estado: string
+}
+
+// ===================== API MASTER =====================
 export const masterApi = {
   estadisticas: (params?: { fechaDesde?: string; fechaHasta?: string }) => {
     const search = new URLSearchParams()
@@ -104,4 +160,43 @@ export const masterApi = {
   solicitudesFarmacia: () => request<SolicitudFarmacia[]>('/master/solicitudes-farmacia'),
   aprobarFarmacia: (id: string) => request(`/master/solicitudes-farmacia/${id}/aprobar`, { method: 'POST' }),
   denegarFarmacia: (id: string) => request(`/master/solicitudes-farmacia/${id}/denegar`, { method: 'POST' }),
+  farmacias: () => request<FarmaciaMaster[]>('/master/farmacias'),
+  delivery: () => request<DeliveryMaster[]>('/master/delivery'),
+  solicitudesDelivery: () => request<SolicitudDeliveryMaster[]>('/master/solicitudes-delivery'),
+}
+
+// ===================== API FARMACIA / CLIENTE (PRODUCTOS) =====================
+
+// Nota: estos tipos deben estar alineados con el backend
+export interface ProductoApi {
+  id: string
+  codigo: string
+  descripcion: string
+  principioActivo: string
+  presentacion: string
+  marca: string
+  precio: number
+  descuentoPorcentaje?: number
+  precioConPorcentaje?: number
+  imagen?: string
+  farmaciaId: string
+  existencia?: number
+}
+
+export interface ActualizarDescuentoItem {
+  id: string
+  descuentoPorcentaje: number
+}
+
+export const farmaciaApi = {
+  inventario: () => request<ProductoApi[]>('/farmacia/inventario'),
+  actualizarDescuentos: (items: ActualizarDescuentoItem[]) =>
+    request<{ ok: boolean; updated?: number; message?: string }>('/farmacia/inventario/descuentos', {
+      method: 'PATCH',
+      body: JSON.stringify(items),
+    }),
+}
+
+export const clienteApi = {
+  catalogo: () => request<ProductoApi[]>('/cliente/catalogo'),
 }

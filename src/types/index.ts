@@ -33,6 +33,7 @@ export interface Producto {
   presentacion: string
   marca: string
   precio: number
+  descuentoPorcentaje?: number
   precioConPorcentaje?: number
   imagen?: string
   farmaciaId: string
