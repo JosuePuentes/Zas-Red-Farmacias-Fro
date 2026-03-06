@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Routes, Route, NavLink, useNavigate } from 'react-router-dom'
+import { Routes, Route, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { CartProvider, useCart } from '../context/CartContext'
 import ClienteCatalogo from '../pages/cliente/ClienteCatalogo'
@@ -16,9 +16,12 @@ function ClienteLayoutInner() {
   const { user, logout } = useAuth()
   const { totalItems, setOpenCart } = useCart()
   const navigate = useNavigate()
+  const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const nombre = user?.nombre && user?.apellido ? `${user.nombre} ${user.apellido}` : user?.email?.split('@')[0] || 'Cliente'
+
+  const isOn = (path: string) => location.pathname === path || location.pathname === `${path}/`
 
   return (
     <div className="layout cliente-layout">
@@ -26,12 +29,22 @@ function ClienteLayoutInner() {
         <button type="button" className="cliente-menu-btn" onClick={() => setSidebarOpen((o) => !o)} aria-label="Menú">
           ☰
         </button>
-        <div className="layout-header-brand">
-          <img src="/logo.png" alt="Zas!" className="layout-logo" />
-          <h1>Zas!</h1>
+        <div className="cliente-header-center">
+          <img src="/logo.png" alt="Zas!" className="cliente-header-logo" />
+          <span className="cliente-header-title">Zas!</span>
         </div>
-        <button type="button" className="btn btn-secondary" onClick={() => { logout(); navigate('/') }}>
-          Salir
+        <button
+          type="button"
+          className="cliente-header-cart"
+          onClick={() => setOpenCart(true)}
+          aria-label="Ver carrito"
+        >
+          <span className="cliente-header-cart-icon">🛒</span>
+          {totalItems > 0 && (
+            <span className="cliente-header-cart-badge">
+              {totalItems > 99 ? '99+' : totalItems}
+            </span>
+          )}
         </button>
       </header>
 
@@ -66,19 +79,50 @@ function ClienteLayoutInner() {
         </Routes>
         </main>
       </div>
-
-      <button
-        type="button"
-        className="cliente-cart-fab"
-        onClick={() => setOpenCart(true)}
-        aria-label="Ver carrito"
-        title="Ver carrito"
-      >
-        <span className="cliente-cart-fab-icon">🛒</span>
-        {totalItems > 0 && <span className="cliente-cart-fab-badge">{totalItems > 99 ? '99+' : totalItems}</span>}
-      </button>
-
       <CartModal />
+
+      <nav className="cliente-bottom-nav" aria-label="Navegación principal cliente">
+        <button
+          type="button"
+          className={`cliente-bottom-item ${isOn('/cliente') ? 'active' : ''}`}
+          onClick={() => navigate('/cliente')}
+        >
+          <span className="cliente-bottom-icon">🏠</span>
+          <span className="cliente-bottom-label">Inicio</span>
+        </button>
+        <button
+          type="button"
+          className={`cliente-bottom-item ${location.search.includes('promos=1') ? 'active' : ''}`}
+          onClick={() => navigate('/cliente?promos=1')}
+        >
+          <span className="cliente-bottom-icon">%</span>
+          <span className="cliente-bottom-label">Promos</span>
+        </button>
+        <button
+          type="button"
+          className="cliente-bottom-search"
+          onClick={() => navigate('/cliente')}
+          aria-label="Buscar productos"
+        >
+          <span className="cliente-bottom-search-icon">🔍</span>
+        </button>
+        <button
+          type="button"
+          className={`cliente-bottom-item ${isOn('/cliente/mis-pedidos') ? 'active' : ''}`}
+          onClick={() => navigate('/cliente/mis-pedidos')}
+        >
+          <span className="cliente-bottom-icon">📦</span>
+          <span className="cliente-bottom-label">Pedidos</span>
+        </button>
+        <button
+          type="button"
+          className={`cliente-bottom-item ${isOn('/cliente/mi-cuenta') ? 'active' : ''}`}
+          onClick={() => navigate('/cliente/mi-cuenta')}
+        >
+          <span className="cliente-bottom-icon">👤</span>
+          <span className="cliente-bottom-label">Perfil</span>
+        </button>
+      </nav>
     </div>
   )
 }
