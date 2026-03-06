@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
 import type { Producto } from '../../types'
 import { clienteApi } from '../../api'
@@ -75,8 +76,9 @@ function getCategoriaProducto(p: Producto): DepartamentoZas | 'Otros' {
 export default function ClienteCatalogo() {
   const [busqueda, setBusqueda] = useState('')
   const [estado, setEstado] = useState('')
-  const [soloPromos, setSoloPromos] = useState(false)
-  const [soloNuevos, setSoloNuevos] = useState(false)
+  const [searchParams] = useSearchParams()
+  const buscarParam = searchParams.get('buscar') === '1'
+  const searchInputRef = useRef<HTMLInputElement | null>(null)
   const { addItem } = useCart()
 
   const [productos, setProductos] = useState<Producto[]>([])
@@ -117,6 +119,12 @@ export default function ClienteCatalogo() {
   const getCant = (id: string) => cantidades[id] ?? 1
   const setCant = (id: string, value: number) => setCantidades((c) => ({ ...c, [id]: Math.max(1, value) }))
 
+  useEffect(() => {
+    if (buscarParam && searchInputRef.current) {
+      searchInputRef.current.focus()
+    }
+  }, [buscarParam])
+
   const productosFiltrados = productos.filter((p) => {
     const q = busqueda.trim().toLowerCase()
     if (
@@ -126,10 +134,6 @@ export default function ClienteCatalogo() {
     ) {
       return false
     }
-    if (soloPromos && getDescuentoPorcentaje(p) <= 0) return false
-    // Nota: 'estado' y 'soloNuevos' requieren que el backend envíe información adicional (estado de la farmacia, flag de nuevo).
-    // De momento solo se muestra el filtro de estado a nivel de UI.
-    if (soloNuevos && !(p as any).esNuevo) return false
     return true
   })
 
@@ -140,51 +144,35 @@ export default function ClienteCatalogo() {
 
   return (
     <div className="cliente-catalogo container">
+      <div className="cliente-catalogo-location">
+        <span className="cliente-catalogo-location-label">Ubicación</span>
+        <select
+          value={estado}
+          onChange={(e) => setEstado(e.target.value)}
+        >
+          <option value="">Todo el país</option>
+          {ESTADOS_VENEZUELA.map((e) => (
+            <option key={e} value={e}>
+              {e}
+            </option>
+          ))}
+        </select>
+      </div>
       <p className="cliente-catalogo-hint badge badge-info">
         Los productos del mismo color están en el mismo comercio.
       </p>
-      <div className="cliente-catalogo-filtros-row">
-        <div className="form-group cliente-catalogo-search">
+      {buscarParam && (
+        <div className="cliente-catalogo-search-bar">
           <input
+            ref={searchInputRef}
             type="search"
-            placeholder="Buscar productos..."
+            placeholder="Buscar medicamentos, vitaminas, cuidado personal..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
             className="search-input"
           />
         </div>
-        <div className="cliente-catalogo-filtros-right">
-          <div className="form-group cliente-catalogo-estado">
-            <label>Estado</label>
-            <select value={estado} onChange={(e) => setEstado(e.target.value)}>
-              <option value="">Todos</option>
-              {ESTADOS_VENEZUELA.map((e) => (
-                <option key={e} value={e}>
-                  {e}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="cliente-catalogo-extra-filtros">
-            <label className="cliente-catalogo-checkbox">
-              <input
-                type="checkbox"
-                checked={soloPromos}
-                onChange={(ev) => setSoloPromos(ev.target.checked)}
-              />
-              Productos en promoción
-            </label>
-            <label className="cliente-catalogo-checkbox">
-              <input
-                type="checkbox"
-                checked={soloNuevos}
-                onChange={(ev) => setSoloNuevos(ev.target.checked)}
-              />
-              Productos nuevos
-            </label>
-          </div>
-        </div>
-      </div>
+      )}
       {loading && productosFiltrados.length === 0 && (
         <p className="cliente-catalogo-empty">Cargando catálogo...</p>
       )}

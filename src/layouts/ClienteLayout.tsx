@@ -95,13 +95,13 @@ function ClienteLayoutInner() {
           className={`cliente-bottom-item ${location.search.includes('promos=1') ? 'active' : ''}`}
           onClick={() => navigate('/cliente?promos=1')}
         >
-          <span className="cliente-bottom-icon">%</span>
+          <span className="cliente-bottom-icon">🏷️</span>
           <span className="cliente-bottom-label">Promos</span>
         </button>
         <button
           type="button"
           className="cliente-bottom-search"
-          onClick={() => navigate('/cliente')}
+          onClick={() => navigate('/cliente?buscar=1')}
           aria-label="Buscar productos"
         >
           <span className="cliente-bottom-search-icon">🔍</span>
