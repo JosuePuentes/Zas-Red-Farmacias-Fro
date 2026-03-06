@@ -67,7 +67,9 @@
 }
 
 .cliente-header-cart-icon {
-  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .cliente-header-cart-badge {
@@ -345,7 +347,15 @@
 }
 
 .cliente-bottom-icon {
-  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cliente-icon {
+  width: 22px;
+  height: 22px;
+  stroke-width: 1.6;
 }
 
 .cliente-bottom-item.active {

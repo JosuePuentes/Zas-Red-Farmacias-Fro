@@ -12,6 +12,135 @@ import CartModal from '../components/CartModal'
 import './Layout.css'
 import './ClienteLayout.css'
 
+function IconCart() {
+  return (
+    <svg className="cliente-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M3 4h2l2 13h11l2-9H7"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="10" cy="20" r="1.4" fill="none" stroke="currentColor" strokeWidth="1.6" />
+      <circle cx="18" cy="20" r="1.4" fill="none" stroke="currentColor" strokeWidth="1.6" />
+    </svg>
+  )
+}
+
+function IconHome() {
+  return (
+    <svg className="cliente-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M4 11.5 12 4l8 7.5V20a1.5 1.5 0 0 1-1.5 1.5H5.5A1.5 1.5 0 0 1 4 20v-8.5Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M10 21.5V14h4v7.5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
+function IconTag() {
+  return (
+    <svg className="cliente-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M4 11.5 11.5 4H19v7.5L11.5 19 4 11.5Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="16" cy="8" r="1.2" fill="none" stroke="currentColor" strokeWidth="1.4" />
+    </svg>
+  )
+}
+
+function IconSearch() {
+  return (
+    <svg className="cliente-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <circle
+        cx="11"
+        cy="11"
+        r="5.5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+      />
+      <path
+        d="m15.5 15.5 3.5 3.5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
+function IconBox() {
+  return (
+    <svg className="cliente-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M4 8.5 12 4l8 4.5-8 4.5L4 8.5Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M4 8.5v7L12 20l8-4.5v-7"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="m12 4v9"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
+function IconUser() {
+  return (
+    <svg className="cliente-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <circle
+        cx="12"
+        cy="9"
+        r="3"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+      />
+      <path
+        d="M6 19.5c1.5-2 3.2-3 6-3s4.5 1 6 3"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
 function ClienteLayoutInner() {
   const { user, logout } = useAuth()
   const { totalItems, setOpenCart } = useCart()
@@ -39,7 +168,9 @@ function ClienteLayoutInner() {
           onClick={() => setOpenCart(true)}
           aria-label="Ver carrito"
         >
-          <span className="cliente-header-cart-icon">🛒</span>
+          <span className="cliente-header-cart-icon">
+            <IconCart />
+          </span>
           {totalItems > 0 && (
             <span className="cliente-header-cart-badge">
               {totalItems > 99 ? '99+' : totalItems}
@@ -87,7 +218,9 @@ function ClienteLayoutInner() {
           className={`cliente-bottom-item ${isOn('/cliente') ? 'active' : ''}`}
           onClick={() => navigate('/cliente')}
         >
-          <span className="cliente-bottom-icon">🏠</span>
+          <span className="cliente-bottom-icon">
+            <IconHome />
+          </span>
           <span className="cliente-bottom-label">Inicio</span>
         </button>
         <button
@@ -95,7 +228,9 @@ function ClienteLayoutInner() {
           className={`cliente-bottom-item ${location.search.includes('promos=1') ? 'active' : ''}`}
           onClick={() => navigate('/cliente?promos=1')}
         >
-          <span className="cliente-bottom-icon">🏷️</span>
+          <span className="cliente-bottom-icon">
+            <IconTag />
+          </span>
           <span className="cliente-bottom-label">Promos</span>
         </button>
         <button
@@ -104,14 +239,18 @@ function ClienteLayoutInner() {
           onClick={() => navigate('/cliente?buscar=1')}
           aria-label="Buscar productos"
         >
-          <span className="cliente-bottom-search-icon">🔍</span>
+          <span className="cliente-bottom-search-icon">
+            <IconSearch />
+          </span>
         </button>
         <button
           type="button"
           className={`cliente-bottom-item ${isOn('/cliente/mis-pedidos') ? 'active' : ''}`}
           onClick={() => navigate('/cliente/mis-pedidos')}
         >
-          <span className="cliente-bottom-icon">📦</span>
+          <span className="cliente-bottom-icon">
+            <IconBox />
+          </span>
           <span className="cliente-bottom-label">Pedidos</span>
         </button>
         <button
@@ -119,7 +258,9 @@ function ClienteLayoutInner() {
           className={`cliente-bottom-item ${isOn('/cliente/mi-cuenta') ? 'active' : ''}`}
           onClick={() => navigate('/cliente/mi-cuenta')}
         >
-          <span className="cliente-bottom-icon">👤</span>
+          <span className="cliente-bottom-icon">
+            <IconUser />
+          </span>
           <span className="cliente-bottom-label">Perfil</span>
         </button>
       </nav>
