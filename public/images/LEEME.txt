@@ -1,0 +1,10 @@
+INSTRUCCIONES PARA LAS IMÁGENES DEL HOME
+
+Coloca aquí (en esta carpeta public/images/) los siguientes archivos PNG con EXACTAMENTE estos nombres:
+
+1. zas-farmacias.png   → Slide "Farmacias de confianza" (collage de sucursales Zas)
+2. zas-app.png        → Slide "Medicamentos a tu alcance" (mockup de la app en teléfono)
+3. zas-delivery.png   → Slide "Delivery a domicilio" + sección Delivery (repartidor Zas)
+4. zas-labs.png       → Slide "Marcas y laboratorios" (logos Genven, Grupo Leti, etc.)
+
+Si falta algún archivo, la imagen no se mostrará. Asegúrate de que los nombres sean exactos (minúsculas, guiones).

@@ -22,14 +22,14 @@ const SLIDES = [
     title: 'Delivery a domicilio',
     subtitle: 'Recibe tus pedidos donde estés',
     className: 'slide-delivery',
-    image: 'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=1200&q=80',
+    image: '/images/zas-delivery.png',
   },
   {
     id: 4,
     title: 'Marcas y laboratorios',
     subtitle: 'Productos de calidad en Venezuela',
     className: 'slide-laboratorios',
-    image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=1200&q=80',
+    image: '/images/zas-labs.png',
   },
 ]
 
