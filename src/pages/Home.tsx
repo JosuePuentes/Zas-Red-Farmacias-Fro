@@ -35,11 +35,36 @@ const SLIDES = [
 
 // Logos de laboratorios y marcas aliadas (cargar imágenes en /public/logos)
 const MARCAS = [
-  { id: 'grupo-leti', name: 'Grupo LETI', image: '/logos/grupo-leti.png' },
-  { id: 'genven', name: 'Genven · Grupo LETI', image: '/logos/genven.png' },
-  { id: 'biotech', name: 'Biotech', image: '/logos/biotech.png' },
-  { id: 'cofasa', name: 'Cofasa', image: '/logos/cofasa.png' },
-  { id: 'la-sante', name: 'La Santé', image: '/logos/la-sante.png' },
+  {
+    id: 'grupo-leti',
+    name: 'Grupo LETI',
+    image: '/logos/grupo-leti.png',
+    url: 'https://grupoleti.com/',
+  },
+  {
+    id: 'genven',
+    name: 'Genven · Grupo LETI',
+    image: '/logos/genven.png',
+    url: 'https://grupoleti.com/genven',
+  },
+  {
+    id: 'biotech',
+    name: 'Biotech',
+    image: '/logos/biotech.png',
+    url: 'https://www.biotech.com.ve/',
+  },
+  {
+    id: 'cofasa',
+    name: 'Cofasa',
+    image: '/logos/cofasa.png',
+    url: 'https://laboratoriocofasa.com/inicio/',
+  },
+  {
+    id: 'la-sante',
+    name: 'La Santé',
+    image: '/logos/la-sante.png',
+    url: 'https://www.pharmetiquelabs.com.ve/lasante/',
+  },
 ]
 
 export default function Home() {
@@ -119,13 +144,19 @@ export default function Home() {
           </p>
           <div className="home-marcas-grid">
             {MARCAS.map((marca) => (
-              <div key={marca.id} className="home-marca-card">
+              <a
+                key={marca.id}
+                className="home-marca-card"
+                href={marca.url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <div
                   className="home-marca-img"
                   style={{ backgroundImage: `url(${marca.image})` }}
                 />
                 <span className="home-marca-name">{marca.name}</span>
-              </div>
+              </a>
             ))}
           </div>
         </section>
