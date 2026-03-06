@@ -3,18 +3,43 @@ import { Link } from 'react-router-dom'
 import './Home.css'
 
 const SLIDES = [
-  { id: 1, title: 'Farmacias de confianza', subtitle: 'Red de farmacias en todo el país', className: 'slide-farmacia', image: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1200&q=80' },
-  { id: 2, title: 'Medicamentos a tu alcance', subtitle: 'Todo lo que necesitas en un solo lugar', className: 'slide-medicamentos', image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=1200&q=80' },
-  { id: 3, title: 'Delivery a domicilio', subtitle: 'Recibe tus pedidos donde estés', className: 'slide-delivery', image: 'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=1200&q=80' },
-  { id: 4, title: 'Marcas y laboratorios', subtitle: 'Productos de calidad en Venezuela', className: 'slide-laboratorios', image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=1200&q=80' },
+  {
+    id: 1,
+    title: 'Farmacias de confianza',
+    subtitle: 'Red nacional de farmacias y delivery',
+    className: 'slide-farmacia',
+    image: '/images/zas-farmacias.png',
+  },
+  {
+    id: 2,
+    title: 'Medicamentos a tu alcance',
+    subtitle: 'Todo lo que necesitas en un solo lugar',
+    className: 'slide-medicamentos',
+    image: '/images/zas-app.png',
+  },
+  {
+    id: 3,
+    title: 'Delivery a domicilio',
+    subtitle: 'Recibe tus pedidos donde estés',
+    className: 'slide-delivery',
+    image: 'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=1200&q=80',
+  },
+  {
+    id: 4,
+    title: 'Marcas y laboratorios',
+    subtitle: 'Productos de calidad en Venezuela',
+    className: 'slide-laboratorios',
+    image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=1200&q=80',
+  },
 ]
 
+// Logos de laboratorios y marcas aliadas (cargar imágenes en /public/logos)
 const MARCAS = [
-  { id: 'la-sante', name: 'La Sante', image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&q=80' },
-  { id: 'cofasa', name: 'Cofasa', image: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=400&q=80' },
-  { id: 'biotech', name: 'Biotech', image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=400&q=80' },
-  { id: 'genven', name: 'Genven', image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&q=80' },
-  { id: 'letti', name: 'Letti', image: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=400&q=80' },
+  { id: 'grupo-leti', name: 'Grupo LETI', image: '/logos/grupo-leti.png' },
+  { id: 'genven', name: 'Genven · Grupo LETI', image: '/logos/genven.png' },
+  { id: 'biotech', name: 'Biotech', image: '/logos/biotech.png' },
+  { id: 'cofasa', name: 'Cofasa', image: '/logos/cofasa.png' },
+  { id: 'la-sante', name: 'La Santé', image: '/logos/la-sante.png' },
 ]
 
 export default function Home() {
@@ -110,8 +135,8 @@ export default function Home() {
           <div className="home-split">
             <div className="home-split-media">
               <img
-                src="https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=800&q=80"
-                alt="Delivery a domicilio"
+                src="/images/zas-delivery.png"
+                alt="Delivery de medicamentos Zas!"
               />
             </div>
             <div className="home-split-content">

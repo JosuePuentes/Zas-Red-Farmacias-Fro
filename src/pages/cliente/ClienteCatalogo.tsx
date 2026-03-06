@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { useCart } from '../../context/CartContext'
 import type { Producto } from '../../types'
 import { clienteApi } from '../../api'
+import { ESTADOS_VENEZUELA } from '../../constants/estados'
+import { DEPARTAMENTOS_ZAS, type DepartamentoZas } from '../../constants/departamentos'
 import './ClienteCatalogo.css'
 
 const MOCK_PRODUCTOS: Producto[] = [
@@ -58,9 +60,23 @@ function getDescuentoPorcentaje(p: Producto) {
   return 0
 }
 
+function getCategoriaProducto(p: Producto): DepartamentoZas | 'Otros' {
+  if (p.categoria && DEPARTAMENTOS_ZAS.includes(p.categoria as DepartamentoZas)) {
+    return p.categoria as DepartamentoZas
+  }
+  const desc = `${p.descripcion} ${p.principioActivo}`.toLowerCase()
+  if (desc.includes('ibuprof') || desc.includes('paracetam')) return 'Analgésicos y Antipiréticos'
+  if (desc.includes('antibiót') || desc.includes('amoxic') || desc.includes('ciproflox')) return 'Antibióticos'
+  if (desc.includes('vitamina') || desc.includes('suplemento')) return 'Vitaminas y Suplementos'
+  if (desc.includes('gel') || desc.includes('shampoo') || desc.includes('jabón')) return 'Cuidado Personal'
+  return 'Otros'
+}
+
 export default function ClienteCatalogo() {
   const [busqueda, setBusqueda] = useState('')
   const [estado, setEstado] = useState('')
+  const [soloPromos, setSoloPromos] = useState(false)
+  const [soloNuevos, setSoloNuevos] = useState(false)
   const { addItem } = useCart()
 
   const [productos, setProductos] = useState<Producto[]>([])
@@ -101,104 +117,141 @@ export default function ClienteCatalogo() {
   const getCant = (id: string) => cantidades[id] ?? 1
   const setCant = (id: string, value: number) => setCantidades((c) => ({ ...c, [id]: Math.max(1, value) }))
 
-  const productosFiltrados = productos.filter(
-    (p) =>
-      !busqueda.trim() ||
-      p.descripcion.toLowerCase().includes(busqueda.toLowerCase()) ||
-      p.codigo.toLowerCase().includes(busqueda.toLowerCase())
-  )
+  const productosFiltrados = productos.filter((p) => {
+    const q = busqueda.trim().toLowerCase()
+    if (
+      q &&
+      !p.descripcion.toLowerCase().includes(q) &&
+      !p.codigo.toLowerCase().includes(q)
+    ) {
+      return false
+    }
+    if (soloPromos && getDescuentoPorcentaje(p) <= 0) return false
+    // Nota: 'estado' y 'soloNuevos' requieren que el backend envíe información adicional (estado de la farmacia, flag de nuevo).
+    // De momento solo se muestra el filtro de estado a nivel de UI.
+    if (soloNuevos && !(p as any).esNuevo) return false
+    return true
+  })
+
+  const secciones = DEPARTAMENTOS_ZAS.map((dep) => ({
+    nombre: dep,
+    productos: productosFiltrados.filter((p) => getCategoriaProducto(p) === dep),
+  })).filter((s) => s.productos.length > 0)
 
   return (
     <div className="cliente-catalogo container">
       <p className="cliente-catalogo-hint badge badge-info">
         Los productos del mismo color están en el mismo comercio.
       </p>
-      <div className="form-group">
-        <input
-          type="search"
-          placeholder="Buscar productos..."
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-          className="search-input"
-        />
+      <div className="cliente-catalogo-filtros-row">
+        <div className="form-group cliente-catalogo-search">
+          <input
+            type="search"
+            placeholder="Buscar productos..."
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            className="search-input"
+          />
+        </div>
+        <div className="cliente-catalogo-filtros-right">
+          <div className="form-group cliente-catalogo-estado">
+            <label>Estado</label>
+            <select value={estado} onChange={(e) => setEstado(e.target.value)}>
+              <option value="">Todos</option>
+              {ESTADOS_VENEZUELA.map((e) => (
+                <option key={e} value={e}>
+                  {e}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="cliente-catalogo-extra-filtros">
+            <label className="cliente-catalogo-checkbox">
+              <input
+                type="checkbox"
+                checked={soloPromos}
+                onChange={(ev) => setSoloPromos(ev.target.checked)}
+              />
+              Productos en promoción
+            </label>
+            <label className="cliente-catalogo-checkbox">
+              <input
+                type="checkbox"
+                checked={soloNuevos}
+                onChange={(ev) => setSoloNuevos(ev.target.checked)}
+              />
+              Productos nuevos
+            </label>
+          </div>
+        </div>
       </div>
-      <div className="form-group">
-        <label>Filtrar por estado</label>
-        <select value={estado} onChange={(e) => setEstado(e.target.value)}>
-          <option value="">Todos</option>
-          <option value="miranda">Miranda</option>
-          <option value="caracas">Distrito Capital</option>
-          <option value="zulia">Zulia</option>
-        </select>
-      </div>
-      <ul className="cliente-catalogo-list">
-        {loading && productosFiltrados.length === 0 && (
-          <li className="cliente-catalogo-item card">
-            <div className="cliente-catalogo-info">
-              <p>Cargando catálogo...</p>
-            </div>
-          </li>
-        )}
-        {error && (
-          <li className="cliente-catalogo-item card">
-            <div className="cliente-catalogo-info">
-              <p className="cliente-catalogo-empty">{error}</p>
-            </div>
-          </li>
-        )}
-        {productosFiltrados.map((p) => {
-          const precioBase = getPrecioBase(p)
-          const precioConDescuento = getPrecioConDescuento(p)
-          const descuento = getDescuentoPorcentaje(p)
-          const tieneDescuento = descuento > 0 && precioConDescuento < precioBase
-
-          return (
-            <li key={p.id} className="cliente-catalogo-item card product-same-store">
-              <div className="product-photo">Foto</div>
-              <div className="cliente-catalogo-info">
-                <span className="product-codigo">{p.codigo}</span>
-                <p className="product-desc">
-                  {p.descripcion} · {p.presentacion}
-                </p>
-                <p className="product-desc product-marca">{p.marca}</p>
-                <p className="product-precio">
-                  {tieneDescuento ? (
-                    <>
-                      <span className="product-precio-original">$ {precioBase.toFixed(2)}</span>
-                      <span className="product-precio-descuento">
-                        {descuento}% OFF · $ {precioConDescuento.toFixed(2)}
-                      </span>
-                    </>
-                  ) : (
-                    <>$ {precioBase.toFixed(2)}</>
-                  )}
-                </p>
-              </div>
-              <div className="cliente-catalogo-actions">
-                <label className="cliente-catalogo-qty-label">Cantidad</label>
-                <div className="cliente-catalogo-qty">
-                  <input
-                    type="number"
-                    min={1}
-                    value={getCant(p.id)}
-                    onChange={(e) => setCant(p.id, parseInt(e.target.value, 10) || 1)}
-                  />
-                  <button
-                    type="button"
-                    className="btn btn-primary btn-sm"
-                    onClick={() => addItem(p, getCant(p.id), p.farmaciaId)}
-                  >
-                    Agregar al carrito
-                  </button>
-                </div>
-              </div>
-            </li>
-          )
-        })}
-      </ul>
-      {!loading && productosFiltrados.length === 0 && (
+      {loading && productosFiltrados.length === 0 && (
+        <p className="cliente-catalogo-empty">Cargando catálogo...</p>
+      )}
+      {error && (
+        <p className="cliente-catalogo-empty">{error}</p>
+      )}
+      {!loading && secciones.length === 0 && (
         <p className="cliente-catalogo-empty">No hay productos que coincidan con la búsqueda.</p>
       )}
+      {secciones.map((sec) => (
+        <section key={sec.nombre} className="cliente-catalogo-section">
+          <div className="cliente-catalogo-section-header">
+            <h3>{sec.nombre}</h3>
+          </div>
+          <div className="cliente-catalogo-section-list">
+            {sec.productos.map((p) => {
+              const precioBase = getPrecioBase(p)
+              const precioConDescuento = getPrecioConDescuento(p)
+              const descuento = getDescuentoPorcentaje(p)
+              const tieneDescuento = descuento > 0 && precioConDescuento < precioBase
+
+              return (
+                <article key={p.id} className="cliente-catalogo-card card product-same-store">
+                  <div className="product-photo">Foto</div>
+                  <div className="cliente-catalogo-info">
+                    <span className="product-codigo">{p.codigo}</span>
+                    <p className="product-desc">
+                      {p.descripcion} · {p.presentacion}
+                    </p>
+                    <p className="product-desc product-marca">{p.marca}</p>
+                    <p className="product-precio">
+                      {tieneDescuento ? (
+                        <>
+                          <span className="product-precio-original">$ {precioBase.toFixed(2)}</span>
+                          <span className="product-precio-descuento">
+                            {descuento}% OFF · $ {precioConDescuento.toFixed(2)}
+                          </span>
+                        </>
+                      ) : (
+                        <>$ {precioBase.toFixed(2)}</>
+                      )}
+                    </p>
+                  </div>
+                  <div className="cliente-catalogo-actions">
+                    <label className="cliente-catalogo-qty-label">Cantidad</label>
+                    <div className="cliente-catalogo-qty">
+                      <input
+                        type="number"
+                        min={1}
+                        value={getCant(p.id)}
+                        onChange={(e) => setCant(p.id, parseInt(e.target.value, 10) || 1)}
+                      />
+                      <button
+                        type="button"
+                        className="btn btn-primary btn-sm"
+                        onClick={() => addItem(p, getCant(p.id), p.farmaciaId)}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              )
+            })}
+          </div>
+        </section>
+      ))}
     </div>
   )
 }

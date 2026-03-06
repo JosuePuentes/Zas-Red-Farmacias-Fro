@@ -135,14 +135,10 @@ export default function AdminDashboard() {
               <span className="dash-m-card-label">Productos vendidos</span>
             </div>
             <div className="dash-m-card">
-              <span className="dash-m-card-value">{stats.totalClientes}</span>
-              <span className="dash-m-card-label">Clientes</span>
-            </div>
-            <div className="dash-m-card">
               <span className="dash-m-card-value">
                 {clientesRegistrados != null ? clientesRegistrados : '—'}
               </span>
-              <span className="dash-m-card-label">Clientes registrados (total)</span>
+              <span className="dash-m-card-label">Clientes registrados</span>
             </div>
             <div className="dash-m-card">
               <span className="dash-m-card-value">

@@ -36,6 +36,7 @@ export interface Producto {
   descuentoPorcentaje?: number
   precioConPorcentaje?: number
   imagen?: string
+  categoria?: string
   farmaciaId: string
   existencia?: number
 }
