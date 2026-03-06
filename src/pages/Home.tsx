@@ -157,15 +157,26 @@ export default function Home() {
           <div className="home-split home-split-reverse">
             <div className="home-split-media">
               <img
-                src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&q=80"
-                alt="Medicamentos y productos de farmacia"
+                src="/images/zas-medicamentos.png"
+                alt="Pasillo de farmacia Zas! — Red Nacional y Delivery"
               />
             </div>
             <div className="home-split-content">
               <h2 className="home-section-title">Medicamentos y más</h2>
               <p>
-                Catálogo amplio de medicamentos, vitaminas, cuidado personal y productos de farmacia.
-                Busca por nombre, filtra por farmacia y agrega al carrito. Precios en $ y Bs según tasa BCV.
+                <strong>Tu salud, a un solo toque de distancia.</strong> Explora nuestro extenso catálogo de medicamentos,
+                vitaminas y productos de cuidado personal, diseñado para ofrecerte bienestar integral desde la palma de tu mano.
+              </p>
+              <p>
+                <strong>Geolocalización Inteligente:</strong> Encuentra tus medicamentos en la red de farmacias más cercana a tu ubicación
+                de manera inmediata.
+              </p>
+              <p>
+                <strong>Gestión Ágil:</strong> Selecciona tus productos, añádelos al carrito y gestiona tu pedido con total simplicidad.
+              </p>
+              <p>
+                <strong>Servicio de Delivery Especializado:</strong> Recibe tus requerimientos directamente en tu puerta con nuestro sistema
+                de entrega a domicilio, garantizando rapidez y seguridad en cada envío.
               </p>
               <Link to="/login" className="btn btn-primary">
                 Ver catálogo
