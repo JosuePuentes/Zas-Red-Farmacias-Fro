@@ -168,6 +168,28 @@ export const masterApi = {
   farmacias: () => request<FarmaciaMaster[]>('/master/farmacias'),
   delivery: () => request<DeliveryMaster[]>('/master/delivery'),
   solicitudesDelivery: () => request<SolicitudDeliveryMaster[]>('/master/solicitudes-delivery'),
+  solicitudesPlanPro: () => request<SolicitudPlanProMaster[]>('/master/solicitudes-plan-pro'),
+  aprobarPlanPro: (id: string) => request(`/master/solicitudes-plan-pro/${id}/aprobar`, { method: 'POST' }),
+  denegarPlanPro: (id: string) => request(`/master/solicitudes-plan-pro/${id}/denegar`, { method: 'POST' }),
+}
+
+// ===================== PLAN PRO (FARMACIA) =====================
+export interface SolicitudPlanProMaster {
+  _id: string
+  farmaciaId: string
+  nombreFarmacia?: string
+  email?: string
+  bancoEmisor: string
+  numeroReferencia: string
+  comprobanteUrl?: string
+  estado: 'pendiente' | 'aprobado' | 'denegado'
+  createdAt?: string
+}
+
+export const planProApi = {
+  getSubscription: () => request<{ activo: boolean; farmaciaId?: string }>('/farmacia/plan-pro/estado'),
+  enviarSolicitud: (body: { bancoEmisor: string; numeroReferencia: string; comprobanteBase64?: string }) =>
+    request<{ ok: boolean; solicitudId?: string }>('/farmacia/plan-pro/solicitud', { method: 'POST', body: JSON.stringify(body) }),
 }
 
 // ===================== API FARMACIA / CLIENTE (PRODUCTOS) =====================

@@ -232,3 +232,45 @@ input, select, textarea {
 }
 .card-list { list-style: none; padding: 0; margin: 0; }
 .card-list .card { margin-bottom: 0.75rem; }
+
+/* Plan Pro modal */
+.plan-pro-modal { max-width: 480px; width: 100%; }
+.plan-pro-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.plan-pro-header h2 { margin: 0; font-size: 1.25rem; }
+.plan-pro-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-text-muted); padding: 0 0.25rem; line-height: 1; }
+.plan-pro-price { margin-bottom: 0.75rem; }
+.plan-pro-amount { font-size: 1.75rem; font-weight: 700; color: var(--color-primary); }
+.plan-pro-period { font-size: 1rem; color: var(--color-text-muted); }
+.plan-pro-intro { margin: 0 0 1rem; font-size: 0.95rem; color: var(--color-text); }
+.plan-pro-beneficios { margin: 0 0 1rem; padding-left: 1.25rem; font-size: 0.9rem; color: var(--color-text); }
+.plan-pro-beneficios li { margin-bottom: 0.5rem; }
+.plan-pro-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
+.plan-pro-actions .btn-block { width: 100%; }
+.plan-pro-success { padding: 0.5rem 0; }
+.plan-pro-success p { margin-bottom: 0.75rem; }
+.layout-nav-bell { position: relative; background: none; border: none; padding: 0.5rem; cursor: pointer; color: inherit; border-radius: 8px; font-size: 1.25rem; }
+.layout-nav-bell:hover { background: #f1f5f9; }
+.layout-nav-bell .badge { position: absolute; top: 2px; right: 2px; min-width: 18px; height: 18px; padding: 0 5px; font-size: 0.7rem; border-radius: 9px; }
+.pro-nav-wrap { display: flex; align-items: center; gap: 0.25rem; }
+.notif-dropdown { position: absolute; top: 100%; right: 0; margin-top: 4px; background: var(--color-card); border-radius: var(--radius); box-shadow: var(--shadow-soft); min-width: 280px; max-height: 320px; overflow-y: auto; z-index: 100; padding: 0.5rem; }
+.notif-item { padding: 0.5rem 0.75rem; border-radius: 8px; font-size: 0.85rem; margin-bottom: 0.25rem; background: #f8fafc; }
+.notif-item.prioridad { border-left: 4px solid var(--color-warning); }
+.notif-item.inventario { border-left: 4px solid var(--color-danger); }
+.notif-empty { padding: 1rem; color: var(--color-text-muted); font-size: 0.9rem; }
+.layout-header-actions { display: flex; align-items: center; gap: 0.5rem; }
+.plan-pro-blur { padding: 2rem; text-align: center; }
+.plan-pro-blur p { margin-bottom: 0.5rem; }
+.plan-pro-blur .btn { margin-top: 1rem; }
+.pro-tabs { display: flex; gap: 0.25rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.pro-tabs button { padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid #e2e8f0; background: #fff; cursor: pointer; font-weight: 500; }
+.pro-tabs button.active { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+.lista-comparativa-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.lista-comparativa-table th, .lista-comparativa-table td { border: 1px solid #e2e8f0; padding: 0.5rem; text-align: left; }
+.lista-comparativa-table th { background: #f1f5f9; }
+.lista-comparativa-table tr.prioridad { background: #fffbeb; }
+.lista-comparativa-table input[type="number"] { width: 70px; padding: 0.35rem; }
+.carrito-pro-list { list-style: none; padding: 0; margin: 0; }
+.carrito-pro-list li { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid #f1f5f9; }
+.orden-compra-item { margin-bottom: 1rem; }
+.orden-compra-item .card { margin-bottom: 0.5rem; }
+.proveedor-row { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid #f1f5f9; }

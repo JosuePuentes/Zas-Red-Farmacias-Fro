@@ -6,6 +6,7 @@ import AdminUsuarios from '../pages/admin/AdminUsuarios'
 import AdminFarmacias from '../pages/admin/AdminFarmacias'
 import AdminDelivery from '../pages/admin/AdminDelivery'
 import AdminSolicitudesFarmacia from '../pages/admin/AdminSolicitudesFarmacia'
+import AdminSolicitudesPlanPro from '../pages/admin/AdminSolicitudesPlanPro'
 import './Layout.css'
 
 export default function AdminLayout() {
@@ -30,6 +31,7 @@ export default function AdminLayout() {
         <NavLink to="/admin/farmacias">Farmacias</NavLink>
         <NavLink to="/admin/solicitudes-farmacia">Solic. farmacia</NavLink>
         <NavLink to="/admin/delivery">Delivery</NavLink>
+        <NavLink to="/admin/solicitudes-plan-pro">Solic. Plan Pro</NavLink>
       </nav>
       <main className="layout-main">
         <Routes>
@@ -39,6 +41,7 @@ export default function AdminLayout() {
           <Route path="farmacias" element={<AdminFarmacias />} />
           <Route path="solicitudes-farmacia" element={<AdminSolicitudesFarmacia />} />
           <Route path="delivery" element={<AdminDelivery />} />
+          <Route path="solicitudes-plan-pro" element={<AdminSolicitudesPlanPro />} />
         </Routes>
       </main>
     </div>

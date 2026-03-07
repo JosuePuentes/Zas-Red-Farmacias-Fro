@@ -142,3 +142,49 @@ El frontend ya está preparado para mostrar `deliveryLat`, `deliveryLng`, `etaMi
 - El backend solo debe devolver en el pedido la información necesaria (cliente, items con precios, total); no es obligatorio un endpoint específico de "factura" si el pedido ya incluye todo lo anterior.
 
 Si necesitas un PDF de factura desde el backend, puede ser un endpoint adicional; el frontend por ahora imprime la vista tipo ticket con `window.print()`.
+
+---
+
+## 10. Plan Pro (módulo farmacia — suscripción)
+
+### 10.1 Descripción
+
+- Las farmacias pueden contratar el **Plan Pro** por **$ 4,99/mes**.
+- Sin suscripción activa, al hacer clic en "Plan Pro" se abre un modal con el explicativo de beneficios y el botón "Comprar plan". Al pagar, la farmacia envía: **nombre del banco emisor**, **número de referencia** y **comprobante** (imagen/PDF). La suscripción **no se activa automáticamente**: el master debe aprobar la solicitud desde el módulo **Solicitudes Plan Pro**. Una vez aprobada, esa farmacia tiene acceso total al módulo (lista comparativa, carrito, órdenes de compra, proveedores, alertas).
+
+### 10.2 Endpoints farmacia
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/api/farmacia/plan-pro/estado` | Devuelve `{ activo: boolean, farmaciaId?: string }`. El usuario debe estar autenticado como farmacia. `activo: true` solo si el master aprobó su solicitud. |
+| POST | `/api/farmacia/plan-pro/solicitud` | Body: `{ bancoEmisor: string, numeroReferencia: string, comprobanteBase64?: string }`. Crea una solicitud de suscripción Plan Pro (estado `pendiente`). Opcional: aceptar multipart/file para el comprobante en lugar de base64. |
+
+### 10.3 Endpoints master
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/api/master/solicitudes-plan-pro` | Lista todas las solicitudes Plan Pro (o solo `estado: 'pendiente'`). Cada ítem: `_id`, `farmaciaId`, `nombreFarmacia`, `email`, `bancoEmisor`, `numeroReferencia`, `comprobanteUrl`, `estado`, `createdAt`. |
+| POST | `/api/master/solicitudes-plan-pro/:id/aprobar` | Aprueba la solicitud: marcar estado `aprobado` y activar Plan Pro para esa farmacia (ej. guardar en farmacia o usuario `planProActivo: true`). A partir de ahí, `GET /api/farmacia/plan-pro/estado` debe devolver `activo: true` para esa farmacia. |
+| POST | `/api/master/solicitudes-plan-pro/:id/denegar` | Marca la solicitud como `denegado`. |
+
+### 10.4 Modelo sugerido
+
+- **SolicitudPlanPro**: `_id`, `farmaciaId` (ref Farmacia), `bancoEmisor`, `numeroReferencia`, `comprobanteUrl` (o almacenar archivo en storage), `estado` (`pendiente` | `aprobado` | `denegado`), `createdAt`.
+- **Farmacia** (o usuario farmacia): campo `planProActivo: boolean` (por defecto `false`). Poner `true` al aprobar una solicitud.
+
+### 10.5 Módulo Plan Pro — datos (futuro)
+
+El frontend ya incluye:
+
+- **Lista comparativa**: búsqueda en tiempo real; tabla con código, descripción, marca, categoría (tipo de medicamento), precio, existencia, cantidad a pedir, agregar al carrito. Filas con "prioridad" (inventario bajo / alta demanda) resaltadas.
+- **Carrito**: ítems agregados desde la lista; agrupación por proveedor al "Generar órdenes de compra".
+- **Órdenes de compra**: agrupadas por proveedor; exportar Excel/PDF (el frontend puede generar CSV/print; el backend puede ofrecer endpoints para Excel/PDF con logo y formato).
+- **Proveedores**: listado con "total comprado" por proveedor (para sugerencias y comparativos).
+
+Para que todo funcione con datos reales, el backend deberá ofrecer (en una segunda fase, si lo desean):
+
+- CRUD de **proveedores** (por farmacia): nombre, condiciones, etc.
+- Carga de **listas de precios** por proveedor (archivo Excel/CSV o ítems manuales): código, descripción, marca, precio, existencia; el backend puede asignar **categoría** (antialérgico, antibiótico, etc.) por principio activo o nombre (tabla o reglas).
+- **Historial de órdenes de compra** por farmacia y por proveedor; total comprado por proveedor.
+- **Alertas**: análisis de inventario (pocos ítems de una categoría) y de demanda (pedidos masivos de un tipo); notificaciones que el frontend muestra en la campanita y que marcan productos como "prioridad" en la lista comparativa.
+- **Alertas de precio**: guardar último precio de compra por producto/farmacia y notificar cuando en una lista nueva el precio baje.
