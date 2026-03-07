@@ -143,6 +143,7 @@ function IconUser() {
 
 function ClienteLayoutInner() {
   const { user, logout } = useAuth()
+  const isMaster = user && ((user.role || '').toString().toLowerCase() === 'master' || (user.role || '').toString().toLowerCase() === 'admin' || (user.email || '').toString().toLowerCase().trim() === 'admin@zas.com')
   const { totalItems, setOpenCart } = useCart()
   const navigate = useNavigate()
   const location = useLocation()
@@ -193,6 +194,7 @@ function ClienteLayoutInner() {
             <NavLink to="/cliente/mi-cuenta" onClick={() => setSidebarOpen(false)}>Mi perfil</NavLink>
             <NavLink to="/cliente/mis-pedidos" onClick={() => setSidebarOpen(false)}>Mis pedidos</NavLink>
             <NavLink to="/cliente/soporte" onClick={() => setSidebarOpen(false)}>Soporte</NavLink>
+            {isMaster && <NavLink to="/elegir-portal" onClick={() => setSidebarOpen(false)}>Cambiar portal</NavLink>}
             <button type="button" className="cliente-sidebar-logout" onClick={() => { setSidebarOpen(false); logout(); navigate('/'); }}>
               Salir
             </button>

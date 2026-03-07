@@ -32,6 +32,7 @@ export default function AdminLayout() {
         <NavLink to="/admin/solicitudes-farmacia">Solic. farmacia</NavLink>
         <NavLink to="/admin/delivery">Delivery</NavLink>
         <NavLink to="/admin/solicitudes-plan-pro">Solic. Plan Pro</NavLink>
+        <NavLink to="/elegir-portal" className="layout-nav-portal">Cambiar portal</NavLink>
       </nav>
       <main className="layout-main">
         <Routes>

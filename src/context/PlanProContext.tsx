@@ -1,5 +1,13 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react'
+import { useAuth } from './AuthContext'
 import { planProApi } from '../api'
+
+function isMasterUser(user: { role?: string; email?: string } | null): boolean {
+  if (!user) return false
+  const role = (user.role || '').toString().toLowerCase()
+  const emailNorm = (user.email || '').toString().toLowerCase().trim()
+  return role === 'master' || role === 'admin' || emailNorm === 'admin@zas.com'
+}
 
 interface PlanProContextType {
   planProActivo: boolean
@@ -10,10 +18,16 @@ interface PlanProContextType {
 const PlanProContext = createContext<PlanProContextType | null>(null)
 
 export function PlanProProvider({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth()
   const [planProActivo, setPlanProActivo] = useState(false)
   const [loading, setLoading] = useState(true)
 
   const refresh = useCallback(async () => {
+    if (isMasterUser(user)) {
+      setPlanProActivo(true)
+      setLoading(false)
+      return
+    }
     setLoading(true)
     try {
       const data = await planProApi.getSubscription()
@@ -23,7 +37,7 @@ export function PlanProProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [user])
 
   useEffect(() => {
     refresh()

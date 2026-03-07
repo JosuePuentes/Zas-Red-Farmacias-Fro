@@ -274,3 +274,9 @@ input, select, textarea {
 .orden-compra-item { margin-bottom: 1rem; }
 .orden-compra-item .card { margin-bottom: 0.5rem; }
 .proveedor-row { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid #f1f5f9; }
+.elegir-portal-card { max-width: 420px; }
+.elegir-portal-buttons { display: flex; flex-direction: column; gap: 0.75rem; }
+.elegir-portal-step { margin-top: 0.5rem; }
+.elegir-portal-step p { margin-bottom: 0.75rem; font-size: 0.95rem; }
+.elegir-portal-step code { font-size: 0.85em; background: #f1f5f9; padding: 0.1rem 0.35rem; border-radius: 4px; }
+.elegir-portal-actions { display: flex; gap: 0.5rem; margin-top: 1rem; }

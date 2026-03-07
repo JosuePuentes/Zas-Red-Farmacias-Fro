@@ -14,8 +14,14 @@ const NOTIF_MOCK = [
   { id: '2', tipo: 'prioridad', texto: 'Has recibido pedidos masivos de antibióticos. Considera comprar: Amoxicilina 500mg, Azitromicina 500mg.', fecha: 'Hoy' },
 ]
 
+function isMasterUser(user: { role?: string; email?: string } | null): boolean {
+  if (!user) return false
+  const r = (user.role || '').toString().toLowerCase()
+  return r === 'master' || r === 'admin' || (user.email || '').toString().toLowerCase().trim() === 'admin@zas.com'
+}
+
 function FarmaciaLayoutInner() {
-  const { logout } = useAuth()
+  const { user, logout } = useAuth()
   const navigate = useNavigate()
   const { planProActivo, refresh } = usePlanPro()
   const [showPlanProModal, setShowPlanProModal] = useState(false)
@@ -84,6 +90,7 @@ function FarmaciaLayoutInner() {
         >
           Plan Pro {!planProActivo && '(bloqueado)'}
         </NavLink>
+        {isMasterUser(user) && <NavLink to="/elegir-portal">Cambiar portal</NavLink>}
       </nav>
       <main className="layout-main">
         <Routes>

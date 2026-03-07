@@ -45,7 +45,7 @@ export default function Login() {
         const role = (d.user.role || '').toString().toLowerCase()
         const emailNorm = (d.user.email || email || '').toString().toLowerCase().trim()
         const esMaster = role === 'master' || role === 'admin' || emailNorm === 'admin@zas.com'
-        if (esMaster) navigate('/admin', { replace: true })
+        if (esMaster) navigate('/elegir-portal', { replace: true })
         else if (role === 'farmacia') navigate('/farmacia', { replace: true })
         else if (role === 'delivery') navigate('/delivery', { replace: true })
         else navigate('/cliente', { replace: true })
@@ -61,7 +61,7 @@ export default function Login() {
       const role = (mockResult.user.role || '').toString().toLowerCase()
       const emailNorm = (mockResult.user.email || email || '').toString().toLowerCase().trim()
       const esMaster = role === 'master' || role === 'admin' || emailNorm === 'admin@zas.com'
-      if (esMaster) navigate('/admin', { replace: true })
+      if (esMaster) navigate('/elegir-portal', { replace: true })
       else if (role === 'farmacia') navigate('/farmacia', { replace: true })
       else if (role === 'delivery') navigate('/delivery', { replace: true })
       else navigate('/cliente', { replace: true })

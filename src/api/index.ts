@@ -3,15 +3,19 @@
 const BASE = import.meta.env.VITE_API_URL || ''
 const API = BASE ? `${BASE.replace(/\/$/, '')}/api` : '/api'
 
+import { getMasterPortalHeaders } from '../lib/masterPortalStorage'
+
 function getToken(): string | null {
   return localStorage.getItem('zas_token')
 }
 
 export async function request<T = unknown>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = getToken()
+  const portalHeaders = getMasterPortalHeaders(endpoint)
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
     ...(token && { Authorization: `Bearer ${token}` }),
+    ...portalHeaders,
     ...(options.headers as Record<string, string>),
   }
   const res = await fetch(`${API}${endpoint}`, { ...options, headers })

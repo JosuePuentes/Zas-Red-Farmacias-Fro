@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react'
 import type { User, UserRole } from '../types'
+import { STORAGE_PORTAL, STORAGE_FARMACIA_ID, STORAGE_CLIENTE_ID, STORAGE_DELIVERY_ID } from '../lib/masterPortalStorage'
 
 interface AuthContextType {
   user: User | null
@@ -50,6 +51,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null)
     localStorage.removeItem('zas_user')
     localStorage.removeItem('zas_token')
+    sessionStorage.removeItem(STORAGE_PORTAL)
+    sessionStorage.removeItem(STORAGE_FARMACIA_ID)
+    sessionStorage.removeItem(STORAGE_CLIENTE_ID)
+    sessionStorage.removeItem(STORAGE_DELIVERY_ID)
   }, [])
 
   return (

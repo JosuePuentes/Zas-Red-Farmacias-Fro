@@ -4,8 +4,14 @@ import DeliveryPedidos from '../pages/delivery/DeliveryPedidos'
 import DeliveryEstadisticas from '../pages/delivery/DeliveryEstadisticas'
 import './Layout.css'
 
+function isMasterUser(user: { role?: string; email?: string } | null): boolean {
+  if (!user) return false
+  const r = (user.role || '').toString().toLowerCase()
+  return r === 'master' || r === 'admin' || (user.email || '').toString().toLowerCase().trim() === 'admin@zas.com'
+}
+
 export default function DeliveryLayout() {
-  const { logout } = useAuth()
+  const { user, logout } = useAuth()
   const navigate = useNavigate()
 
   return (
@@ -22,6 +28,7 @@ export default function DeliveryLayout() {
       <nav className="layout-nav">
         <NavLink to="/delivery" end>Pedidos</NavLink>
         <NavLink to="/delivery/estadisticas">Mis ganancias</NavLink>
+        {isMasterUser(user) && <NavLink to="/elegir-portal">Cambiar portal</NavLink>}
       </nav>
       <main className="layout-main">
         <Routes>

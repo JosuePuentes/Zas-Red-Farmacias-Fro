@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { GeolocationProvider } from './context/GeolocationContext'
+import { MasterPortalProvider } from './context/MasterPortalContext'
 
 // Públicas
 import Home from './pages/Home'
@@ -8,6 +9,7 @@ import Login from './pages/Login'
 import RegisterCliente from './pages/RegisterCliente'
 import RegisterDelivery from './pages/RegisterDelivery'
 import RegisterFarmacia from './pages/RegisterFarmacia'
+import ElegirPortal from './pages/ElegirPortal'
 
 // Portales por rol
 import AdminLayout from './layouts/AdminLayout'
@@ -25,7 +27,7 @@ function isMasterUser(user: { role?: string; email?: string } | null): boolean {
 function RedirectByRole() {
   const { user } = useAuth()
   if (!user) return <Navigate to="/" replace />
-  if (isMasterUser(user)) return <Navigate to="/admin" replace />
+  if (isMasterUser(user)) return <Navigate to="/elegir-portal" replace />
   switch (user.role) {
     case 'farmacia':
       return <Navigate to="/farmacia" replace />
@@ -49,14 +51,22 @@ export default function App() {
   return (
     <AuthProvider>
       <GeolocationProvider>
-        <Routes>
+        <MasterPortalProvider>
+          <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<RegisterCliente />} />
         <Route path="/registro-delivery" element={<RegisterDelivery />} />
         <Route path="/registro-farmacia" element={<RegisterFarmacia />} />
         <Route path="/dashboard" element={<RedirectByRole />} />
-
+        <Route
+          path="/elegir-portal"
+          element={
+            <ProtectedRoute roles={['admin']}>
+              <ElegirPortal />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/admin/*"
           element={
@@ -68,7 +78,7 @@ export default function App() {
         <Route
           path="/cliente/*"
           element={
-            <ProtectedRoute roles={['cliente']}>
+            <ProtectedRoute roles={['cliente', 'admin']}>
               <ClienteLayout />
             </ProtectedRoute>
           }
@@ -76,7 +86,7 @@ export default function App() {
         <Route
           path="/farmacia/*"
           element={
-            <ProtectedRoute roles={['farmacia']}>
+            <ProtectedRoute roles={['farmacia', 'admin']}>
               <FarmaciaLayout />
             </ProtectedRoute>
           }
@@ -84,14 +94,15 @@ export default function App() {
         <Route
           path="/delivery/*"
           element={
-            <ProtectedRoute roles={['delivery']}>
+            <ProtectedRoute roles={['delivery', 'admin']}>
               <DeliveryLayout />
             </ProtectedRoute>
           }
         />
 
         <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+          </Routes>
+        </MasterPortalProvider>
       </GeolocationProvider>
     </AuthProvider>
   )
