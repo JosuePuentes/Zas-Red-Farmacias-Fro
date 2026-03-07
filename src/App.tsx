@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { GeolocationProvider } from './context/GeolocationContext'
 
 // Públicas
 import Home from './pages/Home'
@@ -47,7 +48,8 @@ function ProtectedRoute({ children, roles }: { children: React.ReactNode; roles:
 export default function App() {
   return (
     <AuthProvider>
-      <Routes>
+      <GeolocationProvider>
+        <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<RegisterCliente />} />
@@ -89,7 +91,8 @@ export default function App() {
         />
 
         <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+        </Routes>
+      </GeolocationProvider>
     </AuthProvider>
   )
 }

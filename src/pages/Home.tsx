@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { useGeolocation } from '../context/GeolocationContext'
 import './Home.css'
 
 const SLIDES = [
@@ -69,6 +70,7 @@ const MARCAS = [
 
 export default function Home() {
   const [slideIndex, setSlideIndex] = useState(0)
+  const { position, error, loading, permissionAsked, requestLocation, clearError, dismissLocationPrompt } = useGeolocation()
 
   useEffect(() => {
     const t = setInterval(() => {
@@ -79,6 +81,21 @@ export default function Home() {
 
   return (
     <div className="home">
+      {!permissionAsked && (
+        <div className="home-gps-banner">
+          <p>Para una mejor experiencia (pedidos, delivery y ubicación de farmacias), activa tu ubicación.</p>
+          <div className="home-gps-actions">
+            <button type="button" className="btn btn-primary btn-sm" onClick={() => { clearError(); requestLocation(); }} disabled={loading}>
+              {loading ? 'Obteniendo…' : 'Activar ubicación'}
+            </button>
+            <button type="button" className="btn btn-secondary btn-sm" onClick={dismissLocationPrompt}>
+              Más tarde
+            </button>
+          </div>
+          {error && <p className="home-gps-error">{error}</p>}
+          {position && <p className="home-gps-ok">Ubicación activada.</p>}
+        </div>
+      )}
       <aside className="home-banner">
         <div className="home-banner-inner">
           <div className="home-banner-text">

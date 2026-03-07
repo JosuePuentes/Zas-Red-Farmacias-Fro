@@ -40,6 +40,10 @@ export const authApi = {
     telefono?: string
     email: string
     password: string
+    estado?: string
+    municipio?: string
+    lat?: number
+    lng?: number
   }) => {
     const res = await fetch(`${API}/auth/register/cliente`, {
       method: 'POST',

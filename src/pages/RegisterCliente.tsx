@@ -1,21 +1,36 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import './Auth.css'
 import { authApi } from '../api'
 import { useAuth } from '../context/AuthContext'
+import { useGeolocation } from '../context/GeolocationContext'
+import { ESTADOS_VENEZUELA } from '../constants/estados'
+import { getMunicipiosByEstado } from '../constants/municipios'
 
 export default function RegisterCliente() {
   const [cedula, setCedula] = useState('')
   const [nombre, setNombre] = useState('')
   const [apellido, setApellido] = useState('')
   const [direccion, setDireccion] = useState('')
+  const [estado, setEstado] = useState('')
+  const [municipio, setMunicipio] = useState('')
   const [telefono, setTelefono] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const { setAuth } = useAuth()
+  const { requestLocation, loading: gpsLoading, error: gpsError, clearError: clearGpsError } = useGeolocation()
+
+  const municipios = useMemo(() => getMunicipiosByEstado(estado), [estado])
+
+  async function handleUsarUbicacion() {
+    clearGpsError()
+    const pos = await requestLocation()
+    if (pos) setCoords(pos)
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -30,6 +45,9 @@ export default function RegisterCliente() {
         telefono: telefono.trim(),
         email: email.trim(),
         password,
+        ...(estado && { estado }),
+        ...(municipio && { municipio }),
+        ...(coords && { lat: coords.lat, lng: coords.lng }),
       })
       if (ok && (data as { token?: string }).token && (data as { user?: unknown }).user) {
         const d = data as { token: string; user: { role?: string; email?: string; id?: string; nombre?: string; apellido?: string } }
@@ -74,8 +92,33 @@ export default function RegisterCliente() {
             <input value={apellido} onChange={(e) => setApellido(e.target.value)} placeholder="Tu apellido" required />
           </div>
           <div className="form-group">
+            <label>Estado</label>
+            <select value={estado} onChange={(e) => { setEstado(e.target.value); setMunicipio(''); }} required>
+              <option value="">Selecciona estado</option>
+              {ESTADOS_VENEZUELA.map((e) => (
+                <option key={e} value={e}>{e}</option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group">
+            <label>Municipio</label>
+            <select value={municipio} onChange={(e) => setMunicipio(e.target.value)} required disabled={!estado}>
+              <option value="">Selecciona municipio</option>
+              {municipios.map((m) => (
+                <option key={m} value={m}>{m}</option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group">
             <label>Dirección</label>
             <input value={direccion} onChange={(e) => setDireccion(e.target.value)} placeholder="Dirección de entrega" required />
+          </div>
+          <div className="form-group">
+            <button type="button" className="btn btn-secondary btn-block" onClick={handleUsarUbicacion} disabled={gpsLoading}>
+              {gpsLoading ? 'Obteniendo ubicación…' : 'Usar mi ubicación (GPS)'}
+            </button>
+            {gpsError && <p className="auth-error" style={{ marginTop: 4 }}>{gpsError}</p>}
+            {coords && <p className="muted" style={{ marginTop: 4 }}>Coordenadas guardadas: {coords.lat.toFixed(5)}, {coords.lng.toFixed(5)}</p>}
           </div>
           <div className="form-group">
             <label>Teléfono</label>
