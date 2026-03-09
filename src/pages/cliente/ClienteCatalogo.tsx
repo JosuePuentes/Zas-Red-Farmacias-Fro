@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
 import type { Producto } from '../../types'
-import { clienteApi } from '../../api'
+import { clienteApi, carritoApi } from '../../api'
+import { useAuth } from '../../context/AuthContext'
 import { ESTADOS_VENEZUELA } from '../../constants/estados'
 import { DEPARTAMENTOS_ZAS, type DepartamentoZas } from '../../constants/departamentos'
 import './ClienteCatalogo.css'
@@ -80,10 +81,13 @@ export default function ClienteCatalogo() {
   const buscarParam = searchParams.get('buscar') === '1'
   const searchInputRef = useRef<HTMLInputElement | null>(null)
   const { addItem } = useCart()
+  const { user } = useAuth()
 
   const [productos, setProductos] = useState<Producto[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [page, setPage] = useState(0)
+  const pageSize = 20
 
   useEffect(() => {
     let cancelled = false
@@ -91,7 +95,12 @@ export default function ClienteCatalogo() {
       try {
         setLoading(true)
         setError(null)
-        const data = await clienteApi.catalogo()
+        // Catálogo basado en nuevo endpoint GET /catalogo con buscador y paginación
+        const data = await clienteApi.catalogo({
+          q: busqueda.trim() || undefined,
+          page,
+          page_size: pageSize,
+        })
         if (!cancelled) {
           setProductos(
             data.map((p) => ({
@@ -113,7 +122,7 @@ export default function ClienteCatalogo() {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [busqueda, page])
 
   const [cantidades, setCantidades] = useState<Record<string, number>>({})
   const getCant = (id: string) => cantidades[id] ?? 1
@@ -168,7 +177,10 @@ export default function ClienteCatalogo() {
             type="search"
             placeholder="Buscar medicamentos, vitaminas, cuidado personal..."
             value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
+            onChange={(e) => {
+              setBusqueda(e.target.value)
+              setPage(0)
+            }}
             className="search-input"
           />
         </div>
@@ -228,7 +240,33 @@ export default function ClienteCatalogo() {
                       <button
                         type="button"
                         className="btn btn-primary btn-sm"
-                        onClick={() => addItem(p, getCant(p.id), p.farmaciaId)}
+                        onClick={async () => {
+                          const cantidad = getCant(p.id)
+                          addItem(p, cantidad, p.farmaciaId)
+
+                          if (!user) return
+
+                          try {
+                            const resp = await carritoApi.agregar({
+                              cliente_id: user.id,
+                              producto_id: p.id,
+                              cantidad,
+                            })
+                            if (resp.status === 'conflicto_farmacia') {
+                              const aceptar = window.confirm(
+                                'Estás agregando productos de otro comercio. El delivery y tiempos pueden variar. ¿Deseas continuar?',
+                              )
+                              if (aceptar) {
+                                await carritoApi.cambiarFarmacia({
+                                  cliente_id: user.id,
+                                  farmacia_id: p.farmaciaId,
+                                })
+                              }
+                            }
+                          } catch (e) {
+                            console.error('Error al sincronizar carrito con backend', e)
+                          }
+                        }}
                       >
                         +
                       </button>
@@ -240,6 +278,25 @@ export default function ClienteCatalogo() {
           </div>
         </section>
       ))}
+      <div className="cliente-catalogo-pagination">
+        <button
+          type="button"
+          className="btn btn-secondary btn-sm"
+          onClick={() => setPage((p) => Math.max(0, p - 1))}
+          disabled={page === 0 || loading}
+        >
+          ← Anterior
+        </button>
+        <span style={{ margin: '0 0.75rem', fontSize: '0.9rem' }}>Página {page + 1}</span>
+        <button
+          type="button"
+          className="btn btn-secondary btn-sm"
+          onClick={() => setPage((p) => p + 1)}
+          disabled={loading || productos.length < pageSize}
+        >
+          Siguiente →
+        </button>
+      </div>
     </div>
   )
 }

@@ -33,9 +33,28 @@ export const authApi = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
     })
-    const data = await res.json().catch(() => ({})) as { token?: string; user?: unknown; error?: string; message?: string; code?: string }
+    const data = await res.json().catch(() => ({})) as {
+      token?: string
+      user?: unknown
+      error?: string
+      message?: string
+      code?: string
+    }
     return { ok: res.ok, status: res.status, data }
   },
+
+  // Registro genérico según contrato nuevo: POST /auth/registro
+  register: async (body: { email: string; password: string }) => {
+    const res = await fetch(`${API}/auth/registro`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+    const data = await res.json().catch(() => ({})) as { token?: string; user?: unknown; error?: string; message?: string }
+    return { ok: res.ok, status: res.status, data }
+  },
+
+  // Registro específico de cliente que ya usaba el frontend
   registerCliente: async (body: {
     cedula: string
     nombre: string
@@ -55,6 +74,27 @@ export const authApi = {
       body: JSON.stringify(body),
     })
     const data = await res.json().catch(() => ({})) as { token?: string; user?: unknown; error?: string; message?: string }
+    return { ok: res.ok, status: res.status, data }
+  },
+
+  // Flujo de recuperación de contraseña
+  recuperarPassword: async (email: string) => {
+    const res = await fetch(`${API}/auth/recuperar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    })
+    const data = await res.json().catch(() => ({})) as { token?: string; error?: string; message?: string }
+    return { ok: res.ok, status: res.status, data }
+  },
+
+  restablecerPassword: async (token: string, nuevaPassword: string) => {
+    const res = await fetch(`${API}/auth/restablecer`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, nueva_password: nuevaPassword }),
+    })
+    const data = await res.json().catch(() => ({})) as { ok?: boolean; error?: string; message?: string }
     return { ok: res.ok, status: res.status, data }
   },
 }
@@ -220,6 +260,62 @@ export interface ActualizarDescuentoItem {
   descuentoPorcentaje: number
 }
 
+// ===================== CATÁLOGO PÚBLICO =====================
+
+export interface CatalogoQuery {
+  q?: string
+  farmacia_id?: string
+  page?: number
+  page_size?: number
+}
+
+export const catalogoApi = {
+  listar: (params?: CatalogoQuery) => {
+    const search = new URLSearchParams()
+    if (params?.q) search.set('q', params.q)
+    if (params?.farmacia_id) search.set('farmacia_id', params.farmacia_id)
+    if (params?.page != null) search.set('page', String(params.page))
+    if (params?.page_size != null) search.set('page_size', String(params.page_size))
+    const qs = search.toString()
+    return request<ProductoApi[]>(`/catalogo${qs ? `?${qs}` : ''}`)
+  },
+}
+
+// ===================== CARRITO CLIENTE =====================
+
+export interface CarritoAgregarBody {
+  cliente_id: string
+  producto_id: string
+  cantidad: number
+}
+
+export interface CarritoAgregarResponse {
+  status?: string
+  message?: string
+  // campos adicionales según backend (total, carrito, etc.)
+  [key: string]: unknown
+}
+
+export const carritoApi = {
+  agregar: (body: CarritoAgregarBody) =>
+    request<CarritoAgregarResponse>('/carrito/agregar', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+
+  cambiarFarmacia: (body: { cliente_id: string; farmacia_id: string }) =>
+    request<{ ok?: boolean; status?: string; message?: string }>('/carrito/cambiar-farmacia', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+
+  confirmar: (clienteId: string) =>
+    request<{ ok: boolean; pedido_id?: string; message?: string }>(
+      `/carrito/confirmar?cliente_id=${encodeURIComponent(clienteId)}`,
+      { method: 'POST' },
+    ),
+}
+
 export const farmaciaApi = {
   inventario: () => request<ProductoApi[]>('/farmacia/inventario'),
   actualizarDescuentos: (items: ActualizarDescuentoItem[]) =>
@@ -230,5 +326,6 @@ export const farmaciaApi = {
 }
 
 export const clienteApi = {
-  catalogo: () => request<ProductoApi[]>('/cliente/catalogo'),
+  // Enlaza con el nuevo endpoint GET /catalogo
+  catalogo: (params?: CatalogoQuery) => catalogoApi.listar(params),
 }

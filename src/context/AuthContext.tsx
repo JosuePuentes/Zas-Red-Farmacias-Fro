@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useCallback } from 'react'
 import type { User, UserRole } from '../types'
 import { STORAGE_PORTAL, STORAGE_FARMACIA_ID, STORAGE_CLIENTE_ID, STORAGE_DELIVERY_ID } from '../lib/masterPortalStorage'
+import { authApi } from '../api'
 
 interface AuthContextType {
   user: User | null
@@ -19,23 +20,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   })
 
   const login = useCallback(async (email: string, password: string) => {
-    // TODO: reemplazar por llamada al backend; normalizar role igual (master / admin@zas.com → admin)
-    // const res = await fetch('/api/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) })
-    // const data = await res.json(); if (data.user) setUser(normalizeUser(data.user)); return data
     if (!email || !password) return { error: 'Correo y contraseña requeridos' }
-    let role = (localStorage.getItem('zas_mock_role') as UserRole) || 'cliente'
-    const emailNorm = email.trim().toLowerCase()
-    if (role === 'master' || emailNorm === 'admin@zas.com') role = 'admin'
-    const mockUser: User = {
-      id: '1',
-      email,
-      role,
-      nombre: 'Usuario',
-      apellido: 'Prueba',
+    try {
+      const { ok, data } = await authApi.loginWithStatus(email, password)
+      if (ok && (data as { token?: string; user?: unknown }).token && (data as { user?: unknown }).user) {
+        const d = data as { token: string; user: { role?: string; email?: string; id?: string; nombre?: string; apellido?: string } }
+        const normalizedRole = (d.user.role || '').toString().toLowerCase()
+        const emailNorm = (d.user.email || email || '').toString().toLowerCase().trim()
+        const finalRole: UserRole =
+          (normalizedRole === 'master' || normalizedRole === 'admin' || emailNorm === 'admin@zas.com'
+            ? 'admin'
+            : (normalizedRole as UserRole || 'cliente')) as UserRole
+
+        const u: User = {
+          id: d.user.id || '',
+          email: d.user.email || email,
+          role: finalRole,
+          nombre: d.user.nombre,
+          apellido: d.user.apellido,
+        }
+        localStorage.setItem('zas_token', d.token)
+        setUser(u)
+        localStorage.setItem('zas_user', JSON.stringify(u))
+        return { user: u }
+      }
+      return {
+        error:
+          (data as { error?: string; message?: string }).error ||
+          (data as { message?: string }).message ||
+          'Error al iniciar sesión',
+      }
+    } catch (e) {
+      console.error(e)
+      return { error: 'No se pudo conectar con el servidor de autenticación' }
     }
-    setUser(mockUser)
-    localStorage.setItem('zas_user', JSON.stringify(mockUser))
-    return { user: mockUser }
   }, [])
 
   const setAuth = useCallback((token: string, u: User) => {

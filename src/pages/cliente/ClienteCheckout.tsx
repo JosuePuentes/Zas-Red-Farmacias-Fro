@@ -4,6 +4,8 @@ import { useCart } from '../../context/CartContext'
 import { useGeolocation } from '../../context/GeolocationContext'
 import MapPicker from '../../components/MapPicker'
 import type { Coords } from '../../context/GeolocationContext'
+import { carritoApi } from '../../api'
+import { useAuth } from '../../context/AuthContext'
 
 export default function ClienteCheckout() {
   const [step, setStep] = useState<'ubicacion' | 'pago'>('ubicacion')
@@ -14,6 +16,7 @@ export default function ClienteCheckout() {
   const navigate = useNavigate()
   const { totalPrice, clearCart } = useCart()
   const { position, requestLocation, loading: gpsLoading, error: gpsError } = useGeolocation()
+  const { user } = useAuth()
   const costoDelivery = 0 // TODO: backend según distancia
 
   useEffect(() => {
@@ -24,11 +27,19 @@ export default function ClienteCheckout() {
     if (entregaCoords) setStep('pago')
   }
 
-  function handleProcesar() {
+  async function handleProcesar() {
     if (!metodo || !comprobante) return
-    // TODO: POST pedido con { direccionEntrega, latEntrega: entregaCoords?.lat, lngEntrega: entregaCoords?.lng, comprobante, ... }
-    clearCart()
-    navigate('/cliente/mis-pedidos')
+    try {
+      if (user) {
+        await carritoApi.confirmar(user.id)
+      }
+      // TODO: enviar también datos de entrega y comprobante cuando el backend lo soporte
+      clearCart()
+      navigate('/cliente/mis-pedidos')
+    } catch (e) {
+      console.error('Error al confirmar pedido', e)
+      // En esta primera versión mantenemos el carrito si falla
+    }
   }
 
   return (

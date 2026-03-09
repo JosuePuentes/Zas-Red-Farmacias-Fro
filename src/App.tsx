@@ -10,6 +10,8 @@ import RegisterCliente from './pages/RegisterCliente'
 import RegisterDelivery from './pages/RegisterDelivery'
 import RegisterFarmacia from './pages/RegisterFarmacia'
 import ElegirPortal from './pages/ElegirPortal'
+import RecuperarPassword from './pages/RecuperarPassword'
+import RestablecerPassword from './pages/RestablecerPassword'
 
 // Portales por rol
 import AdminLayout from './layouts/AdminLayout'
@@ -55,6 +57,8 @@ export default function App() {
           <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/recuperar" element={<RecuperarPassword />} />
+        <Route path="/restablecer" element={<RestablecerPassword />} />
         <Route path="/registro" element={<RegisterCliente />} />
         <Route path="/registro-delivery" element={<RegisterDelivery />} />
         <Route path="/registro-farmacia" element={<RegisterFarmacia />} />

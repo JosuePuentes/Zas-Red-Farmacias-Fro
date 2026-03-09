@@ -106,6 +106,11 @@ export default function Home() {
             <Link to="/login" className="btn btn-primary btn-banner">Iniciar sesión</Link>
             <Link to="/registro" className="btn btn-secondary btn-banner">Crear cuenta</Link>
           </div>
+          <div style={{ marginTop: '0.5rem' }}>
+            <Link to="/recuperar" className="auth-back" style={{ fontSize: '0.9rem' }}>
+              ¿Olvidaste tu contraseña?
+            </Link>
+          </div>
         </div>
       </aside>
 

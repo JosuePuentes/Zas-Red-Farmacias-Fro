@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import type { Producto } from '../../types'
 import { farmaciaApi } from '../../api'
+import { useAuth } from '../../context/AuthContext'
+import { STORAGE_FARMACIA_ID } from '../../lib/masterPortalStorage'
 
 // Mock temporal hasta conectar con backend
 const MOCK_INVENTARIO: Producto[] = [
@@ -57,6 +59,9 @@ export default function FarmaciaInventario() {
   const [cargando, setCargando] = useState(true)
   const [guardando, setGuardando] = useState(false)
   const [mensaje, setMensaje] = useState<string | null>(null)
+  const { user } = useAuth()
+  const [farmaciaId, setFarmaciaId] = useState<string | null>(null)
+  const [conflictos, setConflictos] = useState<unknown[] | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -87,6 +92,18 @@ export default function FarmaciaInventario() {
       cancelled = true
     }
   }, [])
+
+  useEffect(() => {
+    // Intentamos resolver farmacia_id desde sesión (master) o desde el usuario autenticado
+    const fromStorage = sessionStorage.getItem(STORAGE_FARMACIA_ID)
+    if (fromStorage) {
+      setFarmaciaId(fromStorage)
+      return
+    }
+    if (user?.id) {
+      setFarmaciaId(user.id)
+    }
+  }, [user])
 
   const productosFiltrados = productos.filter(
     (p) =>
@@ -140,6 +157,69 @@ export default function FarmaciaInventario() {
     }
   }
 
+  async function handleSubirInventario() {
+    if (!file) return
+    if (!farmaciaId) {
+      setMensaje('No se encontró el identificador de la farmacia para subir el inventario.')
+      return
+    }
+    setMensaje(null)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const res = await fetch(
+        `${window.location.origin.replace(/\/$/, '')}/api/farmacias/${encodeURIComponent(
+          farmaciaId,
+        )}/inventario/cargar-excel`,
+        {
+          method: 'POST',
+          body: formData,
+        },
+      )
+      const data = await res.json().catch(() => ({})) as {
+        conflictos_descripcion?: unknown[]
+        message?: string
+      }
+
+      if (data.conflictos_descripcion && Array.isArray(data.conflictos_descripcion)) {
+        setConflictos(data.conflictos_descripcion)
+        setMensaje('Se detectaron conflictos de descripción. Revisa la sección de abajo y luego envía tu resolución.')
+      } else {
+        setConflictos(null)
+        setMensaje(data.message || 'Inventario subido correctamente.')
+      }
+    } catch (e) {
+      console.error('Error al subir inventario', e)
+      setMensaje('No se pudo subir el inventario. Intenta nuevamente.')
+    }
+  }
+
+  async function handleResolverConflictos() {
+    if (!farmaciaId || !conflictos || conflictos.length === 0) return
+    try {
+      setMensaje(null)
+      const res = await fetch(
+        `${window.location.origin.replace(/\/$/, '')}/api/farmacias/${encodeURIComponent(
+          farmaciaId,
+        )}/inventario/resolver-descripciones`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ conflictos_descripcion: conflictos }),
+        },
+      )
+      const data = await res.json().catch(() => ({})) as { message?: string }
+      setMensaje(data.message || 'Conflictos enviados para resolver correctamente.')
+      setConflictos(null)
+    } catch (e) {
+      console.error('Error al resolver conflictos de descripciones', e)
+      setMensaje('No se pudieron enviar los conflictos. Intenta nuevamente.')
+    }
+  }
+
   return (
     <div className="container">
       <h2>Inventario</h2>
@@ -150,10 +230,33 @@ export default function FarmaciaInventario() {
       <div className="card form-group">
         <label>Archivo Excel</label>
         <input type="file" accept=".xlsx,.xls,.csv" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
-        <button type="button" className="btn btn-primary" style={{ marginTop: '0.5rem' }} disabled={!file}>
+        <button
+          type="button"
+          className="btn btn-primary"
+          style={{ marginTop: '0.5rem' }}
+          disabled={!file}
+          onClick={handleSubirInventario}
+        >
           Subir inventario
         </button>
       </div>
+
+      {conflictos && conflictos.length > 0 && (
+        <div className="card" style={{ marginTop: '1rem' }}>
+          <h3>Conflictos de descripción detectados</h3>
+          <p className="muted">
+            Revisa las comparaciones entre tu archivo y los registros existentes en el sistema. En esta versión se
+            muestran en formato técnico. Al pulsar &quot;Enviar resolución&quot; se enviarán estos datos al backend para
+            que procese los cambios.
+          </p>
+          <pre style={{ maxHeight: '260px', overflow: 'auto', background: '#0f172a', color: '#e5e7eb', padding: '0.75rem', borderRadius: '8px', fontSize: '0.75rem' }}>
+            {JSON.stringify(conflictos, null, 2)}
+          </pre>
+          <button type="button" className="btn btn-primary" onClick={handleResolverConflictos}>
+            Enviar resolución de conflictos
+          </button>
+        </div>
+      )}
 
       <div className="card" style={{ marginTop: '1rem' }}>
         <h3>Descuentos</h3>
