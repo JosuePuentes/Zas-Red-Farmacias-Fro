@@ -8,6 +8,246 @@
   overflow-x: hidden;
 }
 
+/* Header tipo Amazon / Farmatodo */
+.home-header {
+  background: #0b2138;
+  color: #f9fafb;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.6);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.home-header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: stretch;
+  padding: calc(0.35rem + var(--safe-top)) 0.5rem 0.4rem;
+}
+
+.home-header-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: inherit;
+}
+
+.home-header-logo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.home-header-title {
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+}
+
+.home-header-search {
+  display: flex;
+  align-items: stretch;
+  background: #f9fafb;
+  border-radius: 999px;
+  overflow: hidden;
+  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.25);
+  flex: 1 1 100%;
+}
+
+.home-search-select {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.85rem;
+  background: #e5e7eb;
+  color: #111827;
+  border-right: 1px solid #d1d5db;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.home-search-input {
+  flex: 1;
+  border: none;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.9rem;
+  outline: none;
+  min-width: 0;
+}
+
+.home-search-button {
+  border: none;
+  background: var(--color-accent);
+  color: #111827;
+  padding: 0 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.home-search-button:hover {
+  background: #ea580c;
+}
+
+.home-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-left: auto;
+}
+
+.home-header-location {
+  position: relative;
+}
+
+.home-location-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 0.2rem 0.4rem;
+  color: inherit;
+}
+
+.home-location-button:hover {
+  border-color: rgba(148, 163, 184, 0.7);
+  background: rgba(15, 23, 42, 0.4);
+}
+
+.home-location-icon {
+  font-size: 1rem;
+}
+
+.home-location-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.home-location-label {
+  font-size: 0.65rem;
+  color: #cbd5f5;
+}
+
+.home-location-value {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.home-location-dropdown {
+  position: absolute;
+  top: 115%;
+  left: 0;
+  min-width: 220px;
+  max-height: 260px;
+  overflow-y: auto;
+  background: #ffffff;
+  color: #0f172a;
+  border-radius: 0.75rem;
+  box-shadow: 0 15px 40px rgba(15, 23, 42, 0.4);
+  padding: 0.5rem 0.35rem 0.35rem;
+  z-index: 50;
+}
+
+.home-location-heading {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.25rem 0.6rem 0.4rem;
+  margin: 0 0 0.25rem;
+  color: #0f172a;
+}
+
+.home-location-dropdown ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.home-location-dropdown li button {
+  width: 100%;
+  text-align: left;
+  padding: 0.35rem 0.6rem;
+  border-radius: 0.55rem;
+  border: none;
+  background: transparent;
+  font-size: 0.8rem;
+}
+
+.home-location-dropdown li button:hover {
+  background: #eff6ff;
+}
+
+.home-header-account {
+  display: none;
+  flex-direction: column;
+  font-size: 0.75rem;
+}
+
+.home-account-label {
+  color: #e5e7eb;
+}
+
+.home-account-link {
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.home-header-cart {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #ffffff;
+  font-size: 0.8rem;
+}
+
+.home-cart-icon {
+  font-size: 1.25rem;
+}
+
+.home-cart-text {
+  display: none;
+}
+
+.home-header-nav {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.5rem 0.5rem;
+  font-size: 0.75rem;
+  color: #e5e7eb;
+}
+
+.home-header-nav button {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+  color: inherit;
+  white-space: nowrap;
+}
+
+.home-header-nav button:hover {
+  border-color: rgba(148, 163, 184, 0.8);
+  background: rgba(15, 23, 42, 0.5);
+}
+
+.home-nav-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 600;
+}
+
 /* Manchas de agua / textura de fondo */
 .home::before {
   content: '';
@@ -147,36 +387,35 @@
 
 /* Hero */
 .home-hero {
-  text-align: center;
-  margin-bottom: 1.75rem;
-  position: relative;
+  width: 100%;
+  margin: 1rem 0 1.25rem;
 }
 
-.home-back-icon {
-  position: absolute;
-  left: 0;
-  top: 0;
-  transform: translateY(-0.25rem);
-  text-decoration: none;
-  font-size: 1.4rem;
-  color: var(--color-primary-dark);
+.home-hero-main {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .home-logo-img {
   display: block;
-  width: 120px;
+  width: 80px;
   height: auto;
-  margin: 0 auto 0.75rem;
   object-fit: contain;
 }
 
 .home-logo {
-  font-size: 2.75rem;
+  font-size: 1.8rem;
   font-weight: 800;
   color: var(--color-primary);
-  margin: 0 0 0.75rem 0;
+  margin: 0 0 0.35rem 0;
   letter-spacing: -0.02em;
   line-height: 1.1;
+}
+
+.home-hero-text {
+  flex: 1;
 }
 
 .home-tagline {
@@ -475,12 +714,12 @@
 /* ----- Responsive: tablet ----- */
 @media (min-width: 600px) {
   .home-content {
-    max-width: 560px;
+    max-width: 720px;
     padding: 1.5rem 1.25rem 2.5rem;
   }
 
   .home-logo {
-    font-size: 3rem;
+    font-size: 2.2rem;
   }
 
   .home-tagline {
@@ -500,17 +739,30 @@
   }
 
   .home-logo-img {
-    width: 150px;
+    width: 96px;
+  }
+
+  .home-header-account {
+    display: flex;
+  }
+
+  .home-cart-text {
+    display: inline;
+  }
+
+  .home-header-inner {
+    flex-wrap: nowrap;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .home-header-search {
+    flex: 1 1 auto;
   }
 }
 
 /* ----- Responsive: desktop ----- */
 @media (min-width: 1024px) {
-  .home-logo-img {
-    width: 180px;
-    margin-bottom: 1rem;
-  }
-
   .home-content {
     max-width: 1100px;
     padding: 2rem 2rem 3rem;
@@ -629,10 +881,21 @@
     padding-top: 2.5rem;
     font-size: 0.9rem;
   }
+
+  .home-header-inner {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .home-header-nav {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    font-size: 0.8rem;
+  }
 }
 
 @media (min-width: 400px) {
   .home-logo {
-    font-size: 3rem;
+    font-size: 2.1rem;
   }
 }

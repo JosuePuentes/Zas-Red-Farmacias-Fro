@@ -1,7 +1,34 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useGeolocation } from '../context/GeolocationContext'
 import './Home.css'
+
+const ESTADOS_VE = [
+  'Amazonas',
+  'Anzoátegui',
+  'Apure',
+  'Aragua',
+  'Barinas',
+  'Bolívar',
+  'Carabobo',
+  'Cojedes',
+  'Delta Amacuro',
+  'Distrito Capital',
+  'Falcón',
+  'Guárico',
+  'Lara',
+  'Mérida',
+  'Miranda',
+  'Monagas',
+  'Nueva Esparta',
+  'Portuguesa',
+  'Sucre',
+  'Táchira',
+  'Trujillo',
+  'La Guaira',
+  'Yaracuy',
+  'Zulia',
+]
 
 const SLIDES = [
   {
@@ -70,7 +97,11 @@ const MARCAS = [
 
 export default function Home() {
   const [slideIndex, setSlideIndex] = useState(0)
+  const [estadoEnvio, setEstadoEnvio] = useState<string>('Venezuela')
+  const [mostrarEstados, setMostrarEstados] = useState(false)
   const { position, error, loading, permissionAsked, requestLocation, clearError, dismissLocationPrompt } = useGeolocation()
+  const [terminoBusqueda, setTerminoBusqueda] = useState('')
+  const navigate = useNavigate()
 
   useEffect(() => {
     const t = setInterval(() => {
@@ -81,11 +112,113 @@ export default function Home() {
 
   return (
     <div className="home">
+      <header className="home-header">
+        <div className="home-header-inner">
+          <div className="home-header-left">
+            <Link to="/" className="home-header-brand" aria-label="Inicio Zas!">
+              <img src="/logo.png" alt="Zas! - Red de farmacias" className="home-header-logo" />
+              <span className="home-header-title">Zas! Farma</span>
+            </Link>
+          </div>
+
+          <form
+            className="home-header-search"
+            onSubmit={(e) => {
+              e.preventDefault()
+              const q = terminoBusqueda.trim()
+              if (!q) {
+                navigate('/cliente?buscar=1')
+                return
+              }
+              navigate(`/cliente?q=${encodeURIComponent(q)}`)
+            }}
+          >
+            <div className="home-search-select">Todos</div>
+            <input
+              type="search"
+              className="home-search-input"
+              placeholder="Buscar medicamentos, marcas o productos de cuidado personal…"
+              value={terminoBusqueda}
+              onChange={(e) => setTerminoBusqueda(e.target.value)}
+            />
+            <button type="submit" className="home-search-button" aria-label="Buscar">
+              🔍
+            </button>
+          </form>
+
+          <div className="home-header-right">
+            <div className="home-header-location">
+              <button
+                type="button"
+                className="home-location-button"
+                onClick={() => setMostrarEstados((v) => !v)}
+              >
+                <span className="home-location-icon">📍</span>
+                <span className="home-location-text">
+                  <span className="home-location-label">Enviar a</span>
+                  <span className="home-location-value">{estadoEnvio}</span>
+                </span>
+              </button>
+              {mostrarEstados && (
+                <div className="home-location-dropdown">
+                  <p className="home-location-heading">Selecciona tu estado</p>
+                  <ul>
+                    {ESTADOS_VE.map((estado) => (
+                      <li key={estado}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEstadoEnvio(estado)
+                            setMostrarEstados(false)
+                          }}
+                        >
+                          {estado}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+            <div className="home-header-account">
+              <span className="home-account-label">Hola, inicia sesión</span>
+              <Link to="/login" className="home-account-link">
+                Cuenta y listas
+              </Link>
+            </div>
+            <Link to="/cliente" className="home-header-cart" aria-label="Ir al carrito / catálogo">
+              <span className="home-cart-icon">🛒</span>
+              <span className="home-cart-text">Carrito</span>
+            </Link>
+          </div>
+        </div>
+
+        <nav className="home-header-nav" aria-label="Categorías principales">
+          <button type="button" className="home-nav-all">
+            ☰&nbsp; Todo
+          </button>
+          <button type="button">Salud y medicamentos</button>
+          <button type="button">Belleza</button>
+          <button type="button">Cuidado personal</button>
+          <button type="button">Bebé</button>
+          <button type="button">Hogar y mascotas</button>
+          <button type="button">Ofertas</button>
+        </nav>
+      </header>
+
       {!permissionAsked && (
         <div className="home-gps-banner">
           <p>Para una mejor experiencia (pedidos, delivery y ubicación de farmacias), activa tu ubicación.</p>
           <div className="home-gps-actions">
-            <button type="button" className="btn btn-primary btn-sm" onClick={() => { clearError(); requestLocation(); }} disabled={loading}>
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
+              onClick={() => {
+                clearError()
+                requestLocation()
+              }}
+              disabled={loading}
+            >
               {loading ? 'Obteniendo…' : 'Activar ubicación'}
             </button>
             <button type="button" className="btn btn-secondary btn-sm" onClick={dismissLocationPrompt}>
@@ -96,33 +229,39 @@ export default function Home() {
           {position && <p className="home-gps-ok">Ubicación activada.</p>}
         </div>
       )}
+
       <aside className="home-banner">
         <div className="home-banner-inner">
           <div className="home-banner-text">
-            <span className="home-banner-label">Red de farmacias</span>
-            <p>Medicamentos, cuidado personal y delivery a domicilio · Venezuela</p>
+            <span className="home-banner-label">Farmacia online · Delivery</span>
+            <p>Todo para tu salud, cuidado personal y familia en un solo lugar · Venezuela</p>
           </div>
           <div className="home-banner-actions">
-            <Link to="/login" className="btn btn-primary btn-banner">Iniciar sesión</Link>
-            <Link to="/registro" className="btn btn-secondary btn-banner">Crear cuenta</Link>
+            <Link to="/login" className="btn btn-primary btn-banner">
+              Iniciar sesión
+            </Link>
+            <Link to="/registro" className="btn btn-secondary btn-banner">
+              Crear cuenta
+            </Link>
           </div>
         </div>
       </aside>
 
       <div className="home-content">
-        <header className="home-hero">
-          <Link to="/" className="home-back-icon" aria-label="Volver al catálogo">
-            ←
-          </Link>
-          <img src="/logo.png" alt="Zas! - Red de farmacias" className="home-logo-img" />
-          <h1 className="home-logo">Zas!</h1>
-          <p className="home-tagline">
-            Deja de estar buscando o ruleteando de farmacia en farmacia para conseguir tus medicamentos.
-          </p>
-          <p className="home-tagline-accent">
-            En <strong>Zas!</strong> consigues todo a la mano.
-          </p>
-        </header>
+        <section className="home-hero">
+          <div className="home-hero-main">
+            <img src="/logo.png" alt="Zas! - Red de farmacias" className="home-logo-img" />
+            <div className="home-hero-text">
+              <h1 className="home-logo">Zas! Farma</h1>
+              <p className="home-tagline">
+                Tu farmacia online con red de farmacias aliadas y delivery en toda Venezuela.
+              </p>
+              <p className="home-tagline-accent">
+                En <strong>Zas!</strong> encuentras medicamentos, cuidado personal y mucho más, sin ruletear de farmacia en farmacia.
+              </p>
+            </div>
+          </div>
+        </section>
 
         <section className="home-carousel-wrap">
           <div
@@ -156,7 +295,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Marcas con las que trabajamos */}
         <section className="home-section home-marcas">
           <h2 className="home-section-title">Marcas que nos respaldan</h2>
           <p className="home-section-subtitle">
@@ -181,7 +319,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Delivery con foto */}
         <section className="home-section home-delivery">
           <div className="home-split">
             <div className="home-split-media">
@@ -203,7 +340,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Medicamentos y productos con foto */}
         <section className="home-section home-medicamentos">
           <div className="home-split home-split-reverse">
             <div className="home-split-media">
@@ -236,7 +372,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* CTAs: farmacia y delivery */}
         <section className="home-ctas">
           <Link to="/registro-farmacia" className="home-cta-card home-cta-farmacia">
             <span className="home-cta-icon">🏥</span>
