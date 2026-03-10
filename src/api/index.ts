@@ -1,7 +1,12 @@
-// En producción (Vercel) no hay proxy: VITE_API_URL debe apuntar al backend real.
+// En producción: VITE_API_URL=https://zas-red-farmacias-back.onrender.com (sin /api al final).
 // En desarrollo, si no hay VITE_API_URL, usamos '/api' y el proxy de Vite lo reenvía.
 const BASE = import.meta.env.VITE_API_URL || ''
 const API = BASE ? `${BASE.replace(/\/$/, '')}/api` : '/api'
+
+/** Base URL del API para peticiones que no usan request() (ej. FormData). */
+export function getApiBaseUrl(): string {
+  return BASE ? `${BASE.replace(/\/$/, '')}/api` : (typeof window !== 'undefined' ? `${window.location.origin}/api` : '/api')
+}
 
 import { getMasterPortalHeaders } from '../lib/masterPortalStorage'
 
@@ -253,6 +258,8 @@ export interface ProductoApi {
   categoria?: string
   farmaciaId: string
   existencia?: number
+  /** Si es false o existencia === 0 → mostrar "Sin stock" y no permitir agregar al carrito */
+  disponible?: boolean
 }
 
 export interface ActualizarDescuentoItem {
@@ -260,15 +267,19 @@ export interface ActualizarDescuentoItem {
   descuentoPorcentaje: number
 }
 
-// ===================== CATÁLOGO PÚBLICO =====================
+// ===================== CATÁLOGO CLIENTE (INSTRUCCIONES_FRONTEND_IA.md) =====================
 
 export interface CatalogoQuery {
   q?: string
   farmacia_id?: string
   page?: number
   page_size?: number
+  /** Tras confirmar ubicación: filtrar productos por comercios más cercanos */
+  lat?: number
+  lng?: number
 }
 
+/** GET /api/cliente/catalogo — Lista catálogo con q, farmacia_id, page, page_size, lat, lng (cercanía). */
 export const catalogoApi = {
   listar: (params?: CatalogoQuery) => {
     const search = new URLSearchParams()
@@ -276,8 +287,29 @@ export const catalogoApi = {
     if (params?.farmacia_id) search.set('farmacia_id', params.farmacia_id)
     if (params?.page != null) search.set('page', String(params.page))
     if (params?.page_size != null) search.set('page_size', String(params.page_size))
+    if (params?.lat != null) search.set('lat', String(params.lat))
+    if (params?.lng != null) search.set('lng', String(params.lng))
     const qs = search.toString()
-    return request<ProductoApi[]>(`/catalogo${qs ? `?${qs}` : ''}`)
+    return request<ProductoApi[]>(`/cliente/catalogo${qs ? `?${qs}` : ''}`)
+  },
+}
+
+/** GET /api/cliente/delivery/estimado?lat=&lng= — Estimación costo delivery (backend puede usar items del carrito por sesión). */
+export const deliveryApi = {
+  estimado: (lat: number, lng: number) =>
+    request<{ costo: number; message?: string }>(`/cliente/delivery/estimado?lat=${lat}&lng=${lng}`),
+}
+
+/** GET /api/cliente/productos — Endpoint alternativo/detalle de productos (mismo formato que catálogo). */
+export const productosApi = {
+  listar: (params?: CatalogoQuery) => {
+    const search = new URLSearchParams()
+    if (params?.q) search.set('q', params.q)
+    if (params?.farmacia_id) search.set('farmacia_id', params.farmacia_id)
+    if (params?.page != null) search.set('page', String(params.page))
+    if (params?.page_size != null) search.set('page_size', String(params.page_size))
+    const qs = search.toString()
+    return request<ProductoApi[]>(`/cliente/productos${qs ? `?${qs}` : ''}`)
   },
 }
 
@@ -316,6 +348,27 @@ export const carritoApi = {
     ),
 }
 
+// ===================== INVENTARIO FARMACIA (Excel + conflictos descripción) =====================
+
+export interface ConflictoDescripcion {
+  codigo: string
+  descripcionSistema: string
+  descripcionArchivo: string
+}
+
+export interface CargarExcelResponse {
+  creados?: number
+  actualizados?: number
+  vinculadosCatalogo?: number
+  conflictosDescripcion?: ConflictoDescripcion[]
+  message?: string
+}
+
+export interface DecisionDescripcion {
+  codigo: string
+  usar: 'catalogo' | 'farmacia'
+}
+
 export const farmaciaApi = {
   inventario: () => request<ProductoApi[]>('/farmacia/inventario'),
   actualizarDescuentos: (items: ActualizarDescuentoItem[]) =>
@@ -323,9 +376,19 @@ export const farmaciaApi = {
       method: 'PATCH',
       body: JSON.stringify(items),
     }),
+  /** POST /api/farmacia/inventario/resolver-descripciones — Body: { decisiones: [ { codigo, usar: 'catalogo' | 'farmacia' } ] } */
+  resolverDescripciones: (decisiones: DecisionDescripcion[]) =>
+    request<{ ok?: boolean; message?: string }>('/farmacia/inventario/resolver-descripciones', {
+      method: 'POST',
+      body: JSON.stringify({ decisiones }),
+    }),
 }
 
 export const clienteApi = {
-  // Enlaza con el nuevo endpoint GET /catalogo
+  /** GET /api/cliente/catalogo — q, farmacia_id, page, page_size, lat, lng. Respuesta: id, descripcion, precio, imagen, existencia, disponible. */
   catalogo: (params?: CatalogoQuery) => catalogoApi.listar(params),
+  /** GET /api/cliente/productos — opcional; mismo formato que catálogo. */
+  productos: (params?: CatalogoQuery) => productosApi.listar(params),
+  /** GET /api/cliente/delivery/estimado?lat=&lng= — costo estimado del delivery. */
+  estimacionDelivery: (lat: number, lng: number) => deliveryApi.estimado(lat, lng),
 }

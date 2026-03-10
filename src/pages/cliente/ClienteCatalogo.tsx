@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
+import { useGeolocation } from '../../context/GeolocationContext'
 import type { Producto } from '../../types'
 import { clienteApi, carritoApi } from '../../api'
 import { useAuth } from '../../context/AuthContext'
@@ -9,41 +10,14 @@ import { DEPARTAMENTOS_ZAS, type DepartamentoZas } from '../../constants/departa
 import './ClienteCatalogo.css'
 
 const MOCK_PRODUCTOS: Producto[] = [
-  {
-    id: '1',
-    codigo: 'COD-001',
-    descripcion: 'Paracetamol 500mg',
-    principioActivo: 'Paracetamol',
-    presentacion: 'Caja 20 tab',
-    marca: 'La Sante',
-    precio: 5.5,
-    descuentoPorcentaje: 10,
-    precioConPorcentaje: 4.95,
-    farmaciaId: 'f1',
-  },
-  {
-    id: '2',
-    codigo: 'COD-002',
-    descripcion: 'Ibuprofeno 400mg',
-    principioActivo: 'Ibuprofeno',
-    presentacion: 'Caja 30 tab',
-    marca: 'Cofasa',
-    precio: 6.0,
-    farmaciaId: 'f1',
-  },
-  {
-    id: '3',
-    codigo: 'COD-003',
-    descripcion: 'Vitamina C 1g',
-    principioActivo: 'Ácido ascórbico',
-    presentacion: 'Frasco 30 tab',
-    marca: 'Genven',
-    precio: 8.0,
-    descuentoPorcentaje: 20,
-    precioConPorcentaje: 6.4,
-    farmaciaId: 'f2',
-  },
+  { id: '1', codigo: 'COD-001', descripcion: 'Paracetamol 500mg', principioActivo: 'Paracetamol', presentacion: 'Caja 20 tab', marca: 'La Sante', precio: 5.5, descuentoPorcentaje: 10, precioConPorcentaje: 4.95, farmaciaId: 'f1', existencia: 10 },
+  { id: '2', codigo: 'COD-002', descripcion: 'Ibuprofeno 400mg', principioActivo: 'Ibuprofeno', presentacion: 'Caja 30 tab', marca: 'Cofasa', precio: 6.0, farmaciaId: 'f1', existencia: 30 },
+  { id: '3', codigo: 'COD-003', descripcion: 'Vitamina C 1g', principioActivo: 'Ácido ascórbico', presentacion: 'Frasco 30 tab', marca: 'Genven', precio: 8.0, descuentoPorcentaje: 20, precioConPorcentaje: 6.4, farmaciaId: 'f2', existencia: 20 },
 ]
+
+function getPrecioEfectivo(p: Producto) {
+  return p.precioConPorcentaje ?? p.precio
+}
 
 function getPrecioBase(p: Producto) {
   return p.precio
@@ -53,19 +27,22 @@ function getPrecioConDescuento(p: Producto) {
   return p.precioConPorcentaje ?? p.precio
 }
 
-function getDescuentoPorcentaje(p: Producto) {
+function getDescuentoPorcentaje(p: Producto): number {
   if (typeof p.descuentoPorcentaje === 'number') return p.descuentoPorcentaje
   if (p.precioConPorcentaje != null && p.precioConPorcentaje < p.precio) {
-    const raw = 100 - (p.precioConPorcentaje * 100) / p.precio
-    return Math.round(raw)
+    return Math.round(100 - (p.precioConPorcentaje * 100) / p.precio)
   }
   return 0
 }
 
+function sinStock(p: Producto): boolean {
+  if (p.disponible === false) return true
+  if (typeof p.existencia === 'number' && p.existencia <= 0) return true
+  return false
+}
+
 function getCategoriaProducto(p: Producto): DepartamentoZas | 'Otros' {
-  if (p.categoria && DEPARTAMENTOS_ZAS.includes(p.categoria as DepartamentoZas)) {
-    return p.categoria as DepartamentoZas
-  }
+  if (p.categoria && DEPARTAMENTOS_ZAS.includes(p.categoria as DepartamentoZas)) return p.categoria as DepartamentoZas
   const desc = `${p.descripcion} ${p.principioActivo}`.toLowerCase()
   if (desc.includes('ibuprof') || desc.includes('paracetam')) return 'Analgésicos y Antipiréticos'
   if (desc.includes('antibiót') || desc.includes('amoxic') || desc.includes('ciproflox')) return 'Antibióticos'
@@ -74,14 +51,34 @@ function getCategoriaProducto(p: Producto): DepartamentoZas | 'Otros' {
   return 'Otros'
 }
 
+/** Agrupa por codigo+descripcion y elige el de mejor precio; el resto queda en "otros". */
+function agruparPorMejorPrecio(productos: Producto[]): { key: string; mejor: Producto; otros: Producto[] }[] {
+  const map = new Map<string, Producto[]>()
+  for (const p of productos) {
+    const key = `${p.codigo}|${p.descripcion}`
+    if (!map.has(key)) map.set(key, [])
+    map.get(key)!.push(p)
+  }
+  const result: { key: string; mejor: Producto; otros: Producto[] }[] = []
+  map.forEach((list, key) => {
+    const sorted = [...list].sort((a, b) => getPrecioEfectivo(a) - getPrecioEfectivo(b))
+    result.push({ key, mejor: sorted[0]!, otros: sorted.slice(1) })
+  })
+  return result
+}
+
+const MENSAJE_STOCK_OTRA_LOCALIDAD =
+  'El comercio con mejor precio solo dispone de esa cantidad. Los demás están en otra localidad; si procedes con el pedido, el costo de envío puede variar ligeramente.'
+
 export default function ClienteCatalogo() {
   const [busqueda, setBusqueda] = useState('')
   const [estado, setEstado] = useState('')
   const [searchParams] = useSearchParams()
   const buscarParam = searchParams.get('buscar') === '1'
   const searchInputRef = useRef<HTMLInputElement | null>(null)
-  const { addItem } = useCart()
+  const { addItem, items: cartItems } = useCart()
   const { user } = useAuth()
+  const { position, requestLocation, loading: gpsLoading, error: gpsError } = useGeolocation()
 
   const [productos, setProductos] = useState<Producto[]>([])
   const [loading, setLoading] = useState(true)
@@ -89,25 +86,30 @@ export default function ClienteCatalogo() {
   const [page, setPage] = useState(0)
   const pageSize = 20
 
+  const [ubicacionConfirmada, setUbicacionConfirmada] = useState(false)
+  const [costoDelivery, setCostoDelivery] = useState<number | null>(null)
+  const [loadingDelivery, setLoadingDelivery] = useState(false)
+  const [modalOtrosComercios, setModalOtrosComercios] = useState<{ mejor: Producto; otros: Producto[] } | null>(null)
+
+  const coords = position
+
   useEffect(() => {
     let cancelled = false
     async function load() {
       try {
         setLoading(true)
         setError(null)
-        // Catálogo basado en nuevo endpoint GET /catalogo con buscador y paginación
-        const data = await clienteApi.catalogo({
-          q: busqueda.trim() || undefined,
+        const params: { q?: string; page: number; page_size: number; lat?: number; lng?: number } = {
           page,
           page_size: pageSize,
-        })
-        if (!cancelled) {
-          setProductos(
-            data.map((p) => ({
-              ...p,
-            }))
-          )
         }
+        if (busqueda.trim()) params.q = busqueda.trim()
+        if (ubicacionConfirmada && coords) {
+          params.lat = coords.lat
+          params.lng = coords.lng
+        }
+        const data = await clienteApi.catalogo(params)
+        if (!cancelled) setProductos(data.map((p) => ({ ...p })))
       } catch (e) {
         if (!cancelled) {
           console.error(e)
@@ -119,56 +121,91 @@ export default function ClienteCatalogo() {
       }
     }
     load()
-    return () => {
-      cancelled = true
+    return () => { cancelled = true }
+  }, [busqueda, page, ubicacionConfirmada, coords?.lat, coords?.lng])
+
+  useEffect(() => {
+    if (!ubicacionConfirmada || !coords) return
+    let cancelled = false
+    setLoadingDelivery(true)
+    clienteApi.estimacionDelivery(coords.lat, coords.lng)
+      .then((res) => { if (!cancelled) setCostoDelivery(res.costo ?? 0) })
+      .catch(() => { if (!cancelled) setCostoDelivery(null) })
+      .finally(() => { if (!cancelled) setLoadingDelivery(false) })
+    return () => { cancelled = true }
+  }, [ubicacionConfirmada, coords?.lat, coords?.lng, cartItems.length])
+
+  async function handleConfirmarUbicacion() {
+    const loc = await requestLocation()
+    if (loc) {
+      setUbicacionConfirmada(true)
+      setLoadingDelivery(true)
+      try {
+        const res = await clienteApi.estimacionDelivery(loc.lat, loc.lng)
+        setCostoDelivery(res.costo ?? 0)
+      } catch {
+        setCostoDelivery(null)
+      } finally {
+        setLoadingDelivery(false)
+      }
     }
-  }, [busqueda, page])
+  }
 
   const [cantidades, setCantidades] = useState<Record<string, number>>({})
   const getCant = (id: string) => cantidades[id] ?? 1
   const setCant = (id: string, value: number) => setCantidades((c) => ({ ...c, [id]: Math.max(1, value) }))
 
   useEffect(() => {
-    if (buscarParam && searchInputRef.current) {
-      searchInputRef.current.focus()
-    }
+    if (buscarParam && searchInputRef.current) searchInputRef.current.focus()
   }, [buscarParam])
 
   const productosFiltrados = productos.filter((p) => {
     const q = busqueda.trim().toLowerCase()
-    if (
-      q &&
-      !p.descripcion.toLowerCase().includes(q) &&
-      !p.codigo.toLowerCase().includes(q)
-    ) {
-      return false
-    }
+    if (q && !p.descripcion.toLowerCase().includes(q) && !p.codigo.toLowerCase().includes(q)) return false
     return true
   })
 
-  const secciones = DEPARTAMENTOS_ZAS.map((dep) => ({
-    nombre: dep,
-    productos: productosFiltrados.filter((p) => getCategoriaProducto(p) === dep),
-  })).filter((s) => s.productos.length > 0)
+  const grupos = useMemo(() => agruparPorMejorPrecio(productosFiltrados), [productosFiltrados])
+  const secciones = useMemo(() =>
+    DEPARTAMENTOS_ZAS.map((dep) => ({
+      nombre: dep,
+      grupos: grupos.filter((g) => getCategoriaProducto(g.mejor) === dep),
+    })).filter((s) => s.grupos.length > 0),
+    [grupos]
+  )
+
+  const cartFarmaciaIds = useMemo(() => new Set(cartItems.map((i) => i.farmaciaId)), [cartItems])
 
   return (
     <div className="cliente-catalogo container">
+      {/* Calculadora delivery (compacta) */}
+      <div className="cliente-catalogo-delivery">
+        <span className="cliente-catalogo-delivery-label">Costo del delivery:</span>
+        <span className="cliente-catalogo-delivery-monto">
+          {loadingDelivery ? '…' : costoDelivery != null ? `$ ${costoDelivery.toFixed(2)}` : '—'}
+        </span>
+        <button
+          type="button"
+          className="btn btn-primary btn-sm"
+          onClick={handleConfirmarUbicacion}
+          disabled={gpsLoading}
+        >
+          {gpsLoading ? 'Obteniendo…' : ubicacionConfirmada ? 'Ubicación confirmada' : 'Confirmar ubicación'}
+        </button>
+      </div>
+      {gpsError && <p className="auth-error" style={{ marginTop: 4, marginBottom: 0 }}>{gpsError}</p>}
+
       <div className="cliente-catalogo-location">
         <span className="cliente-catalogo-location-label">Ubicación</span>
-        <select
-          value={estado}
-          onChange={(e) => setEstado(e.target.value)}
-        >
+        <select value={estado} onChange={(e) => setEstado(e.target.value)}>
           <option value="">Todo el país</option>
           {ESTADOS_VENEZUELA.map((e) => (
-            <option key={e} value={e}>
-              {e}
-            </option>
+            <option key={e} value={e}>{e}</option>
           ))}
         </select>
       </div>
       <p className="cliente-catalogo-hint badge badge-info">
-        Los productos del mismo color están en el mismo comercio.
+        Los productos del mismo comercio se muestran resaltados. Así evitas que el delivery se sume de varios comercios.
       </p>
       {buscarParam && (
         <div className="cliente-catalogo-search-bar">
@@ -177,56 +214,71 @@ export default function ClienteCatalogo() {
             type="search"
             placeholder="Buscar medicamentos, vitaminas, cuidado personal..."
             value={busqueda}
-            onChange={(e) => {
-              setBusqueda(e.target.value)
-              setPage(0)
-            }}
+            onChange={(e) => { setBusqueda(e.target.value); setPage(0) }}
             className="search-input"
           />
         </div>
       )}
-      {loading && productosFiltrados.length === 0 && (
-        <p className="cliente-catalogo-empty">Cargando catálogo...</p>
-      )}
-      {error && (
-        <p className="cliente-catalogo-empty">{error}</p>
-      )}
+
+      {loading && productosFiltrados.length === 0 && <p className="cliente-catalogo-empty">Cargando catálogo...</p>}
+      {error && <p className="cliente-catalogo-empty">{error}</p>}
       {!loading && secciones.length === 0 && (
         <p className="cliente-catalogo-empty">No hay productos que coincidan con la búsqueda.</p>
       )}
+
       {secciones.map((sec) => (
         <section key={sec.nombre} className="cliente-catalogo-section">
           <div className="cliente-catalogo-section-header">
             <h3>{sec.nombre}</h3>
           </div>
           <div className="cliente-catalogo-section-list">
-            {sec.productos.map((p) => {
+            {sec.grupos.map(({ key, mejor, otros }) => {
+              const p = mejor
               const precioBase = getPrecioBase(p)
               const precioConDescuento = getPrecioConDescuento(p)
               const descuento = getDescuentoPorcentaje(p)
               const tieneDescuento = descuento > 0 && precioConDescuento < precioBase
+              const sinStockProducto = sinStock(p)
+              const esMismoComercio = cartFarmaciaIds.has(p.farmaciaId)
+              const esOtroComercio = cartItems.length > 0 && !esMismoComercio
 
               return (
-                <article key={p.id} className="cliente-catalogo-card card product-same-store">
-                  <div className="product-photo">Foto</div>
+                <article
+                  key={key}
+                  className={`cliente-catalogo-card card ${esMismoComercio ? 'producto-mismo-comercio' : ''}`}
+                >
+                  <div className="product-photo">
+                    {p.imagen ? (
+                      <img src={p.imagen} alt={p.descripcion} className="product-photo-img" />
+                    ) : (
+                      <span className="product-photo-placeholder">Sin imagen</span>
+                    )}
+                  </div>
                   <div className="cliente-catalogo-info">
                     <span className="product-codigo">{p.codigo}</span>
-                    <p className="product-desc">
-                      {p.descripcion} · {p.presentacion}
-                    </p>
+                    <p className="product-desc">{p.descripcion} · {p.presentacion}</p>
                     <p className="product-desc product-marca">{p.marca}</p>
+                    {sinStockProducto && <p className="product-sin-stock" role="status">Sin stock</p>}
                     <p className="product-precio">
                       {tieneDescuento ? (
                         <>
                           <span className="product-precio-original">$ {precioBase.toFixed(2)}</span>
-                          <span className="product-precio-descuento">
-                            {descuento}% OFF · $ {precioConDescuento.toFixed(2)}
-                          </span>
+                          <span className="product-precio-descuento">{descuento}% OFF · $ {precioConDescuento.toFixed(2)}</span>
                         </>
                       ) : (
                         <>$ {precioBase.toFixed(2)}</>
                       )}
                     </p>
+                    {otros.length > 0 && (
+                      <p className="product-otros-comercios">
+                        <button type="button" onClick={() => setModalOtrosComercios({ mejor: p, otros })}>
+                          Otros comercios
+                        </button>
+                      </p>
+                    )}
+                    {esOtroComercio && (
+                      <p className="product-otra-localidad">En otro comercio; el envío puede variar.</p>
+                    )}
                   </div>
                   <div className="cliente-catalogo-actions">
                     <label className="cliente-catalogo-qty-label">Cantidad</label>
@@ -236,16 +288,24 @@ export default function ClienteCatalogo() {
                         min={1}
                         value={getCant(p.id)}
                         onChange={(e) => setCant(p.id, parseInt(e.target.value, 10) || 1)}
+                        disabled={sinStockProducto}
                       />
                       <button
                         type="button"
                         className="btn btn-primary btn-sm"
+                        disabled={sinStockProducto}
                         onClick={async () => {
+                          if (sinStockProducto) return
                           const cantidad = getCant(p.id)
+                          const existencia = p.existencia ?? 0
+                          if (existencia > 0 && cantidad > existencia) {
+                            const ok = window.confirm(
+                              `${MENSAJE_STOCK_OTRA_LOCALIDAD}\n\n¿Agregar ${cantidad} igualmente?`
+                            )
+                            if (!ok) return
+                          }
                           addItem(p, cantidad, p.farmaciaId)
-
                           if (!user) return
-
                           try {
                             const resp = await carritoApi.agregar({
                               cliente_id: user.id,
@@ -254,7 +314,7 @@ export default function ClienteCatalogo() {
                             })
                             if (resp.status === 'conflicto_farmacia') {
                               const aceptar = window.confirm(
-                                'Estás agregando productos de otro comercio. El delivery y tiempos pueden variar. ¿Deseas continuar?',
+                                'Estás agregando productos de otro comercio. El delivery y tiempos pueden variar. ¿Deseas continuar?'
                               )
                               if (aceptar) {
                                 await carritoApi.cambiarFarmacia({
@@ -278,22 +338,36 @@ export default function ClienteCatalogo() {
           </div>
         </section>
       ))}
-      <div className="cliente-catalogo-pagination">
-        <button
-          type="button"
-          className="btn btn-secondary btn-sm"
-          onClick={() => setPage((p) => Math.max(0, p - 1))}
-          disabled={page === 0 || loading}
+
+      {modalOtrosComercios && (
+        <div
+          className="cliente-catalogo-modal-backdrop"
+          onClick={() => setModalOtrosComercios(null)}
+          role="presentation"
         >
+          <div className="cliente-catalogo-modal" onClick={(e) => e.stopPropagation()}>
+            <h4>Otros comercios · {modalOtrosComercios.mejor.descripcion}</h4>
+            <ul>
+              {modalOtrosComercios.otros.map((o) => (
+                <li key={o.id}>
+                  <span>Comercio {o.farmaciaId}</span>
+                  <span>$ {(o.precioConPorcentaje ?? o.precio).toFixed(2)} · {o.existencia ?? 0} disp.</span>
+                </li>
+              ))}
+            </ul>
+            <button type="button" className="btn btn-secondary btn-sm" onClick={() => setModalOtrosComercios(null)}>
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="cliente-catalogo-pagination">
+        <button type="button" className="btn btn-secondary btn-sm" onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={page === 0 || loading}>
           ← Anterior
         </button>
         <span style={{ margin: '0 0.75rem', fontSize: '0.9rem' }}>Página {page + 1}</span>
-        <button
-          type="button"
-          className="btn btn-secondary btn-sm"
-          onClick={() => setPage((p) => p + 1)}
-          disabled={loading || productos.length < pageSize}
-        >
+        <button type="button" className="btn btn-secondary btn-sm" onClick={() => setPage((p) => p + 1)} disabled={loading || productos.length < pageSize}>
           Siguiente →
         </button>
       </div>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { Producto } from '../../types'
-import { farmaciaApi } from '../../api'
+import { farmaciaApi, getApiBaseUrl, type ConflictoDescripcion, type CargarExcelResponse } from '../../api'
 import { useAuth } from '../../context/AuthContext'
 import { STORAGE_FARMACIA_ID } from '../../lib/masterPortalStorage'
 
@@ -61,7 +61,9 @@ export default function FarmaciaInventario() {
   const [mensaje, setMensaje] = useState<string | null>(null)
   const { user } = useAuth()
   const [farmaciaId, setFarmaciaId] = useState<string | null>(null)
-  const [conflictos, setConflictos] = useState<unknown[] | null>(null)
+  const [conflictos, setConflictos] = useState<ConflictoDescripcion[] | null>(null)
+  /** Por cada codigo, 'catalogo' = usar descripcionSistema, 'farmacia' = usar descripcionArchivo */
+  const [decisiones, setDecisiones] = useState<Record<string, 'catalogo' | 'farmacia'>>({})
 
   useEffect(() => {
     let cancelled = false
@@ -168,26 +170,31 @@ export default function FarmaciaInventario() {
       const formData = new FormData()
       formData.append('file', file)
 
+      const base = getApiBaseUrl()
+      const token = localStorage.getItem('zas_token')
       const res = await fetch(
-        `${window.location.origin.replace(/\/$/, '')}/api/farmacias/${encodeURIComponent(
-          farmaciaId,
-        )}/inventario/cargar-excel`,
+        `${base}/farmacias/${encodeURIComponent(farmaciaId)}/inventario/cargar-excel`,
         {
           method: 'POST',
+          headers: { ...(token && { Authorization: `Bearer ${token}` }) },
           body: formData,
         },
       )
-      const data = await res.json().catch(() => ({})) as {
-        conflictos_descripcion?: unknown[]
-        message?: string
-      }
+      const data = await res.json().catch(() => ({})) as CargarExcelResponse
 
-      if (data.conflictos_descripcion && Array.isArray(data.conflictos_descripcion)) {
-        setConflictos(data.conflictos_descripcion)
-        setMensaje('Se detectaron conflictos de descripción. Revisa la sección de abajo y luego envía tu resolución.')
+      const conflictosDesc = data.conflictosDescripcion ?? (data as { conflictos_descripcion?: ConflictoDescripcion[] }).conflictos_descripcion
+      if (conflictosDesc && Array.isArray(conflictosDesc) && conflictosDesc.length > 0) {
+        setConflictos(conflictosDesc)
+        setDecisiones({})
+        setMensaje('Se detectaron conflictos de descripción. Elige para cada código qué descripción usar y envía la resolución.')
       } else {
         setConflictos(null)
-        setMensaje(data.message || 'Inventario subido correctamente.')
+        setDecisiones({})
+        const parts: string[] = []
+        if (data.creados != null) parts.push(`${data.creados} creados`)
+        if (data.actualizados != null) parts.push(`${data.actualizados} actualizados`)
+        if (data.vinculadosCatalogo != null) parts.push(`${data.vinculadosCatalogo} vinculados a catálogo`)
+        setMensaje(parts.length ? parts.join(', ') + '.' : (data.message || 'Inventario subido correctamente.'))
       }
     } catch (e) {
       console.error('Error al subir inventario', e)
@@ -195,28 +202,27 @@ export default function FarmaciaInventario() {
     }
   }
 
+  function setDecision(codigo: string, usar: 'catalogo' | 'farmacia') {
+    setDecisiones((prev) => ({ ...prev, [codigo]: usar }))
+  }
+
   async function handleResolverConflictos() {
-    if (!farmaciaId || !conflictos || conflictos.length === 0) return
+    if (!conflictos || conflictos.length === 0) return
+    const faltan = conflictos.filter((c) => !decisiones[c.codigo])
+    if (faltan.length > 0) {
+      setMensaje(`Elige una opción para los códigos: ${faltan.map((c) => c.codigo).join(', ')}`)
+      return
+    }
     try {
       setMensaje(null)
-      const res = await fetch(
-        `${window.location.origin.replace(/\/$/, '')}/api/farmacias/${encodeURIComponent(
-          farmaciaId,
-        )}/inventario/resolver-descripciones`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ conflictos_descripcion: conflictos }),
-        },
-      )
-      const data = await res.json().catch(() => ({})) as { message?: string }
-      setMensaje(data.message || 'Conflictos enviados para resolver correctamente.')
+      const payload = conflictos.map((c) => ({ codigo: c.codigo, usar: decisiones[c.codigo]! }))
+      await farmaciaApi.resolverDescripciones(payload)
+      setMensaje('Descripciones actualizadas correctamente.')
       setConflictos(null)
+      setDecisiones({})
     } catch (e) {
       console.error('Error al resolver conflictos de descripciones', e)
-      setMensaje('No se pudieron enviar los conflictos. Intenta nuevamente.')
+      setMensaje('No se pudieron enviar las decisiones. Intenta nuevamente.')
     }
   }
 
@@ -243,17 +249,38 @@ export default function FarmaciaInventario() {
 
       {conflictos && conflictos.length > 0 && (
         <div className="card" style={{ marginTop: '1rem' }}>
-          <h3>Conflictos de descripción detectados</h3>
+          <h3>Conflictos de descripción</h3>
           <p className="muted">
-            Revisa las comparaciones entre tu archivo y los registros existentes en el sistema. En esta versión se
-            muestran en formato técnico. Al pulsar &quot;Enviar resolución&quot; se enviarán estos datos al backend para
-            que procese los cambios.
+            Para cada código elige si usar la descripción del sistema (catálogo) o la de tu archivo.
           </p>
-          <pre style={{ maxHeight: '260px', overflow: 'auto', background: '#0f172a', color: '#e5e7eb', padding: '0.75rem', borderRadius: '8px', fontSize: '0.75rem' }}>
-            {JSON.stringify(conflictos, null, 2)}
-          </pre>
+          <ul style={{ listStyle: 'none', padding: 0, margin: '1rem 0' }}>
+            {conflictos.map((c) => (
+              <li key={c.codigo} style={{ marginBottom: '1rem', padding: '0.75rem', background: '#f8fafc', borderRadius: 8 }}>
+                <strong>Para el código {c.codigo}:</strong>
+                <p style={{ margin: '0.5rem 0', fontSize: '0.9rem' }}>
+                  ¿Usar la descripción del sistema o la de tu archivo?
+                </p>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    className={`btn btn-sm ${decisiones[c.codigo] === 'catalogo' ? 'btn-primary' : 'btn-secondary'}`}
+                    onClick={() => setDecision(c.codigo, 'catalogo')}
+                  >
+                    Sistema: &quot;{c.descripcionSistema}&quot;
+                  </button>
+                  <button
+                    type="button"
+                    className={`btn btn-sm ${decisiones[c.codigo] === 'farmacia' ? 'btn-primary' : 'btn-secondary'}`}
+                    onClick={() => setDecision(c.codigo, 'farmacia')}
+                  >
+                    Archivo: &quot;{c.descripcionArchivo}&quot;
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
           <button type="button" className="btn btn-primary" onClick={handleResolverConflictos}>
-            Enviar resolución de conflictos
+            Enviar resolución
           </button>
         </div>
       )}

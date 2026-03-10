@@ -2,6 +2,102 @@
   padding-bottom: 5rem;
 }
 
+/* Calculadora delivery (compacta) */
+.cliente-catalogo-delivery {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+  padding: 0.6rem 0.75rem;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+}
+
+.cliente-catalogo-delivery-label {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.cliente-catalogo-delivery-monto {
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.cliente-catalogo-delivery .btn {
+  margin-left: auto;
+}
+
+/* Mismo comercio que el carrito */
+.cliente-catalogo-card.producto-mismo-comercio {
+  box-shadow: 0 0 0 2px var(--color-primary);
+  background: #f0fdf4;
+}
+
+.cliente-catalogo-card .product-otra-localidad {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin-top: 0.25rem;
+}
+
+.cliente-catalogo-card .product-otros-comercios {
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+.cliente-catalogo-card .product-otros-comercios button {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  font-size: inherit;
+}
+
+/* Modal otros comercios */
+.cliente-catalogo-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.cliente-catalogo-modal {
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+  max-width: 360px;
+  width: 100%;
+  max-height: 80vh;
+  overflow: auto;
+}
+
+.cliente-catalogo-modal h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
+}
+
+.cliente-catalogo-modal ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.cliente-catalogo-modal li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .cliente-catalogo-location {
   margin-bottom: 0.5rem;
   display: flex;
@@ -166,6 +262,31 @@
   font-size: 0.8rem;
   color: var(--color-text-muted);
   margin-bottom: 0.25rem;
+  overflow: hidden;
+}
+
+.cliente-catalogo-card .product-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cliente-catalogo-card .product-photo-placeholder {
+  padding: 0.25rem;
+  text-align: center;
+}
+
+.cliente-catalogo-info .product-sin-stock {
+  margin: 0.25rem 0 0 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-danger, #dc2626);
+}
+
+.cliente-catalogo-qty input:disabled,
+.cliente-catalogo-card .btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .cliente-catalogo-card .cliente-catalogo-actions {

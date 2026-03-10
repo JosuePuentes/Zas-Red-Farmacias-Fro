@@ -39,6 +39,8 @@ export interface Producto {
   categoria?: string
   farmaciaId: string
   existencia?: number
+  /** Si es false o existencia === 0 → "Sin stock", no agregar al carrito */
+  disponible?: boolean
 }
 
 export interface CarritoItem {
