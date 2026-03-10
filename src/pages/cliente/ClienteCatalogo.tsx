@@ -199,9 +199,19 @@ export default function ClienteCatalogo() {
   }, [grupos])
 
   const cartFarmaciaIds = useMemo(() => new Set(cartItems.map((i) => i.farmaciaId)), [cartItems])
+  const isLoggedIn = !!user
 
   return (
     <div className="cliente-catalogo container">
+      <section className="cliente-catalogo-hero">
+        <div className="cliente-catalogo-hero-text">
+          <h2>Encuentra tus medicamentos sin ruletear farmacias</h2>
+          <p>Compara precios entre varias farmacias y recibe todo en casa. Zas! los busca por ti.</p>
+        </div>
+        <div className="cliente-catalogo-hero-banner">
+          <img src="/images/zas-app.png" alt="Zas! catálogo" />
+        </div>
+      </section>
       {/* Calculadora delivery (compacta) */}
       <div className="cliente-catalogo-delivery">
         <span className="cliente-catalogo-delivery-label">Costo del delivery:</span>
@@ -282,6 +292,13 @@ export default function ClienteCatalogo() {
               const esMismoComercio = cartFarmaciaIds.has(p.farmaciaId)
               const esOtroComercio = cartItems.length > 0 && !esMismoComercio
 
+              const todasOfertas = [mejor, ...otros]
+              const preciosEfectivos = todasOfertas
+                .map((x) => getPrecioEfectivo(x))
+                .filter((v) => Number.isFinite(v) && v > 0)
+              const precioMin = preciosEfectivos.length ? Math.min(...preciosEfectivos) : null
+              const precioMax = preciosEfectivos.length ? Math.max(...preciosEfectivos) : null
+
               const imagenUrl =
                 p.imagen && !p.imagen.startsWith('http')
                   ? `${backendBase}${p.imagen}`
@@ -303,36 +320,34 @@ export default function ClienteCatalogo() {
                     <span className="product-codigo">{p.codigo}</span>
                     <p className="product-desc">{(p.descripcion || p.codigo)}{p.presentacion ? ` · ${p.presentacion}` : ''}</p>
                     {p.marca && <p className="product-desc product-marca">{p.marca}</p>}
-                    {sinStockProducto && (
+                    {isLoggedIn && sinStockProducto && (
                       <>
                         <p className="product-sin-stock" role="status">Sin stock</p>
-                        {user && (
-                          <button
-                            type="button"
-                            className="btn btn-secondary btn-sm product-solicitar-btn"
-                            disabled={solicitandoCodigo === p.codigo}
-                            onClick={async () => {
-                              setSolicitandoCodigo(p.codigo)
-                              setSolicitudMsg(null)
-                              try {
-                                const res = await clienteApi.solicitarProducto(p.codigo)
-                                if (res.ok) {
-                                  setSolicitudMsg({ tipo: 'ok', texto: res.message || 'Solicitud registrada. Te avisaremos cuando esté disponible.' })
-                                } else {
-                                  let texto = res.message || 'No se pudo enviar la solicitud.'
-                                  if (res.proximaDisponible) texto += ` Puedes volver a solicitar a partir del ${res.proximaDisponible}.`
-                                  setSolicitudMsg({ tipo: 'error', texto })
-                                }
-                              } catch (e) {
-                                setSolicitudMsg({ tipo: 'error', texto: e instanceof Error ? e.message : 'Error al enviar la solicitud.' })
-                              } finally {
-                                setSolicitandoCodigo(null)
+                        <button
+                          type="button"
+                          className="btn btn-secondary btn-sm product-solicitar-btn"
+                          disabled={solicitandoCodigo === p.codigo}
+                          onClick={async () => {
+                            setSolicitandoCodigo(p.codigo)
+                            setSolicitudMsg(null)
+                            try {
+                              const res = await clienteApi.solicitarProducto(p.codigo)
+                              if (res.ok) {
+                                setSolicitudMsg({ tipo: 'ok', texto: res.message || 'Solicitud registrada. Te avisaremos cuando esté disponible.' })
+                              } else {
+                                let texto = res.message || 'No se pudo enviar la solicitud.'
+                                if (res.proximaDisponible) texto += ` Puedes volver a solicitar a partir del ${res.proximaDisponible}.`
+                                setSolicitudMsg({ tipo: 'error', texto })
                               }
-                            }}
-                          >
-                            {solicitandoCodigo === p.codigo ? 'Enviando...' : 'Solicitar producto'}
-                          </button>
-                        )}
+                            } catch (e) {
+                              setSolicitudMsg({ tipo: 'error', texto: e instanceof Error ? e.message : 'Error al enviar la solicitud.' })
+                            } finally {
+                              setSolicitandoCodigo(null)
+                            }
+                          }}
+                        >
+                          {solicitandoCodigo === p.codigo ? 'Enviando...' : 'Solicitar producto'}
+                        </button>
                       </>
                     )}
                     <p className="product-precio">
@@ -353,6 +368,12 @@ export default function ClienteCatalogo() {
                         <>Precio no disponible</>
                       )}
                     </p>
+                    {isLoggedIn && precioMin != null && precioMax != null && precioMax > precioMin && (
+                      <div className="cliente-catalogo-precio-rango">
+                        <span className="precio-min">Mejor precio $ {precioMin.toFixed(2)}</span>
+                        <span className="precio-max">Hasta $ {precioMax.toFixed(2)}</span>
+                      </div>
+                    )}
                     {otros.length > 0 && (
                       <p className="product-otros-comercios">
                         <button type="button" onClick={() => setModalOtrosComercios({ mejor: p, otros })}>
@@ -364,58 +385,66 @@ export default function ClienteCatalogo() {
                       <p className="product-otra-localidad">En otro comercio; el envío puede variar.</p>
                     )}
                   </div>
-                  <div className="cliente-catalogo-actions">
-                    <label className="cliente-catalogo-qty-label">Cantidad</label>
-                    <div className="cliente-catalogo-qty">
-                      <input
-                        type="number"
-                        min={1}
-                        value={getCant(p.id)}
-                        onChange={(e) => setCant(p.id, parseInt(e.target.value, 10) || 1)}
-                        disabled={sinStockProducto}
-                      />
-                      <button
-                        type="button"
-                        className="btn btn-primary btn-sm"
-                        disabled={sinStockProducto}
-                        onClick={async () => {
-                          if (sinStockProducto) return
-                          const cantidad = getCant(p.id)
-                          const existencia = p.existencia ?? 0
-                          if (existencia > 0 && cantidad > existencia) {
-                            const ok = window.confirm(
-                              `${MENSAJE_STOCK_OTRA_LOCALIDAD}\n\n¿Agregar ${cantidad} igualmente?`
-                            )
-                            if (!ok) return
-                          }
-                          addItem(p, cantidad, p.farmaciaId)
-                          if (!user) return
-                          try {
-                            const resp = await carritoApi.agregar({
-                              cliente_id: user.id,
-                              producto_id: p.id,
-                              cantidad,
-                            })
-                            if (resp.status === 'conflicto_farmacia') {
-                              const aceptar = window.confirm(
-                                'Estás agregando productos de otro comercio. El delivery y tiempos pueden variar. ¿Deseas continuar?'
+                  {isLoggedIn ? (
+                    <div className="cliente-catalogo-actions">
+                      <label className="cliente-catalogo-qty-label">Cantidad</label>
+                      <div className="cliente-catalogo-qty">
+                        <input
+                          type="number"
+                          min={1}
+                          value={getCant(p.id)}
+                          onChange={(e) => setCant(p.id, parseInt(e.target.value, 10) || 1)}
+                          disabled={sinStockProducto}
+                        />
+                        <button
+                          type="button"
+                          className="btn btn-primary btn-sm"
+                          disabled={sinStockProducto}
+                          onClick={async () => {
+                            if (sinStockProducto) return
+                            const cantidad = getCant(p.id)
+                            const existencia = p.existencia ?? 0
+                            if (existencia > 0 && cantidad > existencia) {
+                              const ok = window.confirm(
+                                `${MENSAJE_STOCK_OTRA_LOCALIDAD}\n\n¿Agregar ${cantidad} igualmente?`
                               )
-                              if (aceptar) {
-                                await carritoApi.cambiarFarmacia({
-                                  cliente_id: user.id,
-                                  farmacia_id: p.farmaciaId,
-                                })
-                              }
+                              if (!ok) return
                             }
-                          } catch (e) {
-                            console.error('Error al sincronizar carrito con backend', e)
-                          }
-                        }}
-                      >
-                        +
-                      </button>
+                            addItem(p, cantidad, p.farmaciaId)
+                            if (!user) return
+                            try {
+                              const resp = await carritoApi.agregar({
+                                cliente_id: user.id,
+                                producto_id: p.id,
+                                cantidad,
+                              })
+                              if (resp.status === 'conflicto_farmacia') {
+                                const aceptar = window.confirm(
+                                  'Estás agregando productos de otro comercio. El delivery y tiempos pueden variar. ¿Deseas continuar?'
+                                )
+                                if (aceptar) {
+                                  await carritoApi.cambiarFarmacia({
+                                    cliente_id: user.id,
+                                    farmacia_id: p.farmaciaId,
+                                  })
+                                }
+                              }
+                            } catch (e) {
+                              console.error('Error al sincronizar carrito con backend', e)
+                            }
+                          }}
+                        >
+                          +
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="cliente-catalogo-actions">
+                      <p className="cliente-catalogo-login-hint">
+                        Inicia sesión para ver disponibilidad y agregar al carrito.
+                      </p>
+                    </div>
+                  )}
                 </article>
               )
             })}
