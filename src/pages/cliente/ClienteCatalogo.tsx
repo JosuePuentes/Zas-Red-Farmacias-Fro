@@ -78,7 +78,6 @@ export default function ClienteCatalogo() {
   const [busqueda, setBusqueda] = useState('')
   const [estado, setEstado] = useState('')
   const [searchParams] = useSearchParams()
-  const buscarParam = searchParams.get('buscar') === '1'
   const searchInputRef = useRef<HTMLInputElement | null>(null)
   const { addItem, items: cartItems } = useCart()
   const { user } = useAuth()
@@ -169,8 +168,8 @@ export default function ClienteCatalogo() {
   const setCant = (id: string, value: number) => setCantidades((c) => ({ ...c, [id]: Math.max(1, value) }))
 
   useEffect(() => {
-    if (buscarParam && searchInputRef.current) searchInputRef.current.focus()
-  }, [buscarParam])
+    if (searchParams.get('buscar') === '1' && searchInputRef.current) searchInputRef.current.focus()
+  }, [searchParams])
 
   const productosFiltrados = productos.filter((p) => {
     const q = busqueda.trim().toLowerCase()
@@ -179,13 +178,17 @@ export default function ClienteCatalogo() {
   })
 
   const grupos = useMemo(() => agruparPorMejorPrecio(productosFiltrados), [productosFiltrados])
-  const secciones = useMemo(() =>
-    DEPARTAMENTOS_ZAS.map((dep) => ({
+  const secciones = useMemo(() => {
+    const conCategoria = DEPARTAMENTOS_ZAS.map((dep) => ({
       nombre: dep,
       grupos: grupos.filter((g) => getCategoriaProducto(g.mejor) === dep),
-    })).filter((s) => s.grupos.length > 0),
-    [grupos]
-  )
+    })).filter((s) => s.grupos.length > 0)
+    const otros = grupos.filter((g) => getCategoriaProducto(g.mejor) === 'Otros')
+    if (otros.length > 0) {
+      return [...conCategoria, { nombre: 'Otros' as const, grupos: otros }]
+    }
+    return conCategoria
+  }, [grupos])
 
   const cartFarmaciaIds = useMemo(() => new Set(cartItems.map((i) => i.farmaciaId)), [cartItems])
 
@@ -220,22 +223,24 @@ export default function ClienteCatalogo() {
       <p className="cliente-catalogo-hint badge badge-info">
         Los productos del mismo comercio se muestran resaltados. Así evitas que el delivery se sume de varios comercios.
       </p>
-      {buscarParam && (
-        <div className="cliente-catalogo-search-bar">
-          <input
-            ref={searchInputRef}
-            type="search"
-            placeholder="Buscar medicamentos, vitaminas, cuidado personal..."
-            value={busqueda}
-            onChange={(e) => { setBusqueda(e.target.value); setPage(0) }}
-            className="search-input"
-          />
-        </div>
-      )}
+      <div className="cliente-catalogo-search-bar">
+        <input
+          ref={searchInputRef}
+          type="search"
+          placeholder="Buscar medicamentos, vitaminas, cuidado personal..."
+          value={busqueda}
+          onChange={(e) => { setBusqueda(e.target.value); setPage(0) }}
+          className="search-input"
+          aria-label="Buscar en el catálogo"
+        />
+      </div>
 
-      {loading && productosFiltrados.length === 0 && <p className="cliente-catalogo-empty">Cargando catálogo...</p>}
+      {loading && productos.length === 0 && <p className="cliente-catalogo-empty">Cargando catálogo...</p>}
       {error && <p className="cliente-catalogo-empty">{error}</p>}
-      {!loading && secciones.length === 0 && (
+      {!loading && secciones.length === 0 && productos.length === 0 && (
+        <p className="cliente-catalogo-empty">No hay productos en el catálogo. Prueba más tarde o contacta al administrador.</p>
+      )}
+      {!loading && secciones.length === 0 && productos.length > 0 && (
         <p className="cliente-catalogo-empty">No hay productos que coincidan con la búsqueda.</p>
       )}
 
@@ -279,8 +284,8 @@ export default function ClienteCatalogo() {
                   </div>
                   <div className="cliente-catalogo-info">
                     <span className="product-codigo">{p.codigo}</span>
-                    <p className="product-desc">{p.descripcion} · {p.presentacion}</p>
-                    <p className="product-desc product-marca">{p.marca}</p>
+                    <p className="product-desc">{p.descripcion}{p.presentacion ? ` · ${p.presentacion}` : ''}</p>
+                    {p.marca && <p className="product-desc product-marca">{p.marca}</p>}
                     {sinStockProducto && <p className="product-sin-stock" role="status">Sin stock</p>}
                     <p className="product-precio">
                       {tienePrecio ? (

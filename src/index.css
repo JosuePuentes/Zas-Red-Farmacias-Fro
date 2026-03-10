@@ -252,10 +252,11 @@ input, select, textarea {
 .layout-nav-bell:hover { background: #f1f5f9; }
 .layout-nav-bell .badge { position: absolute; top: 2px; right: 2px; min-width: 18px; height: 18px; padding: 0 5px; font-size: 0.7rem; border-radius: 9px; }
 .pro-nav-wrap { display: flex; align-items: center; gap: 0.25rem; }
-.notif-dropdown { position: absolute; top: 100%; right: 0; margin-top: 4px; background: var(--color-card); border-radius: var(--radius); box-shadow: var(--shadow-soft); min-width: 280px; max-height: 320px; overflow-y: auto; z-index: 100; padding: 0.5rem; }
-.notif-item { padding: 0.5rem 0.75rem; border-radius: 8px; font-size: 0.85rem; margin-bottom: 0.25rem; background: #f8fafc; }
+.notif-dropdown { position: absolute; top: 100%; right: 0; margin-top: 4px; background: var(--color-card); color: var(--color-text); border: 1px solid #e2e8f0; border-radius: var(--radius); box-shadow: var(--shadow-soft); min-width: 280px; max-height: 320px; overflow-y: auto; z-index: 100; padding: 0.5rem; }
+.notif-item { padding: 0.5rem 0.75rem; border-radius: 8px; font-size: 0.85rem; margin-bottom: 0.25rem; background: #f1f5f9; color: var(--color-text); }
 .notif-item.prioridad { border-left: 4px solid var(--color-warning); }
 .notif-item.inventario { border-left: 4px solid var(--color-danger); }
+.notif-item .muted { color: var(--color-text-muted); }
 .notif-empty { padding: 1rem; color: var(--color-text-muted); font-size: 0.9rem; }
 .layout-header-actions { display: flex; align-items: center; gap: 0.5rem; }
 .plan-pro-blur { padding: 2rem; text-align: center; }
