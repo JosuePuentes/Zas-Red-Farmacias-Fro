@@ -107,7 +107,6 @@ export default function CatalogoPublico() {
             showDeliveryBox={false}
             showInlineFilters={false}
             showLocationSelect={false}
-            showQuickSearch={false}
           />
         </main>
       </div>
