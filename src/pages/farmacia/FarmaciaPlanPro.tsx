@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import FarmaciaProveedores from './FarmaciaProveedores'
 // Tipos para lista comparativa (proveedor + lista de precios)
 interface ItemListaPrecio {
   id: string
@@ -153,7 +154,6 @@ export default function FarmaciaPlanPro() {
                   <th>Código</th>
                   <th>Descripción</th>
                   <th>Marca</th>
-                  <th>Categoría</th>
                   <th>Precio</th>
                   <th>Existencia</th>
                   <th>Cantidad</th>
@@ -166,7 +166,6 @@ export default function FarmaciaPlanPro() {
                     <td>{item.codigo}</td>
                     <td>{item.descripcion}</td>
                     <td>{item.marca}</td>
-                    <td>{item.categoria}</td>
                     <td>$ {item.precio.toFixed(2)}</td>
                     <td>{item.existencia}</td>
                     <td>
@@ -231,18 +230,7 @@ export default function FarmaciaPlanPro() {
       )}
 
       {tab === 'proveedores' && (
-        <div className="card">
-          <h3>Nuestros proveedores</h3>
-          <p className="muted">Total comprado por proveedor; el sistema usará este historial para sugerir productos en futuras comparativas.</p>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {MOCK_PROVEEDORES.map((p) => (
-              <li key={p.id} className="proveedor-row">
-                <span>{p.nombre}</span>
-                <strong>$ {p.totalComprado.toFixed(2)} comprado</strong>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <FarmaciaProveedores />
       )}
     </div>
   )

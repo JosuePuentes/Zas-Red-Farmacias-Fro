@@ -344,7 +344,7 @@ export default function FarmaciaProveedores() {
                     <th>Código</th>
                     <th>Descripción</th>
                     <th>Marca</th>
-                    <th>Mejor precio</th>
+                    <th>Precio</th>
                     <th>Existencia</th>
                     <th></th>
                   </tr>

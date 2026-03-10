@@ -3,8 +3,9 @@ import { useSearchParams } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
 import { useGeolocation } from '../../context/GeolocationContext'
 import type { Producto } from '../../types'
-import { clienteApi, carritoApi, getApiBaseUrl } from '../../api'
+import { catalogoApi, clienteApi, carritoApi, getApiBaseUrl } from '../../api'
 import { useAuth } from '../../context/AuthContext'
+import { itemsDesdeRespuestaCatalogo } from '../../utils/catalogo'
 import { ESTADOS_VENEZUELA } from '../../constants/estados'
 import { DEPARTAMENTOS_ZAS, type DepartamentoZas } from '../../constants/departamentos'
 import './ClienteCatalogo.css'
@@ -84,10 +85,12 @@ export default function ClienteCatalogo() {
   const { position, requestLocation, loading: gpsLoading, error: gpsError } = useGeolocation()
 
   const [productos, setProductos] = useState<Producto[]>([])
+  const [total, setTotal] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [page, setPage] = useState(0)
-  const pageSize = 20
+  const pageSize = 48
 
   const [ubicacionConfirmada, setUbicacionConfirmada] = useState(false)
   const [costoDelivery, setCostoDelivery] = useState<number | null>(null)
@@ -111,7 +114,6 @@ export default function ClienteCatalogo() {
         setLoading(true)
         setError(null)
         const params: { q?: string; page: number; page_size: number; lat?: number; lng?: number } = {
-          // Backend paginación 1-based: primera página page=1, segunda page=2. Estado interno 0-based → enviar page + 1.
           page: page + 1,
           page_size: pageSize,
         }
@@ -120,13 +122,22 @@ export default function ClienteCatalogo() {
           params.lat = coords.lat
           params.lng = coords.lng
         }
-        const data = await clienteApi.catalogo(params)
-        if (!cancelled) setProductos(data.map((p) => ({ ...p })))
+        const res = await catalogoApi.listar(params)
+        const data = (res as { data?: typeof res }).data ?? res
+        const totalRes = (data as { total?: number }).total ?? 0
+        const totalPagesRes = (data as { total_pages?: number }).total_pages ?? (data as { totalPages?: number }).totalPages ?? 1
+        if (!cancelled) {
+          setProductos(itemsDesdeRespuestaCatalogo(res as Record<string, unknown>))
+          setTotal(totalRes)
+          setTotalPages(Math.max(1, totalPagesRes))
+        }
       } catch (e) {
         if (!cancelled) {
           console.error(e)
           setError('No se pudo cargar el catálogo, mostrando datos de prueba.')
           setProductos(MOCK_PRODUCTOS)
+          setTotal(MOCK_PRODUCTOS.length)
+          setTotalPages(1)
         }
       } finally {
         if (!cancelled) setLoading(false)
@@ -173,13 +184,8 @@ export default function ClienteCatalogo() {
     if (searchParams.get('buscar') === '1' && searchInputRef.current) searchInputRef.current.focus()
   }, [searchParams])
 
-  const productosFiltrados = productos.filter((p) => {
-    const q = busqueda.trim().toLowerCase()
-    if (q && !p.descripcion.toLowerCase().includes(q) && !p.codigo.toLowerCase().includes(q)) return false
-    return true
-  })
-
-  const grupos = useMemo(() => agruparPorMejorPrecio(productosFiltrados), [productosFiltrados])
+  // La búsqueda se hace en el backend (parámetro q); no filtrar de nuevo en cliente para no ocultar resultados
+  const grupos = useMemo(() => agruparPorMejorPrecio(productos), [productos])
   const secciones = useMemo(() => {
     const conCategoria = DEPARTAMENTOS_ZAS.map((dep) => ({
       nombre: dep,
@@ -244,11 +250,15 @@ export default function ClienteCatalogo() {
 
       {loading && productos.length === 0 && <p className="cliente-catalogo-empty">Cargando catálogo...</p>}
       {error && <p className="cliente-catalogo-empty">{error}</p>}
-      {!loading && secciones.length === 0 && productos.length === 0 && (
-        <p className="cliente-catalogo-empty">No hay productos en el catálogo. Prueba más tarde o contacta al administrador.</p>
+      {!loading && productos.length === 0 && (
+        <p className="cliente-catalogo-empty">
+          {busqueda.trim() ? 'No hay resultados para tu búsqueda. Prueba con otro término.' : 'No hay productos en el catálogo. Prueba más tarde o contacta al administrador.'}
+        </p>
       )}
-      {!loading && secciones.length === 0 && productos.length > 0 && (
-        <p className="cliente-catalogo-empty">No hay productos que coincidan con la búsqueda.</p>
+      {!loading && productos.length > 0 && total > 0 && (
+        <p className="cliente-catalogo-total" role="status">
+          {total.toLocaleString()} resultado{total !== 1 ? 's' : ''} {totalPages > 1 ? `· Página ${page + 1} de ${totalPages}` : ''}
+        </p>
       )}
 
       {secciones.map((sec) => (
@@ -291,7 +301,7 @@ export default function ClienteCatalogo() {
                   </div>
                   <div className="cliente-catalogo-info">
                     <span className="product-codigo">{p.codigo}</span>
-                    <p className="product-desc">{p.descripcion}{p.presentacion ? ` · ${p.presentacion}` : ''}</p>
+                    <p className="product-desc">{(p.descripcion || p.codigo)}{p.presentacion ? ` · ${p.presentacion}` : ''}</p>
                     {p.marca && <p className="product-desc product-marca">{p.marca}</p>}
                     {sinStockProducto && (
                       <>
@@ -436,15 +446,17 @@ export default function ClienteCatalogo() {
         </div>
       )}
 
-      <div className="cliente-catalogo-pagination">
-        <button type="button" className="btn btn-secondary btn-sm" onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={page === 0 || loading}>
-          ← Anterior
-        </button>
-        <span style={{ margin: '0 0.75rem', fontSize: '0.9rem' }}>Página {page + 1}</span>
-        <button type="button" className="btn btn-secondary btn-sm" onClick={() => setPage((p) => p + 1)} disabled={loading || productos.length < pageSize}>
-          Siguiente →
-        </button>
-      </div>
+      {totalPages > 1 && (
+        <div className="cliente-catalogo-pagination">
+          <button type="button" className="btn btn-secondary btn-sm" onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={page === 0 || loading}>
+            ← Anterior
+          </button>
+          <span className="cliente-catalogo-pagination-info">Página {page + 1} de {totalPages}</span>
+          <button type="button" className="btn btn-secondary btn-sm" onClick={() => setPage((p) => p + 1)} disabled={loading || page >= totalPages - 1}>
+            Siguiente →
+          </button>
+        </div>
+      )}
     </div>
   )
 }

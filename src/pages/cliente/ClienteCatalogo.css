@@ -238,6 +238,26 @@
   margin: 0;
 }
 
+.cliente-catalogo-total {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  margin: 0 0 0.75rem 0;
+}
+
+.cliente-catalogo-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  padding: 0.75rem 0;
+}
+
+.cliente-catalogo-pagination-info {
+  margin: 0 0.75rem;
+  font-size: 0.9rem;
+}
+
 .cliente-catalogo-section {
   margin-bottom: 1.75rem;
 }
@@ -257,15 +277,14 @@
 }
 
 .cliente-catalogo-section-list {
-  display: flex;
-  gap: 0.75rem;
-  overflow-x: auto;
-  padding-bottom: 0.25rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  padding-bottom: 0.5rem;
 }
 
 .cliente-catalogo-card {
-  min-width: 180px;
-  max-width: 200px;
+  min-width: 0;
   padding: 0.75rem;
   display: flex;
   flex-direction: column;

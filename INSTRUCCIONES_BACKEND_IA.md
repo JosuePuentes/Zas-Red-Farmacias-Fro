@@ -80,10 +80,58 @@ Comportamiento esperado:
 
 ---
 
+## 6. Dashboard farmacia (indicadores y gráficas)
+
+El frontend llama a **`GET /api/farmacia/dashboard`** (farmacia identificada por token). Visible para **todas** las farmacias (no requiere Plan Pro). Respuesta esperada (todos los campos opcionales; solo números, sin datos personales):
+
+```json
+{
+  "totalUsuariosApp": 12500,
+  "totalClientesFarmacia": 340,
+  "ventasMesActual": 4500.50,
+  "ventasMesAnterior": 3800.00,
+  "totalPedidosMes": 42,
+  "inventarioVariacionPct": 5.2,
+  "usuariosCrecimientoPct": 2.1,
+  "clientesCrecimientoPct": -0.5
+}
+```
+
+- **totalUsuariosApp:** Número total de usuarios de la app (solo el número, para que las farmacias vean el tamaño de la plataforma).
+- **totalClientesFarmacia:** Clientes que han comprado o están asociados a esa farmacia.
+- **ventasMesActual / ventasMesAnterior:** Monto vendido en el mes actual y en el anterior (para comparar).
+- **totalPedidosMes:** Cantidad de pedidos del mes actual.
+- **inventarioVariacionPct:** Variación porcentual del inventario (crecimiento positivo, decadencia negativo) respecto al período anterior.
+- **usuariosCrecimientoPct:** Crecimiento porcentual de usuarios de la app (período anterior vs actual).
+- **clientesCrecimientoPct:** Crecimiento porcentual de clientes de esa farmacia.
+
+Si el endpoint no existe, el frontend muestra "—" en los indicadores sin romper.
+
+---
+
+## 7. Inventario: Existencia global y Solicitudes (solo Plan Pro)
+
+- **Existencia global** y **Solicitudes** (productos solicitados por clientes) son columnas que el frontend muestra **solo en la página de Inventario** (no en la lista comparativa de proveedores).
+- **GET /api/farmacia/inventario:** Cuando la farmacia tiene **Plan Pro activo** (o es usuario master), cada ítem del array puede incluir:
+  - `existenciaGlobal`: suma de existencia por ese código en todas las farmacias (solo número).
+  - `productosSolicitados`: cantidad de solicitudes de clientes para ese código.
+- La vista completa de la “hoja” de inventario (todos los códigos, descripciones, existencia global, solicitudes) en el frontend solo se muestra si la farmacia tiene Plan Pro; el backend debe devolver estos campos cuando aplique.
+
+---
+
+## 8. Lista comparativa de proveedores
+
+- **GET /api/farmacia/proveedores/lista-comparativa:** No debe incluir existencia global ni solicitudes en los ítems. Solo: `codigo`, `descripcion`, `marca`, `ofertas[]` (proveedorId, proveedorNombre, precio, existencia). El frontend ya no muestra columnas de existencia global ni solicitudes en esta lista.
+
+---
+
 ## Resumen para la IA del backend
 
 1. **Inventario:** Upload Excel con match por código de barras; respuesta con `creados`, `actualizados`, `vinculadosCatalogo`, `conflictosDescripcion`. Resolver con `POST /api/farmacia/inventario/resolver-descripciones` y body `{ decisiones }`. Modelo Producto con `descripcionCatalogo`, `descripcionPersonalizada`, `usarDescripcionCatalogo`.
 2. **Catálogo:** `GET /api/cliente/catalogo` con `q`, `page`, `page_size`, `lat`, `lng`; devolver ofertas por producto/comercio para que el frontend muestre mejor precio y "Otros comercios".
-3. **Delivery:** `GET /api/cliente/delivery/estimado?lat=&lng=` que devuelva `{ costo }` según ubicación y (opcionalmente) ítems del carrito; tener en cuenta múltiples comercios para no disparar el costo.
+3. **Delivery:** `GET /api/cliente/delivery/estimado?lat=&lng=` que devuelva `{ costo }` según ubicación y (opcionalmente) ítems del carrito.
 4. **Carrito y checkout:** Mantener endpoints actuales; documentar si se requiere body adicional en confirmar (dirección, comprobante, etc.).
 5. **Auth:** Login único, token Bearer, y flujo de recuperación/restablecer contraseña.
+6. **Dashboard:** `GET /api/farmacia/dashboard` con totalUsuariosApp, totalClientesFarmacia, ventasMesActual, ventasMesAnterior, totalPedidosMes, inventarioVariacionPct, usuariosCrecimientoPct, clientesCrecimientoPct (todos opcionales; solo números).
+7. **Inventario Plan Pro:** En `GET /api/farmacia/inventario`, cuando la farmacia tiene Plan Pro, incluir en cada ítem `existenciaGlobal` y `productosSolicitados`. No enviar estos campos en la lista comparativa de proveedores.
+8. **Lista comparativa proveedores:** Respuesta sin existencia global ni solicitudes; solo codigo, descripcion, marca, ofertas[].

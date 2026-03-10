@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { clienteApi, getApiBaseUrl, type RecordatorioItem } from '../../api'
+import { catalogoApi, clienteApi, getApiBaseUrl, type RecordatorioItem } from '../../api'
+import { itemsDesdeRespuestaCatalogo } from '../../utils/catalogo'
 import './ClienteRecordatorios.css'
 
 const backendBase = () => getApiBaseUrl().replace(/\/api\/?$/, '')
@@ -38,12 +39,13 @@ export default function ClienteRecordatorios() {
     if (!q) return
     setError(null)
     try {
-      const items = await clienteApi.catalogo({ q, page: 1, page_size: 10 })
+      const res = await catalogoApi.listar({ q, page: 1, page_size: 20 })
+      const items = itemsDesdeRespuestaCatalogo(res as Record<string, unknown>)
       setResultadosCatalogo(
         items.map((p) => ({
           id: p.id,
           codigo: p.codigo,
-          descripcion: p.descripcion,
+          descripcion: p.descripcion || p.codigo,
           imagen: p.imagen,
           precio: p.precioConPorcentaje ?? p.precio ?? undefined,
         }))
@@ -76,14 +78,15 @@ export default function ClienteRecordatorios() {
   return (
     <div className="container cliente-recordatorios">
       <h2>Recordatorios</h2>
-      <p className="muted">Medicamentos que quieres recordar. Agrega desde el catálogo o la lista que aparece al buscar.</p>
+      <p className="muted">Medicamentos que quieres recordar. Busca aquí con el mismo catálogo que en la página principal.</p>
 
       <div className="card cliente-recordatorios-buscar">
-        <h3>Agregar desde el catálogo</h3>
+        <h3>Buscar en el catálogo</h3>
+        <p className="muted" style={{ marginBottom: '0.75rem' }}>Mismo buscador que en Catálogo: escribe código o nombre del producto.</p>
         <div className="form-group">
           <input
             type="search"
-            placeholder="Buscar medicamento en catálogo..."
+            placeholder="Buscar en catálogo (mismo que en Catálogo)..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && buscarEnCatalogo()}

@@ -58,3 +58,10 @@
   border-radius: 8px;
   text-align: center;
 }
+
+.cliente-recetas-sin-stock {
+  margin-left: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-danger, #dc2626);
+}

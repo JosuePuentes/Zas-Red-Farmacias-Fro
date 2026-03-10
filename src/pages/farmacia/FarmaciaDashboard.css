@@ -1,0 +1,125 @@
+.farmacia-dashboard {
+  padding-bottom: 2rem;
+}
+
+.farmacia-dashboard > .muted {
+  margin-bottom: 1.25rem;
+}
+
+.farmacia-dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.farmacia-dashboard-card {
+  padding: 1rem 1.25rem;
+}
+
+.farmacia-dashboard-card h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.farmacia-dashboard-number {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin: 0 0 0.25rem 0;
+}
+
+.farmacia-dashboard-hint {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin: 0 0 0.25rem 0;
+}
+
+.farmacia-dashboard-trend {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0.35rem 0 0 0;
+}
+
+.farmacia-dashboard-trend.up {
+  color: var(--color-success);
+}
+
+.farmacia-dashboard-trend.down {
+  color: var(--color-danger);
+}
+
+.farmacia-dashboard-charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.farmacia-dashboard-chart-card {
+  padding: 1.25rem;
+}
+
+.farmacia-dashboard-chart-card h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.farmacia-dashboard-bar-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.farmacia-dashboard-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+}
+
+.farmacia-dashboard-bar-track {
+  height: 12px;
+  background: #e2e8f0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.farmacia-dashboard-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  border-radius: 6px;
+  transition: width 0.3s ease;
+}
+
+.farmacia-dashboard-indicator {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.farmacia-dashboard-indicator-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.farmacia-dashboard-indicator.positive .farmacia-dashboard-indicator-value {
+  color: var(--color-success);
+}
+
+.farmacia-dashboard-indicator.negative .farmacia-dashboard-indicator-value {
+  color: var(--color-danger);
+}
+
+@media (min-width: 768px) {
+  .farmacia-dashboard-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .farmacia-dashboard-cards {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

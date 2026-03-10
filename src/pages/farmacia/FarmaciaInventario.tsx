@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
+import { NavLink } from 'react-router-dom'
 import type { Producto } from '../../types'
 import { farmaciaApi, getApiBaseUrl, type ConflictoDescripcion, type CargarExcelResponse } from '../../api'
 import { useAuth } from '../../context/AuthContext'
+import { usePlanPro } from '../../context/PlanProContext'
 import { STORAGE_FARMACIA_ID } from '../../lib/masterPortalStorage'
 
 // Mock temporal hasta conectar con backend
@@ -52,6 +54,7 @@ function calcularPrecioConDescuento(producto: Producto, descuentoPorcentaje: num
 }
 
 export default function FarmaciaInventario() {
+  const { planProActivo } = usePlanPro()
   const [file, setFile] = useState<File | null>(null)
   const [busqueda, setBusqueda] = useState('')
   const [descuentoGlobal, setDescuentoGlobal] = useState('')
@@ -285,99 +288,113 @@ export default function FarmaciaInventario() {
         </div>
       )}
 
-      <div className="card" style={{ marginTop: '1rem' }}>
-        <h3>Descuentos</h3>
-        <div className="form-group" style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end' }}>
-          <div style={{ flex: '0 0 220px' }}>
-            <label>Descuento masivo (%) para todos los productos</label>
+      {!planProActivo ? (
+        <div className="card plan-pro-blur" style={{ marginTop: '1rem', padding: '2rem', textAlign: 'center' }}>
+          <h3>Base de datos de inventario (Plan Pro)</h3>
+          <p className="muted">
+            La vista completa de todos tus códigos y descripciones, con columnas de <strong>Existencia global</strong> y <strong>Solicitudes</strong>, está disponible con Plan Pro.
+          </p>
+          <p className="muted">Puedes subir inventario por Excel arriba. Para ver y editar la hoja completa con descuentos y métricas, activa Plan Pro.</p>
+          <NavLink to="/farmacia/plan-pro" className="btn btn-primary" style={{ marginTop: '0.5rem', display: 'inline-block' }}>
+            Ver Plan Pro
+          </NavLink>
+        </div>
+      ) : (
+        <div className="card" style={{ marginTop: '1rem' }}>
+          <h3>Base de datos · Descuentos</h3>
+          <p className="muted">Toda la base de códigos y descripciones. Con Plan Pro ves Existencia global y Solicitudes.</p>
+          <div className="form-group" style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end' }}>
+            <div style={{ flex: '0 0 220px' }}>
+              <label>Descuento masivo (%) para todos los productos</label>
+              <input
+                type="number"
+                min={0}
+                max={100}
+                value={descuentoGlobal}
+                onChange={(e) => setDescuentoGlobal(e.target.value)}
+              />
+            </div>
+            <button type="button" className="btn btn-secondary" onClick={aplicarDescuentoMasivo}>
+              Aplicar a todos
+            </button>
+          </div>
+
+          <div className="form-group" style={{ marginTop: '1rem' }}>
+            <label>Buscar producto por código o descripción</label>
             <input
-              type="number"
-              min={0}
-              max={100}
-              value={descuentoGlobal}
-              onChange={(e) => setDescuentoGlobal(e.target.value)}
+              type="search"
+              placeholder="Buscar en inventario..."
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
             />
           </div>
-          <button type="button" className="btn btn-secondary" onClick={aplicarDescuentoMasivo}>
-            Aplicar a todos
-          </button>
-        </div>
 
-        <div className="form-group" style={{ marginTop: '1rem' }}>
-          <label>Buscar producto por código o descripción</label>
-          <input
-            type="search"
-            placeholder="Buscar en inventario..."
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-          />
-        </div>
-
-        <div style={{ overflowX: 'auto', marginTop: '1rem' }}>
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Código</th>
-                <th>Descripción</th>
-                <th>Existencia</th>
-                {(productosFiltrados.some((p) => p.existenciaGlobal != null)) && <th>Existencia global</th>}
-                {(productosFiltrados.some((p) => p.productosSolicitados != null)) && <th>Solicitudes</th>}
-                <th>Precio base ($)</th>
-                <th>Descuento (%)</th>
-                <th>Precio con descuento ($)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {cargando && productosFiltrados.length === 0 && (
+          <div style={{ overflowX: 'auto', marginTop: '1rem' }}>
+            <table className="table">
+              <thead>
                 <tr>
-                  <td colSpan={8} style={{ textAlign: 'center' }}>
-                    Cargando inventario...
-                  </td>
+                  <th>Código</th>
+                  <th>Descripción</th>
+                  <th>Existencia</th>
+                  {(productosFiltrados.some((p) => p.existenciaGlobal != null)) && <th>Existencia global</th>}
+                  {(productosFiltrados.some((p) => p.productosSolicitados != null)) && <th>Solicitudes</th>}
+                  <th>Precio base ($)</th>
+                  <th>Descuento (%)</th>
+                  <th>Precio con descuento ($)</th>
                 </tr>
-              )}
-              {productosFiltrados.map((p) => (
-                <tr key={p.id}>
-                  <td>{p.codigo}</td>
-                  <td>{p.descripcion}</td>
-                  <td>{p.existencia ?? '-'}</td>
-                  {productosFiltrados.some((x) => x.existenciaGlobal != null) && (
-                    <td>{typeof p.existenciaGlobal === 'number' ? p.existenciaGlobal : '—'}</td>
-                  )}
-                  {productosFiltrados.some((x) => x.productosSolicitados != null) && (
-                    <td>{typeof p.productosSolicitados === 'number' ? p.productosSolicitados : '—'}</td>
-                  )}
-                  <td>{typeof p.precio === 'number' ? p.precio.toFixed(2) : '—'}</td>
-                  <td>
-                    <input
-                      type="number"
-                      min={0}
-                      max={100}
-                      value={p.descuentoPorcentaje ?? ''}
-                      onChange={(e) => aplicarDescuentoProducto(p.id, e.target.value)}
-                      style={{ width: '80px' }}
-                    />
-                  </td>
-                  <td>{typeof (p.precioConPorcentaje ?? p.precio) === 'number' ? (p.precioConPorcentaje ?? p.precio).toFixed(2) : '—'}</td>
-                </tr>
-              ))}
-              {!cargando && productosFiltrados.length === 0 && (
-                <tr>
-                  <td colSpan={8} style={{ textAlign: 'center' }}>
-                    No hay productos que coincidan con la búsqueda.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {cargando && productosFiltrados.length === 0 && (
+                  <tr>
+                    <td colSpan={8} style={{ textAlign: 'center' }}>
+                      Cargando inventario...
+                    </td>
+                  </tr>
+                )}
+                {productosFiltrados.map((p) => (
+                  <tr key={p.id}>
+                    <td>{p.codigo}</td>
+                    <td>{p.descripcion}</td>
+                    <td>{p.existencia ?? '-'}</td>
+                    {productosFiltrados.some((x) => x.existenciaGlobal != null) && (
+                      <td>{typeof p.existenciaGlobal === 'number' ? p.existenciaGlobal : '—'}</td>
+                    )}
+                    {productosFiltrados.some((x) => x.productosSolicitados != null) && (
+                      <td>{typeof p.productosSolicitados === 'number' ? p.productosSolicitados : '—'}</td>
+                    )}
+                    <td>{typeof p.precio === 'number' ? p.precio.toFixed(2) : '—'}</td>
+                    <td>
+                      <input
+                        type="number"
+                        min={0}
+                        max={100}
+                        value={p.descuentoPorcentaje ?? ''}
+                        onChange={(e) => aplicarDescuentoProducto(p.id, e.target.value)}
+                        style={{ width: '80px' }}
+                      />
+                    </td>
+                    <td>{typeof (p.precioConPorcentaje ?? p.precio) === 'number' ? (p.precioConPorcentaje ?? p.precio).toFixed(2) : '—'}</td>
+                  </tr>
+                ))}
+                {!cargando && productosFiltrados.length === 0 && (
+                  <tr>
+                    <td colSpan={8} style={{ textAlign: 'center' }}>
+                      No hay productos que coincidan con la búsqueda.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
 
-        <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          {mensaje && <span className="muted">{mensaje}</span>}
-          <button type="button" className="btn btn-primary" onClick={handleGuardar} disabled={guardando}>
-            {guardando ? 'Guardando...' : 'Guardar cambios'}
-          </button>
+          <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            {mensaje && <span className="muted">{mensaje}</span>}
+            <button type="button" className="btn btn-primary" onClick={handleGuardar} disabled={guardando}>
+              {guardando ? 'Guardando...' : 'Guardar cambios'}
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

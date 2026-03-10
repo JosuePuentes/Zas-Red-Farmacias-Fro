@@ -381,7 +381,28 @@ export interface DecisionDescripcion {
   usar: 'catalogo' | 'farmacia'
 }
 
+/** Estadísticas del dashboard para farmacias (todos pueden ver). */
+export interface DashboardFarmaciaStats {
+  totalUsuariosApp?: number
+  totalClientesFarmacia?: number
+  ventasMesActual?: number
+  ventasMesAnterior?: number
+  totalPedidosMes?: number
+  inventarioVariacionPct?: number
+  usuariosCrecimientoPct?: number
+  clientesCrecimientoPct?: number
+  [key: string]: unknown
+}
+
 export const farmaciaApi = {
+  /** GET /api/farmacia/dashboard — Total usuarios app, ventas, inventario, etc. (solo números, sin datos personales). */
+  dashboard: async () => {
+    try {
+      return await request<DashboardFarmaciaStats>('/farmacia/dashboard')
+    } catch {
+      return {} as DashboardFarmaciaStats
+    }
+  },
   inventario: () => request<ProductoApi[]>('/farmacia/inventario'),
   actualizarDescuentos: (items: ActualizarDescuentoItem[]) =>
     request<{ ok: boolean; updated?: number; message?: string }>('/farmacia/inventario/descuentos', {
@@ -426,6 +447,10 @@ export interface ListaComparativaItem {
   descripcion?: string
   marca?: string
   ofertas: { proveedorId: string; proveedorNombre?: string; precio: number; existencia: number }[]
+  /** Existencia global (suma en todas las farmacias). */
+  existenciaGlobal?: number
+  /** Cantidad de solicitudes de clientes para este código. */
+  productosSolicitados?: number
 }
 
 export const proveedoresApi = {
