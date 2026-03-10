@@ -84,36 +84,13 @@ export default function CatalogoPublico() {
               Contacto
             </Link>
           </nav>
-          <div className="catalogo-publico-delivery">
-            <span className="catalogo-publico-delivery-location">
-              <span className="catalogo-publico-delivery-pin">📍</span>
-              {ubicacionLabel}
-            </span>
-            <span className="catalogo-publico-delivery-separator">·</span>
-            <span className="catalogo-publico-delivery-label">Delivery</span>
-            <span className="catalogo-publico-delivery-monto">
-              {loadingCosto || gpsLoading ? '…' : costoDelivery != null ? `$ ${costoDelivery.toFixed(2)}` : '—'}
-            </span>
-            <button
-              type="button"
-              className="catalogo-publico-delivery-btn"
-              onClick={handleCalcularDelivery}
-              disabled={loadingCosto || gpsLoading}
-            >
-              {position ? 'Actualizar' : 'Calcular'}
-            </button>
-          </div>
+          {/* Bloque de delivery ocultado en público; se usará cuando el backend y UX lo definan mejor */}
           <div className="catalogo-publico-user">
             {!isAuthenticated ? (
-              <>
-                <Link to="/login" className="catalogo-publico-user-btn">
-                  <span className="catalogo-publico-user-icon">👤</span>
-                  <span>Entrar</span>
-                </Link>
-                <Link to="/registro" className="catalogo-publico-user-link">
-                  Crear cuenta
-                </Link>
-              </>
+              <Link to="/login" className="catalogo-publico-user-btn">
+                <span className="catalogo-publico-user-icon">👤</span>
+                <span>Entrar / Crear cuenta</span>
+              </Link>
             ) : (
               <Link to="/cliente" className="catalogo-publico-user-btn">
                 <span className="catalogo-publico-user-icon">👤</span>
@@ -123,38 +100,16 @@ export default function CatalogoPublico() {
           </div>
         </header>
         <main className="catalogo-publico-main">
-          <div className="catalogo-publico-toolbar">
-            <div className="catalogo-publico-toolbar-left">
-              <span className="catalogo-publico-toolbar-badge">Ven</span>
-              <span className="catalogo-publico-toolbar-text">Todos tus medicamentos en un solo lugar</span>
-            </div>
-            <form className="catalogo-publico-toolbar-search" onSubmit={handleBuscarSubmit}>
-              <input
-                type="search"
-                placeholder="Busca aquí tu producto"
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                aria-label="Buscar productos"
-              />
-              <button type="submit" aria-label="Buscar">🔍</button>
-            </form>
-            <div className="catalogo-publico-toolbar-envio">
-              <span className="catalogo-publico-delivery-pin">📦</span>
-              <span className="catalogo-publico-delivery-label">Tipo de envío</span>
-              <span className="catalogo-publico-delivery-monto">
-                {position ? 'Caracas' : 'Venezuela'}
-              </span>
-            </div>
-          </div>
-          <div className="catalogo-publico-marquee" aria-label="Anuncios">
-            <div className="catalogo-publico-marquee-inner">
-              {PUBLICIDAD_MENSAJES.map((m, i) => (
-                <span key={i} className="catalogo-publico-marquee-item">
-                  {m}
-                </span>
-              ))}
-            </div>
-          </div>
+          <form className="catalogo-publico-toolbar-search catalogo-publico-toolbar-search--full" onSubmit={handleBuscarSubmit}>
+            <input
+              type="search"
+              placeholder="Busca aquí tu producto"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              aria-label="Buscar productos"
+            />
+            <button type="submit" aria-label="Buscar">🔍</button>
+          </form>
           {friendlyGpsError && (
             <p className="catalogo-publico-gps-error">
               {friendlyGpsError}

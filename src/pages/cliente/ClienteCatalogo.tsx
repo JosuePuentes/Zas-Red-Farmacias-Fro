@@ -113,9 +113,17 @@ const HERO_BANNERS = [
 
 type ClienteCatalogoProps = {
   showDeliveryBox?: boolean
+  showInlineFilters?: boolean
+  showLocationSelect?: boolean
+  showQuickSearch?: boolean
 }
 
-export default function ClienteCatalogo({ showDeliveryBox = true }: ClienteCatalogoProps) {
+export default function ClienteCatalogo({
+  showDeliveryBox = true,
+  showInlineFilters = true,
+  showLocationSelect = true,
+  showQuickSearch = true,
+}: ClienteCatalogoProps) {
   const [searchParams] = useSearchParams()
   const [busqueda, setBusqueda] = useState(() => searchParams.get('q') ?? '')
   const [estado, setEstado] = useState('')
@@ -338,40 +346,43 @@ export default function ClienteCatalogo({ showDeliveryBox = true }: ClienteCatal
           <img src={hero.image} alt={hero.title} />
         </div>
       </section>
-
-      <div className="cliente-catalogo-location">
-        <span className="cliente-catalogo-location-label">Ubicación</span>
-        <select value={estado} onChange={(e) => setEstado(e.target.value)}>
-          <option value="">Todo el país</option>
-          {ESTADOS_VENEZUELA.map((e) => (
-            <option key={e} value={e}>{e}</option>
-          ))}
-        </select>
-      </div>
-      <div className="cliente-catalogo-filters">
-        <button
-          type="button"
-          className={`cliente-filter-chip ${panelFiltros === 'orden' ? 'is-active' : ''}`}
-          onClick={() => setPanelFiltros(panelFiltros === 'orden' ? null : 'orden')}
-        >
-          Ordenar
-        </button>
-        <button
-          type="button"
-          className={`cliente-filter-chip ${panelFiltros === 'categoria' ? 'is-active' : ''}`}
-          onClick={() => setPanelFiltros(panelFiltros === 'categoria' ? null : 'categoria')}
-        >
-          Categoría
-        </button>
-        <button
-          type="button"
-          className={`cliente-filter-chip ${panelFiltros === 'marca' ? 'is-active' : ''}`}
-          onClick={() => setPanelFiltros(panelFiltros === 'marca' ? null : 'marca')}
-        >
-          Marca
-        </button>
-      </div>
-      {panelFiltros === 'orden' && (
+      {showLocationSelect && (
+        <div className="cliente-catalogo-location">
+          <span className="cliente-catalogo-location-label">Ubicación</span>
+          <select value={estado} onChange={(e) => setEstado(e.target.value)}>
+            <option value="">Todo el país</option>
+            {ESTADOS_VENEZUELA.map((e) => (
+              <option key={e} value={e}>{e}</option>
+            ))}
+          </select>
+        </div>
+      )}
+      {showInlineFilters && (
+        <div className="cliente-catalogo-filters">
+          <button
+            type="button"
+            className={`cliente-filter-chip ${panelFiltros === 'orden' ? 'is-active' : ''}`}
+            onClick={() => setPanelFiltros(panelFiltros === 'orden' ? null : 'orden')}
+          >
+            Ordenar
+          </button>
+          <button
+            type="button"
+            className={`cliente-filter-chip ${panelFiltros === 'categoria' ? 'is-active' : ''}`}
+            onClick={() => setPanelFiltros(panelFiltros === 'categoria' ? null : 'categoria')}
+          >
+            Categoría
+          </button>
+          <button
+            type="button"
+            className={`cliente-filter-chip ${panelFiltros === 'marca' ? 'is-active' : ''}`}
+            onClick={() => setPanelFiltros(panelFiltros === 'marca' ? null : 'marca')}
+          >
+            Marca
+          </button>
+        </div>
+      )}
+      {showInlineFilters && panelFiltros === 'orden' && (
         <div className="cliente-filters-panel">
           <p className="cliente-filters-title">Ordenar por</p>
           <label className="cliente-filters-option">
@@ -406,7 +417,7 @@ export default function ClienteCatalogo({ showDeliveryBox = true }: ClienteCatal
           </label>
         </div>
       )}
-      {panelFiltros === 'categoria' && categoriasDisponibles.length > 0 && (
+      {showInlineFilters && panelFiltros === 'categoria' && categoriasDisponibles.length > 0 && (
         <div className="cliente-filters-panel">
           <p className="cliente-filters-title">Filtrar por categoría</p>
           {categoriasDisponibles.map((c) => (
@@ -428,7 +439,7 @@ export default function ClienteCatalogo({ showDeliveryBox = true }: ClienteCatal
           ))}
         </div>
       )}
-      {panelFiltros === 'marca' && marcasDisponibles.length > 0 && (
+      {showInlineFilters && panelFiltros === 'marca' && marcasDisponibles.length > 0 && (
         <div className="cliente-filters-panel">
           <p className="cliente-filters-title">Filtrar por marca</p>
           {marcasDisponibles.map((m) => (
@@ -469,37 +480,39 @@ export default function ClienteCatalogo({ showDeliveryBox = true }: ClienteCatal
           aria-label="Buscar en el catálogo"
         />
       </div>
-      <div className="cliente-catalogo-quicksearch">
-        <span className="quicksearch-label">Búsquedas rápidas:</span>
-        <button
-          type="button"
-          className="quicksearch-chip"
-          onClick={() => { setBusqueda('paracetamol'); setPage(0) }}
-        >
-          Paracetamol
-        </button>
-        <button
-          type="button"
-          className="quicksearch-chip"
-          onClick={() => { setBusqueda('antigripal'); setPage(0) }}
-        >
-          Antigripales
-        </button>
-        <button
-          type="button"
-          className="quicksearch-chip"
-          onClick={() => { setBusqueda('vitamina'); setPage(0) }}
-        >
-          Vitaminas
-        </button>
-        <button
-          type="button"
-          className="quicksearch-chip"
-          onClick={() => { setBusqueda('bebe'); setPage(0) }}
-        >
-          Bebés
-        </button>
-      </div>
+      {showQuickSearch && (
+        <div className="cliente-catalogo-quicksearch">
+          <span className="quicksearch-label">Búsquedas rápidas:</span>
+          <button
+            type="button"
+            className="quicksearch-chip"
+            onClick={() => { setBusqueda('paracetamol'); setPage(0) }}
+          >
+            Paracetamol
+          </button>
+          <button
+            type="button"
+            className="quicksearch-chip"
+            onClick={() => { setBusqueda('antigripal'); setPage(0) }}
+          >
+            Antigripales
+          </button>
+          <button
+            type="button"
+            className="quicksearch-chip"
+            onClick={() => { setBusqueda('vitamina'); setPage(0) }}
+          >
+            Vitaminas
+          </button>
+          <button
+            type="button"
+            className="quicksearch-chip"
+            onClick={() => { setBusqueda('bebe'); setPage(0) }}
+          >
+            Bebés
+          </button>
+        </div>
+      )}
 
       {loading && productos.length === 0 && (
         <div className="cliente-catalogo-skeleton-grid">
