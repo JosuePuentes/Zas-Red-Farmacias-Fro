@@ -30,7 +30,7 @@
 .cliente-catalogo-hero-text p {
   margin: 0;
   font-size: 0.9rem;
-  color: var(--color-text-muted);
+  color: var(--color-primary-dark);
 }
 
 .cliente-catalogo-hero-dots {

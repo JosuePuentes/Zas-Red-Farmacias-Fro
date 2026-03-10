@@ -108,6 +108,9 @@ export default function Login() {
             {loading ? 'Entrando...' : 'Entrar'}
           </button>
         </form>
+        <Link to="/recuperar" className="auth-back">
+          ¿Olvidaste tu contraseña?
+        </Link>
         <Link to="/" className="auth-back">← Volver al inicio</Link>
       </div>
     </div>

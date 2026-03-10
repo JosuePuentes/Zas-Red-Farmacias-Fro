@@ -149,6 +149,17 @@
 .home-hero {
   text-align: center;
   margin-bottom: 1.75rem;
+  position: relative;
+}
+
+.home-back-icon {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translateY(-0.25rem);
+  text-decoration: none;
+  font-size: 1.4rem;
+  color: var(--color-primary-dark);
 }
 
 .home-logo-img {

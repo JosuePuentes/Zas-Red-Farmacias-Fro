@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { useGeolocation } from '../../context/GeolocationContext'
@@ -19,6 +19,8 @@ export default function CatalogoPublico() {
   const { position, loading: gpsLoading, error: gpsError, requestLocation } = useGeolocation()
   const [costoDelivery, setCostoDelivery] = useState<number | null>(null)
   const [loadingCosto, setLoadingCosto] = useState(false)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [q, setQ] = useState(() => searchParams.get('q') ?? '')
 
   useEffect(() => {
     if (!position) return
@@ -52,6 +54,17 @@ export default function CatalogoPublico() {
     }
   }
 
+  const ubicacionLabel = position ? 'Ubicación activa' : 'Sin ubicación'
+  const friendlyGpsError = gpsError ? 'No pudimos usar tu ubicación. Revisa permisos de GPS en tu navegador.' : null
+
+  function handleBuscarSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    const value = q.trim()
+    const next: Record<string, string> = {}
+    if (value) next.q = value
+    setSearchParams(next)
+  }
+
   return (
     <CartProvider>
       <div className="catalogo-publico">
@@ -72,7 +85,12 @@ export default function CatalogoPublico() {
             </Link>
           </nav>
           <div className="catalogo-publico-delivery">
-            <span className="catalogo-publico-delivery-label">Delivery:</span>
+            <span className="catalogo-publico-delivery-location">
+              <span className="catalogo-publico-delivery-pin">📍</span>
+              {ubicacionLabel}
+            </span>
+            <span className="catalogo-publico-delivery-separator">·</span>
+            <span className="catalogo-publico-delivery-label">Delivery</span>
             <span className="catalogo-publico-delivery-monto">
               {loadingCosto || gpsLoading ? '…' : costoDelivery != null ? `$ ${costoDelivery.toFixed(2)}` : '—'}
             </span>
@@ -105,6 +123,29 @@ export default function CatalogoPublico() {
           </div>
         </header>
         <main className="catalogo-publico-main">
+          <div className="catalogo-publico-toolbar">
+            <div className="catalogo-publico-toolbar-left">
+              <span className="catalogo-publico-toolbar-badge">Ven</span>
+              <span className="catalogo-publico-toolbar-text">Todos tus medicamentos en un solo lugar</span>
+            </div>
+            <form className="catalogo-publico-toolbar-search" onSubmit={handleBuscarSubmit}>
+              <input
+                type="search"
+                placeholder="Busca aquí tu producto"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                aria-label="Buscar productos"
+              />
+              <button type="submit" aria-label="Buscar">🔍</button>
+            </form>
+            <div className="catalogo-publico-toolbar-envio">
+              <span className="catalogo-publico-delivery-pin">📦</span>
+              <span className="catalogo-publico-delivery-label">Tipo de envío</span>
+              <span className="catalogo-publico-delivery-monto">
+                {position ? 'Caracas' : 'Venezuela'}
+              </span>
+            </div>
+          </div>
           <div className="catalogo-publico-marquee" aria-label="Anuncios">
             <div className="catalogo-publico-marquee-inner">
               {PUBLICIDAD_MENSAJES.map((m, i) => (
@@ -114,9 +155,9 @@ export default function CatalogoPublico() {
               ))}
             </div>
           </div>
-          {gpsError && (
+          {friendlyGpsError && (
             <p className="catalogo-publico-gps-error">
-              {gpsError}
+              {friendlyGpsError}
             </p>
           )}
           <ClienteCatalogo showDeliveryBox={false} />

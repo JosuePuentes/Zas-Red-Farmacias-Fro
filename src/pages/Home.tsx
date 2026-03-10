@@ -106,16 +106,14 @@ export default function Home() {
             <Link to="/login" className="btn btn-primary btn-banner">Iniciar sesión</Link>
             <Link to="/registro" className="btn btn-secondary btn-banner">Crear cuenta</Link>
           </div>
-          <div style={{ marginTop: '0.5rem' }}>
-            <Link to="/recuperar" className="auth-back" style={{ fontSize: '0.9rem' }}>
-              ¿Olvidaste tu contraseña?
-            </Link>
-          </div>
         </div>
       </aside>
 
       <div className="home-content">
         <header className="home-hero">
+          <Link to="/" className="home-back-icon" aria-label="Volver al catálogo">
+            ←
+          </Link>
           <img src="/logo.png" alt="Zas! - Red de farmacias" className="home-logo-img" />
           <h1 className="home-logo">Zas!</h1>
           <p className="home-tagline">
@@ -125,11 +123,6 @@ export default function Home() {
             En <strong>Zas!</strong> consigues todo a la mano.
           </p>
         </header>
-        <div style={{ marginBottom: '1rem' }}>
-          <Link to="/" className="auth-back">
-            ← Volver al catálogo
-          </Link>
-        </div>
 
         <section className="home-carousel-wrap">
           <div

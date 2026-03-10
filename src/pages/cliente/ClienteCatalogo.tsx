@@ -116,9 +116,9 @@ type ClienteCatalogoProps = {
 }
 
 export default function ClienteCatalogo({ showDeliveryBox = true }: ClienteCatalogoProps) {
-  const [busqueda, setBusqueda] = useState('')
-  const [estado, setEstado] = useState('')
   const [searchParams] = useSearchParams()
+  const [busqueda, setBusqueda] = useState(() => searchParams.get('q') ?? '')
+  const [estado, setEstado] = useState('')
   const searchInputRef = useRef<HTMLInputElement | null>(null)
   const { addItem, items: cartItems } = useCart()
   const { user } = useAuth()
@@ -188,7 +188,12 @@ export default function ClienteCatalogo({ showDeliveryBox = true }: ClienteCatal
       } catch (e) {
         if (!cancelled) {
           console.error(e)
-          setError('No se pudo cargar el catálogo. Intenta de nuevo en unos segundos.')
+          const msg = e instanceof Error ? e.message : ''
+          if (msg && msg.toLowerCase().includes('no autorizado')) {
+            setError('Este catálogo necesita que inicies sesión para mostrar productos desde el backend.')
+          } else {
+            setError('No se pudo cargar el catálogo. Intenta de nuevo en unos segundos.')
+          }
           setProductos([])
           setTotal(0)
           setTotalPages(1)
@@ -236,6 +241,8 @@ export default function ClienteCatalogo({ showDeliveryBox = true }: ClienteCatal
 
   useEffect(() => {
     if (searchParams.get('buscar') === '1' && searchInputRef.current) searchInputRef.current.focus()
+    const q = searchParams.get('q') ?? ''
+    setBusqueda(q)
   }, [searchParams])
 
   const categoriasDisponibles = useMemo(

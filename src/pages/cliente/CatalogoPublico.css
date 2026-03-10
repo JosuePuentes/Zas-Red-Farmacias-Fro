@@ -44,7 +44,7 @@
 
 .catalogo-publico-link {
   font-size: 0.9rem;
-  color: var(--color-text-muted);
+  color: var(--color-primary-dark);
   text-decoration: none;
   padding: 0.2rem 0.6rem;
   border-radius: 999px;
@@ -72,7 +72,21 @@
   align-items: center;
   gap: 0.35rem;
   font-size: 0.8rem;
-  color: var(--color-text-muted);
+  color: var(--color-primary-dark);
+}
+
+.catalogo-publico-delivery-location {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.catalogo-publico-delivery-pin {
+  font-size: 0.9rem;
+}
+
+.catalogo-publico-delivery-separator {
+  opacity: 0.6;
 }
 
 .catalogo-publico-delivery-label {
@@ -131,6 +145,68 @@
   padding: 1rem 1.5rem 2rem;
 }
 
+.catalogo-publico-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 2fr) auto;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.catalogo-publico-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--color-primary-dark);
+}
+
+.catalogo-publico-toolbar-badge {
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: #e0f2fe;
+  color: var(--color-primary-dark);
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+.catalogo-publico-toolbar-search {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 999px;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+}
+
+.catalogo-publico-toolbar-search input {
+  flex: 1;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+}
+
+.catalogo-publico-toolbar-search input:focus {
+  outline: none;
+}
+
+.catalogo-publico-toolbar-search button {
+  border: none;
+  background: var(--color-primary);
+  color: #ffffff;
+  padding: 0.35rem 0.8rem;
+  cursor: pointer;
+}
+
+.catalogo-publico-toolbar-envio {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.78rem;
+  color: var(--color-primary-dark);
+}
+
 .catalogo-publico-marquee {
   overflow: hidden;
   border-radius: 999px;
@@ -165,6 +241,12 @@
   margin: 0.5rem 0;
   font-size: 0.8rem;
   color: var(--color-danger);
+}
+
+@media (max-width: 768px) {
+  .catalogo-publico-toolbar {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (min-width: 1024px) {
