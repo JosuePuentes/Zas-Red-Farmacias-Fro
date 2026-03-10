@@ -1,6 +1,7 @@
-import { useState, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import FarmaciaProveedores from './FarmaciaProveedores'
-// Tipos para lista comparativa (proveedor + lista de precios)
+import { proveedoresApi, type ListaComparativaItem } from '../../api'
+// Tipos para lista comparativa (proveedor + lista de precios) — se alimenta desde proveedoresApi.listaComparativa
 interface ItemListaPrecio {
   id: string
   codigo: string
@@ -25,15 +26,6 @@ interface ProveedorResumen {
   totalComprado: number
 }
 
-// Mock: listas de varios proveedores (backend traerá listas cargadas por la farmacia)
-const MOCK_LISTA: ItemListaPrecio[] = [
-  { id: '1', codigo: 'A01', descripcion: 'Loratadina 10mg x 10', marca: 'Genven', precio: 2.5, existencia: 100, categoria: 'Antialérgico', proveedorId: 'p1', proveedorNombre: 'Distribuidora Norte', prioridad: true },
-  { id: '2', codigo: 'A02', descripcion: 'Amoxicilina 500mg x 21', marca: 'Leti', precio: 4.2, existencia: 50, categoria: 'Antibiótico', proveedorId: 'p1', proveedorNombre: 'Distribuidora Norte', prioridad: true },
-  { id: '3', codigo: 'A03', descripcion: 'Paracetamol 500mg x 20', marca: 'Cofasa', precio: 1.8, existencia: 200, categoria: 'Analgésico', proveedorId: 'p2', proveedorNombre: 'FarmaSur' },
-  { id: '4', codigo: 'A04', descripcion: 'Loratadina 10mg x 10', marca: 'Cofasa', precio: 2.2, existencia: 80, categoria: 'Antialérgico', proveedorId: 'p2', proveedorNombre: 'FarmaSur', prioridad: true },
-  { id: '5', codigo: 'A05', descripcion: 'Azitromicina 500mg x 3', marca: 'Genven', precio: 5.5, existencia: 40, categoria: 'Antibiótico', proveedorId: 'p2', proveedorNombre: 'FarmaSur', prioridad: true },
-]
-
 const MOCK_PROVEEDORES: ProveedorResumen[] = [
   { id: 'p1', nombre: 'Distribuidora Norte', totalComprado: 1250.5 },
   { id: 'p2', nombre: 'FarmaSur', totalComprado: 890 },
@@ -46,18 +38,59 @@ export default function FarmaciaPlanPro() {
   const [busqueda, setBusqueda] = useState('')
   const [carrito, setCarrito] = useState<CarritoItemPro[]>([])
   const [ordenes, setOrdenes] = useState<{ id: string; proveedorNombre: string; fecha: string; total: number; items: CarritoItemPro[] }[]>([])
+  const [rawComparativa, setRawComparativa] = useState<ListaComparativaItem[]>([])
+
+  // Carga la lista comparativa real desde proveedoresApi para que Plan Pro use las listas de precios cargadas.
+  useEffect(() => {
+    let cancelled = false
+    proveedoresApi
+      .listaComparativa()
+      .then((items) => {
+        if (!cancelled) setRawComparativa(Array.isArray(items) ? items : [])
+      })
+      .catch(() => {
+        if (!cancelled) setRawComparativa([])
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const listaDesdeBackend: ItemListaPrecio[] = useMemo(() => {
+    if (!rawComparativa.length) return []
+    const rows: ItemListaPrecio[] = []
+    rawComparativa.forEach((item) => {
+      if (!item.ofertas || !item.ofertas.length) return
+      // Elegimos la mejor oferta (menor precio) para la fila principal; el resto seguirá visible en \"Ver más\" en la página Proveedores.
+      const best = item.ofertas.reduce((a, b) => (a.precio <= b.precio ? a : b))
+      rows.push({
+        id: `${item.codigo}-${best.proveedorId}`,
+        codigo: item.codigo,
+        descripcion: item.descripcion ?? '',
+        marca: item.marca ?? '',
+        precio: best.precio,
+        existencia: best.existencia,
+        categoria: '', // opcional; se puede llenar en futuras iteraciones
+        proveedorId: best.proveedorId,
+        proveedorNombre: best.proveedorNombre || best.proveedorId,
+        prioridad: false,
+      })
+    })
+    return rows
+  }, [rawComparativa])
 
   const listaFiltrada = useMemo(() => {
+    const base = listaDesdeBackend
     const q = busqueda.trim().toLowerCase()
-    if (!q) return MOCK_LISTA
-    return MOCK_LISTA.filter(
+    if (!q) return base
+    return base.filter(
       (i) =>
         i.codigo.toLowerCase().includes(q) ||
         i.descripcion.toLowerCase().includes(q) ||
         i.marca.toLowerCase().includes(q) ||
         i.categoria.toLowerCase().includes(q)
     )
-  }, [busqueda])
+  }, [busqueda, listaDesdeBackend])
 
   function agregarAlCarrito(item: ItemListaPrecio, cantidad: number) {
     if (cantidad < 1) return

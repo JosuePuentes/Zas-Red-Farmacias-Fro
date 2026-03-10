@@ -6,7 +6,11 @@ function isMasterUser(user: { role?: string; email?: string } | null): boolean {
   if (!user) return false
   const role = (user.role || '').toString().toLowerCase()
   const emailNorm = (user.email || '').toString().toLowerCase().trim()
-  return role === 'master' || role === 'admin' || emailNorm === 'admin@zas.com'
+  // Criterios amplios: cualquier usuario master/admin o email admin@zas.com
+  // y, en general, cualquier rol distinto a cliente/farmacia/delivery se trata como usuario master.
+  if (role === 'master' || role === 'admin' || emailNorm === 'admin@zas.com') return true
+  if (role && role !== 'cliente' && role !== 'farmacia' && role !== 'delivery') return true
+  return false
 }
 
 interface PlanProContextType {

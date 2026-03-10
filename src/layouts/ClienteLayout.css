@@ -427,10 +427,9 @@
 }
 
 @media (min-width: 768px) {
+  /* En escritorio usamos el sidebar y la navegación superior; ocultamos la barra inferior flotante
+     para que no tape el contenido del catálogo ni otras páginas. */
   .cliente-bottom-nav {
-    max-width: 960px;
-    margin: 0 auto;
-    left: 0;
-    right: 0;
+    display: none;
   }
 }

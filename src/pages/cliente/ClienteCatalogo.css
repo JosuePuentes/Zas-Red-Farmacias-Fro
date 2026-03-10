@@ -1,5 +1,5 @@
 .cliente-catalogo {
-  padding-bottom: 5rem;
+  padding-bottom: 6rem;
 }
 
 /* Calculadora delivery (compacta) */
@@ -278,9 +278,19 @@
 
 .cliente-catalogo-section-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 1rem;
   padding-bottom: 0.5rem;
+}
+
+@media (min-width: 1024px) {
+  .cliente-catalogo {
+    padding-bottom: 2rem;
+  }
+
+  .cliente-catalogo-section-list {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
 }
 
 .cliente-catalogo-card {
