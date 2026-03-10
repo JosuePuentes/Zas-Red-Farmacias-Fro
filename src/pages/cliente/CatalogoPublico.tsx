@@ -1,61 +1,14 @@
 import { Link, useSearchParams } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
-import { useGeolocation } from '../../context/GeolocationContext'
-import { clienteApi } from '../../api'
 import ClienteCatalogo from './ClienteCatalogo'
 import { CartProvider } from '../../context/CartContext'
 import './CatalogoPublico.css'
 
-const PUBLICIDAD_MENSAJES = [
-  '💊 Promoción del mes: descuentos especiales en medicamentos de alto costo.',
-  '🚚 Delivery rápido: recibe tu pedido en menos de 30 minutos en zonas seleccionadas.',
-  '❤️ Zas! conecta farmacias de confianza cerca de ti.',
-  '📲 Descarga próximamente nuestra app móvil para una experiencia aún más rápida.',
-]
-
 export default function CatalogoPublico() {
   const { isAuthenticated } = useAuth()
-  const { position, loading: gpsLoading, error: gpsError, requestLocation } = useGeolocation()
-  const [costoDelivery, setCostoDelivery] = useState<number | null>(null)
-  const [loadingCosto, setLoadingCosto] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams()
   const [q, setQ] = useState(() => searchParams.get('q') ?? '')
-
-  useEffect(() => {
-    if (!position) return
-    let cancelled = false
-    setLoadingCosto(true)
-    clienteApi.estimacionDelivery(position.lat, position.lng)
-      .then((res) => {
-        if (!cancelled) setCostoDelivery(res.costo ?? null)
-      })
-      .catch(() => {
-        if (!cancelled) setCostoDelivery(null)
-      })
-      .finally(() => {
-        if (!cancelled) setLoadingCosto(false)
-      })
-    return () => { cancelled = true }
-  }, [position?.lat, position?.lng])
-
-  async function handleCalcularDelivery() {
-    const loc = await requestLocation()
-    if (!loc) return
-    setLoadingCosto(true)
-    try {
-      await clienteApi.guardarUbicacion(loc.lat, loc.lng)
-      const res = await clienteApi.estimacionDelivery(loc.lat, loc.lng)
-      setCostoDelivery(res.costo ?? null)
-    } catch {
-      setCostoDelivery(null)
-    } finally {
-      setLoadingCosto(false)
-    }
-  }
-
-  const ubicacionLabel = position ? 'Ubicación activa' : 'Sin ubicación'
-  const friendlyGpsError = gpsError ? 'No pudimos usar tu ubicación. Revisa permisos de GPS en tu navegador.' : null
 
   function handleBuscarSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -110,11 +63,6 @@ export default function CatalogoPublico() {
             />
             <button type="submit" aria-label="Buscar">🔍</button>
           </form>
-          {friendlyGpsError && (
-            <p className="catalogo-publico-gps-error">
-              {friendlyGpsError}
-            </p>
-          )}
           <ClienteCatalogo showDeliveryBox={false} />
         </main>
       </div>
