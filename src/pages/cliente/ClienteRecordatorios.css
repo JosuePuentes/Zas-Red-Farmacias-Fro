@@ -1,0 +1,56 @@
+.cliente-recordatorios {
+  padding-bottom: 4rem;
+}
+
+.cliente-recordatorios-buscar .form-group {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.cliente-recordatorios-buscar input {
+  flex: 1;
+  max-width: 280px;
+}
+
+.cliente-recordatorios-resultados,
+.cliente-recordatorios-lista {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0 0;
+}
+
+.cliente-recordatorios-resultados li,
+.cliente-recordatorios-lista li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.cliente-recordatorios-thumb {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #e2e8f0;
+}
+
+.cliente-recordatorios-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.cliente-recordatorios-info .precio-ref,
+.cliente-recordatorios-info .countdown {
+  margin: 0.25rem 0 0 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.cliente-recordatorios-info .countdown {
+  font-weight: 600;
+  color: var(--color-primary);
+}

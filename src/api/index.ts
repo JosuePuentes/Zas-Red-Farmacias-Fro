@@ -413,4 +413,42 @@ export const clienteApi = {
     request<{ subtotal: number; costoDelivery: number; total: number; numFarmacias: number; direccion: string }>(
       '/cliente/checkout/resumen',
     ),
+
+  // ===================== RECORDATORIOS =====================
+  /** GET /api/cliente/recordatorios — lista de recordatorios del cliente. */
+  recordatorios: () => request<RecordatorioItem[]>('/cliente/recordatorios'),
+  /** POST /api/cliente/recordatorios — crear recordatorio (codigo, descripcion, imagen?, precioReferencia?). */
+  crearRecordatorio: (body: { codigo: string; descripcion: string; imagen?: string; precioReferencia?: number }) =>
+    request<{ id?: string; ok?: boolean }>('/cliente/recordatorios', { method: 'POST', body: JSON.stringify(body) }),
+
+  // ===================== RECETAS =====================
+  /** GET /api/cliente/recetas/buscar?q= — búsqueda por texto (o texto de OCR). Backend no hace OCR; solo recibe q. */
+  recetasBuscar: (q: string) => request<RecetaBuscarItem[]>(`/cliente/recetas/buscar?q=${encodeURIComponent(q)}`),
+  /** POST /api/cliente/recetas/agregar-al-carrito — agregar producto elegido al carrito. */
+  recetasAgregarAlCarrito: (body: { productoId: string; cantidad: number } | { codigo: string; cantidad: number }) =>
+    request<{ ok?: boolean; message?: string }>('/cliente/recetas/agregar-al-carrito', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+}
+
+// Tipos usados por recordatorios/recetas (ajustar según respuesta real del backend)
+export interface RecordatorioItem {
+  id: string
+  codigo?: string
+  descripcion?: string
+  imagen?: string
+  precioReferencia?: number
+  proximaFecha?: string
+  [key: string]: unknown
+}
+
+export interface RecetaBuscarItem {
+  id: string
+  codigo?: string
+  descripcion?: string
+  precio?: number
+  farmaciaId?: string
+  existencia?: number
+  [key: string]: unknown
 }

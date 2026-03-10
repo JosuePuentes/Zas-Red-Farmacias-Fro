@@ -15,22 +15,26 @@ const MOCK_PRODUCTOS: Producto[] = [
   { id: '3', codigo: 'COD-003', descripcion: 'Vitamina C 1g', principioActivo: 'Ácido ascórbico', presentacion: 'Frasco 30 tab', marca: 'Genven', precio: 8.0, descuentoPorcentaje: 20, precioConPorcentaje: 6.4, farmaciaId: 'f2', existencia: 20 },
 ]
 
-function getPrecioEfectivo(p: Producto) {
-  return p.precioConPorcentaje ?? p.precio
+function getPrecioBase(p: Producto): number | null {
+  return typeof p.precio === 'number' ? p.precio : null
 }
 
-function getPrecioBase(p: Producto) {
-  return p.precio
+function getPrecioConDescuento(p: Producto): number | null {
+  if (typeof p.precioConPorcentaje === 'number') return p.precioConPorcentaje
+  if (typeof p.precio === 'number') return p.precio
+  return null
 }
 
-function getPrecioConDescuento(p: Producto) {
-  return p.precioConPorcentaje ?? p.precio
+function getPrecioEfectivo(p: Producto): number {
+  const val = getPrecioConDescuento(p)
+  return typeof val === 'number' ? val : Number.POSITIVE_INFINITY
 }
 
 function getDescuentoPorcentaje(p: Producto): number {
-  if (typeof p.descuentoPorcentaje === 'number') return p.descuentoPorcentaje
-  if (p.precioConPorcentaje != null && p.precioConPorcentaje < p.precio) {
-    return Math.round(100 - (p.precioConPorcentaje * 100) / p.precio)
+  const base = getPrecioBase(p)
+  const desc = getPrecioConDescuento(p)
+  if (typeof base === 'number' && typeof desc === 'number' && desc < base) {
+    return Math.round(100 - (desc * 100) / base)
   }
   return 0
 }
@@ -106,7 +110,8 @@ export default function ClienteCatalogo() {
         setLoading(true)
         setError(null)
         const params: { q?: string; page: number; page_size: number; lat?: number; lng?: number } = {
-          page,
+          // Backend paginación 1-based: primera página page=1, segunda page=2. Estado interno 0-based → enviar page + 1.
+          page: page + 1,
           page_size: pageSize,
         }
         if (busqueda.trim()) params.q = busqueda.trim()
@@ -245,7 +250,12 @@ export default function ClienteCatalogo() {
               const precioBase = getPrecioBase(p)
               const precioConDescuento = getPrecioConDescuento(p)
               const descuento = getDescuentoPorcentaje(p)
-              const tieneDescuento = descuento > 0 && precioConDescuento < precioBase
+              const tienePrecio = typeof precioBase === 'number' || typeof precioConDescuento === 'number'
+              const tieneDescuento =
+                descuento > 0 &&
+                typeof precioConDescuento === 'number' &&
+                typeof precioBase === 'number' &&
+                precioConDescuento < precioBase
               const sinStockProducto = sinStock(p)
               const esMismoComercio = cartFarmaciaIds.has(p.farmaciaId)
               const esOtroComercio = cartItems.length > 0 && !esMismoComercio
@@ -273,13 +283,21 @@ export default function ClienteCatalogo() {
                     <p className="product-desc product-marca">{p.marca}</p>
                     {sinStockProducto && <p className="product-sin-stock" role="status">Sin stock</p>}
                     <p className="product-precio">
-                      {tieneDescuento ? (
-                        <>
-                          <span className="product-precio-original">$ {precioBase.toFixed(2)}</span>
-                          <span className="product-precio-descuento">{descuento}% OFF · $ {precioConDescuento.toFixed(2)}</span>
-                        </>
+                      {tienePrecio ? (
+                        tieneDescuento && typeof precioBase === 'number' && typeof precioConDescuento === 'number' ? (
+                          <>
+                            <span className="product-precio-original">$ {precioBase.toFixed(2)}</span>
+                            <span className="product-precio-descuento">
+                              {descuento}% OFF · $ {precioConDescuento.toFixed(2)}
+                            </span>
+                          </>
+                        ) : typeof (precioConDescuento ?? precioBase) === 'number' ? (
+                          <>$ {(precioConDescuento ?? precioBase)!.toFixed(2)}</>
+                        ) : (
+                          <>Precio no disponible</>
+                        )
                       ) : (
-                        <>$ {precioBase.toFixed(2)}</>
+                        <>Precio no disponible</>
                       )}
                     </p>
                     {otros.length > 0 && (

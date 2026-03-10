@@ -7,6 +7,8 @@ import ClienteCarrito from '../pages/cliente/ClienteCarrito'
 import ClienteCheckout from '../pages/cliente/ClienteCheckout'
 import ClienteMiCuenta from '../pages/cliente/ClienteMiCuenta'
 import ClientePedidos from '../pages/cliente/ClientePedidos'
+import ClienteRecordatorios from '../pages/cliente/ClienteRecordatorios'
+import ClienteRecetas from '../pages/cliente/ClienteRecetas'
 import ClienteSoporte from '../pages/cliente/ClienteSoporte'
 import CartModal from '../components/CartModal'
 import './Layout.css'
@@ -191,6 +193,8 @@ function ClienteLayoutInner() {
           <p className="cliente-sidebar-welcome">¡Hola! ¿Qué necesitas hoy?</p>
           <nav className="cliente-sidebar-nav">
             <NavLink to="/cliente" end onClick={() => setSidebarOpen(false)}>Catálogo</NavLink>
+            <NavLink to="/cliente/recordatorios" onClick={() => setSidebarOpen(false)}>Recordatorios</NavLink>
+            <NavLink to="/cliente/recetas" onClick={() => setSidebarOpen(false)}>Recetas</NavLink>
             <NavLink to="/cliente/mi-cuenta" onClick={() => setSidebarOpen(false)}>Mi perfil</NavLink>
             <NavLink to="/cliente/mis-pedidos" onClick={() => setSidebarOpen(false)}>Mis pedidos</NavLink>
             <NavLink to="/cliente/soporte" onClick={() => setSidebarOpen(false)}>Soporte</NavLink>
@@ -206,6 +210,8 @@ function ClienteLayoutInner() {
           <Route index element={<ClienteCatalogo />} />
           <Route path="carrito" element={<ClienteCarrito />} />
           <Route path="checkout" element={<ClienteCheckout />} />
+          <Route path="recordatorios" element={<ClienteRecordatorios />} />
+          <Route path="recetas" element={<ClienteRecetas />} />
           <Route path="mi-cuenta" element={<ClienteMiCuenta />} />
           <Route path="mis-pedidos" element={<ClientePedidos />} />
           <Route path="soporte" element={<ClienteSoporte />} />
