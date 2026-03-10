@@ -34,10 +34,10 @@ function CatalogoPublicoInner() {
       <header className="catalogo-publico-header">
         <div className="catalogo-publico-header-top">
           <div className="catalogo-publico-logo-zone">
-            <div className="catalogo-publico-logo">
+            <Link to="/" className="catalogo-publico-logo" aria-label="Ir al inicio Zas! Farma">
               <img src="/logo.png" alt="Zas!" />
               <span>Zas! Farma</span>
-            </div>
+            </Link>
             <button
               type="button"
               className="catalogo-publico-envio"
