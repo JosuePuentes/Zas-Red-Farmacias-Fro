@@ -18,7 +18,6 @@ import AdminLayout from './layouts/AdminLayout'
 import ClienteLayout from './layouts/ClienteLayout'
 import FarmaciaLayout from './layouts/FarmaciaLayout'
 import DeliveryLayout from './layouts/DeliveryLayout'
-import CatalogoPublico from './pages/cliente/CatalogoPublico'
 import QuienesSomos from './pages/QuienesSomos'
 
 function isMasterUser(user: { role?: string; email?: string } | null): boolean {
