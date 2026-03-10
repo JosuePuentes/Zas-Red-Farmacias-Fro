@@ -325,18 +325,19 @@
 }
 
 .cliente-catalogo-info .product-desc {
-  margin: 0.15rem 0;
+  margin: 0.2rem 0;
+  font-size: 0.9rem;
 }
 
 .cliente-catalogo-info .product-marca {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--color-text-muted);
 }
 
 .cliente-catalogo-info .product-precio {
   margin: 0.35rem 0 0 0;
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   color: var(--color-primary);
 }
 
@@ -459,12 +460,6 @@
   font-size: 0.9rem;
   color: var(--color-text-muted);
   margin: 0 0 0.75rem 0;
-}
-
-.cliente-catalogo-total-subhint {
-  margin: 0 0 0.75rem 0;
-  font-size: 0.78rem;
-  color: var(--color-text-muted);
 }
 
 .cliente-catalogo-filters-active {

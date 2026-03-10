@@ -83,6 +83,14 @@ export default function CatalogoPublico() {
                 Marca
               </button>
             </nav>
+            <nav className="catalogo-publico-links">
+              <Link to="/quienes-somos" className="catalogo-publico-link-sm">
+                ¿Quiénes somos?
+              </Link>
+              <Link to="/soporte" className="catalogo-publico-link-sm">
+                Contacto
+              </Link>
+            </nav>
           </div>
           {showEstados && (
             <div className="catalogo-publico-envio-dropdown" role="listbox" aria-label="Seleccionar estado">

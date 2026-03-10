@@ -280,6 +280,22 @@
   color: #b91c1c;
 }
 
+.catalogo-publico-links {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.8rem;
+}
+
+.catalogo-publico-link-sm {
+  color: var(--color-primary-dark);
+  text-decoration: none;
+}
+
+.catalogo-publico-link-sm:hover {
+  text-decoration: underline;
+}
+
 .catalogo-publico-gps-error {
   margin: 0.5rem 0;
   font-size: 0.8rem;
@@ -311,6 +327,11 @@
 
   .catalogo-publico-subnav-item {
     white-space: nowrap;
+  }
+
+  .catalogo-publico-links {
+    width: 100%;
+    justify-content: flex-start;
   }
 }
 

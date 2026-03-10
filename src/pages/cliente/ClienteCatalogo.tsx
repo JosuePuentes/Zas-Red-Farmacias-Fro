@@ -136,7 +136,7 @@ export default function ClienteCatalogo({
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [page, setPage] = useState(0)
-  const pageSize = 48
+  const pageSize = 24
 
   const [ubicacionConfirmada, setUbicacionConfirmada] = useState(false)
   const [costoDelivery, setCostoDelivery] = useState<number | null>(null)
@@ -487,14 +487,9 @@ export default function ClienteCatalogo({
         </p>
       )}
       {!loading && productos.length > 0 && total > 0 && (
-        <>
-          <p className="cliente-catalogo-total" role="status">
-            {total.toLocaleString()} resultado{total !== 1 ? 's' : ''} {totalPages > 1 ? `· Página ${page + 1} de ${totalPages}` : ''}
-          </p>
-          <p className="cliente-catalogo-total-subhint">
-            Mostramos un solo producto por código con el mejor precio entre todas las farmacias.
-          </p>
-        </>
+        <p className="cliente-catalogo-total" role="status">
+          {total.toLocaleString()} resultado{total !== 1 ? 's' : ''} {totalPages > 1 ? `· Página ${page + 1} de ${totalPages}` : ''}
+        </p>
       )}
 
       {tieneFiltrosActivos && (
@@ -581,11 +576,15 @@ export default function ClienteCatalogo({
                         className="product-photo-img"
                         onError={(e) => {
                           e.currentTarget.onerror = null
-                          e.currentTarget.src = '/images/product-placeholder.png'
+                          e.currentTarget.src = '/product-placeholder.svg'
                         }}
                       />
                     ) : (
-                      <span className="product-photo-placeholder">Sin imagen</span>
+                      <img
+                        src="/product-placeholder.svg"
+                        alt="Sin imagen disponible"
+                        className="product-photo-img"
+                      />
                     )}
                   </div>
                   <div className="cliente-catalogo-info">
