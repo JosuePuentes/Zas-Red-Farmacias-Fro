@@ -7,7 +7,7 @@ export default function QuienesSomos() {
       <div className="home-content">
         <section className="home-hero">
           <Link to="/" className="home-back-icon" aria-label="Volver al inicio">
-            ←
+            🏠
           </Link>
           <div className="home-hero-main">
             <img src="/logo.png" alt="Zas! - Red de farmacias" className="home-logo-img" />
