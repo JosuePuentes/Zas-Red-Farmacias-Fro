@@ -56,6 +56,27 @@ function getCategoriaProducto(p: Producto): DepartamentoZas | 'Otros' {
   return 'Otros'
 }
 
+function getRecomendacionesAuxiliar(p: Producto): string[] {
+  const texto = `${p.descripcion} ${p.principioActivo} ${p.presentacion}`.toLowerCase()
+  const recs = new Set<string>()
+
+  if (texto.includes('ampolla') || texto.includes('inyect') || texto.includes('intramuscular')) {
+    recs.add('Jeringa 3 ml')
+    recs.add('Algodón y alcohol')
+  }
+  if (texto.includes('jarabe') || texto.includes('suspensión') || texto.includes('suspension')) {
+    recs.add('Cucharilla medidora')
+  }
+  if (texto.includes('tableta') || texto.includes('comprimido') || texto.includes('pastilla')) {
+    recs.add('Agua filtrada')
+  }
+  if (texto.includes('cura') || texto.includes('herida') || texto.includes('gasa')) {
+    recs.add('Vendas o gasas estériles')
+  }
+
+  return Array.from(recs)
+}
+
 /** Agrupa por codigo+descripcion y elige el de mejor precio; el resto queda en "otros". */
 function agruparPorMejorPrecio(productos: Producto[]): { key: string; mejor: Producto; otros: Producto[] }[] {
   const map = new Map<string, Producto[]>()
@@ -98,6 +119,11 @@ export default function ClienteCatalogo() {
   const [modalOtrosComercios, setModalOtrosComercios] = useState<{ mejor: Producto; otros: Producto[] } | null>(null)
   const [solicitandoCodigo, setSolicitandoCodigo] = useState<string | null>(null)
   const [solicitudMsg, setSolicitudMsg] = useState<{ tipo: 'ok' | 'error'; texto: string } | null>(null)
+
+  const [orden, setOrden] = useState<'relevancia' | 'precio-asc' | 'precio-desc'>('relevancia')
+  const [filtroCategorias, setFiltroCategorias] = useState<string[]>([])
+  const [filtroMarcas, setFiltroMarcas] = useState<string[]>([])
+  const [panelFiltros, setPanelFiltros] = useState<'orden' | 'categoria' | 'marca' | null>(null)
 
   const coords = position
 
@@ -184,8 +210,42 @@ export default function ClienteCatalogo() {
     if (searchParams.get('buscar') === '1' && searchInputRef.current) searchInputRef.current.focus()
   }, [searchParams])
 
-  // La búsqueda se hace en el backend (parámetro q); no filtrar de nuevo en cliente para no ocultar resultados
-  const grupos = useMemo(() => agruparPorMejorPrecio(productos), [productos])
+  const categoriasDisponibles = useMemo(
+    () => Array.from(new Set(productos.map((p) => p.categoria).filter((c): c is string => !!c))).sort(),
+    [productos],
+  )
+  const marcasDisponibles = useMemo(
+    () => Array.from(new Set(productos.map((p) => p.marca).filter((m): m is string => !!m))).sort(),
+    [productos],
+  )
+
+  const productosFiltrados = useMemo(() => {
+    let lista = productos
+    if (filtroCategorias.length) {
+      lista = lista.filter((p) => p.categoria && filtroCategorias.includes(p.categoria))
+    }
+    if (filtroMarcas.length) {
+      lista = lista.filter((p) => p.marca && filtroMarcas.includes(p.marca))
+    }
+    if (orden !== 'relevancia') {
+      lista = [...lista].sort((a, b) => {
+        const pa = getPrecioEfectivo(a)
+        const pb = getPrecioEfectivo(b)
+        if (!Number.isFinite(pa) && !Number.isFinite(pb)) return 0
+        if (!Number.isFinite(pa)) return 1
+        if (!Number.isFinite(pb)) return -1
+        return orden === 'precio-asc' ? pa - pb : pb - pa
+      })
+    }
+    return lista
+  }, [productos, filtroCategorias, filtroMarcas, orden])
+
+  const tieneFiltrosActivos = useMemo(
+    () => orden !== 'relevancia' || filtroCategorias.length > 0 || filtroMarcas.length > 0,
+    [orden, filtroCategorias.length, filtroMarcas.length],
+  )
+
+  const grupos = useMemo(() => agruparPorMejorPrecio(productosFiltrados), [productosFiltrados])
   const secciones = useMemo(() => {
     const conCategoria = DEPARTAMENTOS_ZAS.map((dep) => ({
       nombre: dep,
@@ -206,10 +266,27 @@ export default function ClienteCatalogo() {
       <section className="cliente-catalogo-hero">
         <div className="cliente-catalogo-hero-text">
           <h2>Encuentra tus medicamentos sin ruletear farmacias</h2>
-          <p>Compara precios entre varias farmacias y recibe todo en casa. Zas! los busca por ti.</p>
+          <p>
+            Compara precios entre varias farmacias y recibe tu pedido en menos de 30 minutos, sin colas ni
+            ruleteos. Zas! los busca por ti.
+          </p>
         </div>
         <div className="cliente-catalogo-hero-banner">
           <img src="/images/zas-app.png" alt="Zas! catálogo" />
+        </div>
+      </section>
+      <section className="cliente-catalogo-trust">
+        <div className="cliente-catalogo-trust-item">
+          <h4>Pagos protegidos</h4>
+          <p>Tus datos viajan cifrados y tus compras están respaldadas.</p>
+        </div>
+        <div className="cliente-catalogo-trust-item">
+          <h4>Farmacias verificadas</h4>
+          <p>Solo aliados registrados y auditados en la red Zas!.</p>
+        </div>
+        <div className="cliente-catalogo-trust-item">
+          <h4>Acompañamiento humano</h4>
+          <p>Si algo pasa con tu pedido, un equipo te atiende.</p>
         </div>
       </section>
       {/* Calculadora delivery (compacta) */}
@@ -238,6 +315,108 @@ export default function ClienteCatalogo() {
           ))}
         </select>
       </div>
+      <div className="cliente-catalogo-filters">
+        <button
+          type="button"
+          className={`cliente-filter-chip ${panelFiltros === 'orden' ? 'is-active' : ''}`}
+          onClick={() => setPanelFiltros(panelFiltros === 'orden' ? null : 'orden')}
+        >
+          Ordenar
+        </button>
+        <button
+          type="button"
+          className={`cliente-filter-chip ${panelFiltros === 'categoria' ? 'is-active' : ''}`}
+          onClick={() => setPanelFiltros(panelFiltros === 'categoria' ? null : 'categoria')}
+        >
+          Categoría
+        </button>
+        <button
+          type="button"
+          className={`cliente-filter-chip ${panelFiltros === 'marca' ? 'is-active' : ''}`}
+          onClick={() => setPanelFiltros(panelFiltros === 'marca' ? null : 'marca')}
+        >
+          Marca
+        </button>
+      </div>
+      {panelFiltros === 'orden' && (
+        <div className="cliente-filters-panel">
+          <p className="cliente-filters-title">Ordenar por</p>
+          <label className="cliente-filters-option">
+            <input
+              type="radio"
+              name="orden"
+              value="relevancia"
+              checked={orden === 'relevancia'}
+              onChange={() => setOrden('relevancia')}
+            />
+            Relevancia
+          </label>
+          <label className="cliente-filters-option">
+            <input
+              type="radio"
+              name="orden"
+              value="precio-asc"
+              checked={orden === 'precio-asc'}
+              onChange={() => setOrden('precio-asc')}
+            />
+            Precio más bajo
+          </label>
+          <label className="cliente-filters-option">
+            <input
+              type="radio"
+              name="orden"
+              value="precio-desc"
+              checked={orden === 'precio-desc'}
+              onChange={() => setOrden('precio-desc')}
+            />
+            Precio más alto
+          </label>
+        </div>
+      )}
+      {panelFiltros === 'categoria' && categoriasDisponibles.length > 0 && (
+        <div className="cliente-filters-panel">
+          <p className="cliente-filters-title">Filtrar por categoría</p>
+          {categoriasDisponibles.map((c) => (
+            <label key={c} className="cliente-filters-option">
+              <input
+                type="checkbox"
+                checked={filtroCategorias.includes(c)}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setFiltroCategorias((prev) => [...prev, c])
+                  } else {
+                    setFiltroCategorias((prev) => prev.filter((x) => x !== c))
+                  }
+                  setPage(0)
+                }}
+              />
+              {c}
+            </label>
+          ))}
+        </div>
+      )}
+      {panelFiltros === 'marca' && marcasDisponibles.length > 0 && (
+        <div className="cliente-filters-panel">
+          <p className="cliente-filters-title">Filtrar por marca</p>
+          {marcasDisponibles.map((m) => (
+            <label key={m} className="cliente-filters-option">
+              <input
+                type="checkbox"
+                checked={filtroMarcas.includes(m)}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setFiltroMarcas((prev) => [...prev, m])
+                  } else {
+                    setFiltroMarcas((prev) => prev.filter((x) => x !== m))
+                  }
+                  setPage(0)
+                }}
+              />
+              {m}
+            </label>
+          ))}
+        </div>
+      )}
       {solicitudMsg && (
         <p className={`cliente-catalogo-solicitud-msg ${solicitudMsg.tipo === 'error' ? 'error' : 'ok'}`} role="status">
           {solicitudMsg.texto}
@@ -257,8 +436,50 @@ export default function ClienteCatalogo() {
           aria-label="Buscar en el catálogo"
         />
       </div>
+      <div className="cliente-catalogo-quicksearch">
+        <span className="quicksearch-label">Búsquedas rápidas:</span>
+        <button
+          type="button"
+          className="quicksearch-chip"
+          onClick={() => { setBusqueda('paracetamol'); setPage(0) }}
+        >
+          Paracetamol
+        </button>
+        <button
+          type="button"
+          className="quicksearch-chip"
+          onClick={() => { setBusqueda('antigripal'); setPage(0) }}
+        >
+          Antigripales
+        </button>
+        <button
+          type="button"
+          className="quicksearch-chip"
+          onClick={() => { setBusqueda('vitamina'); setPage(0) }}
+        >
+          Vitaminas
+        </button>
+        <button
+          type="button"
+          className="quicksearch-chip"
+          onClick={() => { setBusqueda('bebe'); setPage(0) }}
+        >
+          Bebés
+        </button>
+      </div>
 
-      {loading && productos.length === 0 && <p className="cliente-catalogo-empty">Cargando catálogo...</p>}
+      {loading && productos.length === 0 && (
+        <div className="cliente-catalogo-skeleton-grid">
+          {Array.from({ length: 8 }).map((_, idx) => (
+            <div key={idx} className="cliente-catalogo-skeleton-card">
+              <div className="skeleton skeleton-img" />
+              <div className="skeleton skeleton-line skeleton-line-sm" />
+              <div className="skeleton skeleton-line" />
+              <div className="skeleton skeleton-line skeleton-line-sm" />
+            </div>
+          ))}
+        </div>
+      )}
       {error && <p className="cliente-catalogo-empty">{error}</p>}
       {!loading && productos.length === 0 && (
         <p className="cliente-catalogo-empty">
@@ -266,9 +487,35 @@ export default function ClienteCatalogo() {
         </p>
       )}
       {!loading && productos.length > 0 && total > 0 && (
-        <p className="cliente-catalogo-total" role="status">
-          {total.toLocaleString()} resultado{total !== 1 ? 's' : ''} {totalPages > 1 ? `· Página ${page + 1} de ${totalPages}` : ''}
-        </p>
+        <>
+          <p className="cliente-catalogo-total" role="status">
+            {total.toLocaleString()} resultado{total !== 1 ? 's' : ''} {totalPages > 1 ? `· Página ${page + 1} de ${totalPages}` : ''}
+          </p>
+          <p className="cliente-catalogo-total-subhint">
+            Mostramos un solo producto por código con el mejor precio entre todas las farmacias.
+          </p>
+        </>
+      )}
+
+      {tieneFiltrosActivos && (
+        <div className="cliente-catalogo-filters-active">
+          <span>
+            Estás viendo resultados con filtros aplicados
+            {orden !== 'relevancia' ? ' (ordenados por precio)' : ''}.
+          </span>
+          <button
+            type="button"
+            className="cliente-catalogo-filters-clear"
+            onClick={() => {
+              setOrden('relevancia')
+              setFiltroCategorias([])
+              setFiltroMarcas([])
+              setPage(0)
+            }}
+          >
+            Limpiar filtros
+          </button>
+        </div>
       )}
 
       {secciones.map((sec) => (
@@ -304,12 +551,24 @@ export default function ClienteCatalogo() {
                   ? `${backendBase}${p.imagen}`
                   : p.imagen
 
+              const recomendacionesAux = getRecomendacionesAuxiliar(p)
+
               return (
                 <article
                   key={key}
                   className={`cliente-catalogo-card card ${esMismoComercio ? 'producto-mismo-comercio' : ''}`}
                 >
                   <div className="product-photo">
+                    {ubicacionConfirmada && (
+                      <span className="producto-badge-entrega">
+                        Entrega &lt; 30 min
+                      </span>
+                    )}
+                    {tieneDescuento && descuento > 0 && (
+                      <span className="producto-badge-descuento">
+                        -{descuento}%
+                      </span>
+                    )}
                     {imagenUrl ? (
                       <img src={imagenUrl} alt={p.descripcion} className="product-photo-img" />
                     ) : (
@@ -384,6 +643,14 @@ export default function ClienteCatalogo() {
                     {esOtroComercio && (
                       <p className="product-otra-localidad">En otro comercio; el envío puede variar.</p>
                     )}
+                    {recomendacionesAux.length > 0 && (
+                      <div className="cliente-catalogo-auxiliar">
+                        <span className="cliente-catalogo-auxiliar-label">Auxiliar de farmacia sugiere:</span>
+                        <span className="cliente-catalogo-auxiliar-items">
+                          {recomendacionesAux.join(' · ')}
+                        </span>
+                      </div>
+                    )}
                   </div>
                   {isLoggedIn ? (
                     <div className="cliente-catalogo-actions">
@@ -443,6 +710,10 @@ export default function ClienteCatalogo() {
                       <p className="cliente-catalogo-login-hint">
                         Inicia sesión para ver disponibilidad y agregar al carrito.
                       </p>
+                      <div className="cliente-catalogo-login-cta">
+                        <a href="/login" className="login-cta-primary">Iniciar sesión</a>
+                        <a href="/registro" className="login-cta-secondary">Crear cuenta</a>
+                      </div>
                     </div>
                   )}
                 </article>
@@ -486,6 +757,12 @@ export default function ClienteCatalogo() {
           </button>
         </div>
       )}
+      <div className="cliente-catalogo-support">
+        <p>
+          ¿Tienes alguna duda con tu pedido o con el catálogo?{' '}
+          <a href="/soporte">Escríbenos y te ayudamos</a>.
+        </p>
+      </div>
     </div>
   )
 }
