@@ -3,11 +3,10 @@ import {
   proveedoresApi,
   type ProveedorApi,
   type ProveedorBody,
-  type ListaComparativaItem,
 } from '../../api'
 import './FarmaciaProveedores.css'
 
-type TabProveedores = 'crud' | 'lista-precio' | 'comparativa'
+type TabProveedores = 'crud' | 'lista-precio'
 
 const INIT_FORM: ProveedorBody = {
   rif: '',
@@ -34,11 +33,6 @@ export default function FarmaciaProveedores() {
   const [fileLista, setFileLista] = useState<File | null>(null)
   const [subiendoLista, setSubiendoLista] = useState(false)
 
-  // Lista comparativa
-  const [comparativa, setComparativa] = useState<ListaComparativaItem[]>([])
-  const [loadingComparativa, setLoadingComparativa] = useState(false)
-  const [modalOfertas, setModalOfertas] = useState<ListaComparativaItem | null>(null)
-
   function loadProveedores() {
     setLoading(true)
     setError(null)
@@ -55,17 +49,6 @@ export default function FarmaciaProveedores() {
   useEffect(() => {
     loadProveedores()
   }, [])
-
-  useEffect(() => {
-    if (tab === 'comparativa') {
-      setLoadingComparativa(true)
-      proveedoresApi
-        .listaComparativa()
-        .then(setComparativa)
-        .catch(() => setComparativa([]))
-        .finally(() => setLoadingComparativa(false))
-    }
-  }, [tab])
 
   function openEdit(p: ProveedorApi) {
     setEditingId(p.id)
@@ -143,7 +126,6 @@ export default function FarmaciaProveedores() {
   const tabs: { id: TabProveedores; label: string }[] = [
     { id: 'crud', label: 'Proveedores' },
     { id: 'lista-precio', label: 'Lista de precios (Excel)' },
-    { id: 'comparativa', label: 'Lista comparativa' },
   ]
 
   return (
@@ -328,82 +310,7 @@ export default function FarmaciaProveedores() {
         </div>
       )}
 
-      {tab === 'comparativa' && (
-        <div className="card">
-          <h3>Lista comparativa</h3>
-          <p className="muted">Productos de todos los proveedores agrupados por código, ordenados por mejor precio. Usa &quot;Ver más&quot; para ver todas las ofertas.</p>
-          {loadingComparativa ? (
-            <p className="muted">Cargando lista comparativa...</p>
-          ) : comparativa.length === 0 ? (
-            <p className="muted">No hay datos. Sube listas de precios por proveedor.</p>
-          ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table className="lista-comparativa-table">
-                <thead>
-                  <tr>
-                    <th>Código</th>
-                    <th>Descripción</th>
-                    <th>Marca</th>
-                    <th>Precio</th>
-                    <th>Existencia</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {comparativa.map((item) => {
-                    const best = item.ofertas.length
-                      ? item.ofertas.reduce((a, b) => (a.precio <= b.precio ? a : b))
-                      : null
-                    return (
-                      <tr key={item.codigo}>
-                        <td>{item.codigo}</td>
-                        <td>{item.descripcion ?? '—'}</td>
-                        <td>{item.marca ?? '—'}</td>
-                        <td>{best ? `$ ${best.precio.toFixed(2)}` : '—'}</td>
-                        <td>{best ? best.existencia : '—'}</td>
-                        <td>
-                          {item.ofertas.length > 1 && (
-                            <button
-                              type="button"
-                              className="btn btn-secondary btn-sm"
-                              onClick={() => setModalOfertas(item)}
-                            >
-                              Ver más
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      )}
-
-      {modalOfertas && (
-        <div
-          className="modal-overlay"
-          onClick={() => setModalOfertas(null)}
-          role="presentation"
-        >
-          <div className="modal-content farmacia-proveedores-modal" onClick={(e) => e.stopPropagation()}>
-            <h4>Ofertas — {modalOfertas.codigo} {modalOfertas.descripcion && `· ${modalOfertas.descripcion}`}</h4>
-            <ul className="farmacia-proveedores-ofertas">
-              {modalOfertas.ofertas.map((o, i) => (
-                <li key={`${o.proveedorId}-${i}`}>
-                  <span>{o.proveedorNombre || o.proveedorId}</span>
-                  <span>$ {o.precio.toFixed(2)} · {o.existencia} disp.</span>
-                </li>
-              ))}
-            </ul>
-            <button type="button" className="btn btn-secondary btn-sm" onClick={() => setModalOfertas(null)}>
-              Cerrar
-            </button>
-          </div>
-        </div>
-      )}
+      {/* La lista comparativa de precios ahora vive solo en Plan Pro → pestaña \"Lista comparativa\" */}
     </div>
   )
 }
