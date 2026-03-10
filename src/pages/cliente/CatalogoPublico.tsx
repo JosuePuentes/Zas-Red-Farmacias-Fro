@@ -1,5 +1,5 @@
 import { Link, useSearchParams } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { ESTADOS_VENEZUELA } from '../../constants/estados'
 import ClienteCatalogo from './ClienteCatalogo'
@@ -16,18 +16,18 @@ function CatalogoPublicoInner() {
 
   function handleBuscarSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const value = q.trim()
-    const next: Record<string, string> = {}
-    if (value) next.q = value
-    setSearchParams(next)
   }
 
   function handleNavFilter(nextQ: string) {
     setQ(nextQ)
-    const params: Record<string, string> = {}
-    if (nextQ.trim()) params.q = nextQ.trim()
-    setSearchParams(params)
   }
+
+  useEffect(() => {
+    const value = q.trim()
+    const next: Record<string, string> = {}
+    if (value) next.q = value
+    setSearchParams(next)
+  }, [q, setSearchParams])
 
   return (
     <div className="catalogo-publico">
