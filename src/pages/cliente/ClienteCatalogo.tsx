@@ -469,50 +469,6 @@ export default function ClienteCatalogo({
       <p className="cliente-catalogo-hint badge badge-info">
         Los productos del mismo comercio se muestran resaltados. Así evitas que el delivery se sume de varios comercios.
       </p>
-      <div className="cliente-catalogo-search-bar">
-        <input
-          ref={searchInputRef}
-          type="search"
-          placeholder="Buscar medicamentos, vitaminas, cuidado personal..."
-          value={busqueda}
-          onChange={(e) => { setBusqueda(e.target.value); setPage(0) }}
-          className="search-input"
-          aria-label="Buscar en el catálogo"
-        />
-      </div>
-      {showQuickSearch && (
-        <div className="cliente-catalogo-quicksearch">
-          <span className="quicksearch-label">Búsquedas rápidas:</span>
-          <button
-            type="button"
-            className="quicksearch-chip"
-            onClick={() => { setBusqueda('paracetamol'); setPage(0) }}
-          >
-            Paracetamol
-          </button>
-          <button
-            type="button"
-            className="quicksearch-chip"
-            onClick={() => { setBusqueda('antigripal'); setPage(0) }}
-          >
-            Antigripales
-          </button>
-          <button
-            type="button"
-            className="quicksearch-chip"
-            onClick={() => { setBusqueda('vitamina'); setPage(0) }}
-          >
-            Vitaminas
-          </button>
-          <button
-            type="button"
-            className="quicksearch-chip"
-            onClick={() => { setBusqueda('bebe'); setPage(0) }}
-          >
-            Bebés
-          </button>
-        </div>
-      )}
 
       {loading && productos.length === 0 && (
         <div className="cliente-catalogo-skeleton-grid">
@@ -592,10 +548,15 @@ export default function ClienteCatalogo({
               const precioMin = preciosEfectivos.length ? Math.min(...preciosEfectivos) : null
               const precioMax = preciosEfectivos.length ? Math.max(...preciosEfectivos) : null
 
-              const imagenUrl =
-                p.imagen && !p.imagen.startsWith('http')
-                  ? `${backendBase}/${p.imagen.replace(/^\/+/, '')}`
-                  : p.imagen
+              let imagenUrl: string | null = null
+              if (p.imagen) {
+                const raw = String(p.imagen).replace(/\\/g, '/')
+                if (raw.startsWith('http')) {
+                  imagenUrl = raw
+                } else {
+                  imagenUrl = `${backendBase}/${raw.replace(/^\/+/, '')}`
+                }
+              }
 
               const recomendacionesAux = getRecomendacionesAuxiliar(p)
 
@@ -616,7 +577,15 @@ export default function ClienteCatalogo({
                       </span>
                     )}
                     {imagenUrl ? (
-                      <img src={imagenUrl} alt={p.descripcion} className="product-photo-img" />
+                      <img
+                        src={imagenUrl}
+                        alt={p.descripcion}
+                        className="product-photo-img"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null
+                          e.currentTarget.src = '/images/product-placeholder.png'
+                        }}
+                      />
                     ) : (
                       <span className="product-photo-placeholder">Sin imagen</span>
                     )}
@@ -698,70 +667,58 @@ export default function ClienteCatalogo({
                       </div>
                     )}
                   </div>
-                  {isLoggedIn ? (
-                    <div className="cliente-catalogo-actions">
-                      <label className="cliente-catalogo-qty-label">Cantidad</label>
-                      <div className="cliente-catalogo-qty">
-                        <input
-                          type="number"
-                          min={1}
-                          value={getCant(p.id)}
-                          onChange={(e) => setCant(p.id, parseInt(e.target.value, 10) || 1)}
-                          disabled={sinStockProducto}
-                        />
-                        <button
-                          type="button"
-                          className="btn btn-primary btn-sm"
-                          disabled={sinStockProducto}
-                          onClick={async () => {
-                            if (sinStockProducto) return
-                            const cantidad = getCant(p.id)
-                            const existencia = p.existencia ?? 0
-                            if (existencia > 0 && cantidad > existencia) {
-                              const ok = window.confirm(
-                                `${MENSAJE_STOCK_OTRA_LOCALIDAD}\n\n¿Agregar ${cantidad} igualmente?`
+                  <div className="cliente-catalogo-actions">
+                    <label className="cliente-catalogo-qty-label">Cantidad</label>
+                    <div className="cliente-catalogo-qty">
+                      <input
+                        type="number"
+                        min={1}
+                        value={getCant(p.id)}
+                        onChange={(e) => setCant(p.id, parseInt(e.target.value, 10) || 1)}
+                        disabled={sinStockProducto}
+                      />
+                      <button
+                        type="button"
+                        className="btn btn-primary btn-sm"
+                        disabled={sinStockProducto}
+                        onClick={async () => {
+                          if (sinStockProducto) return
+                          const cantidad = getCant(p.id)
+                          const existencia = p.existencia ?? 0
+                          if (existencia > 0 && cantidad > existencia) {
+                            const ok = window.confirm(
+                              `${MENSAJE_STOCK_OTRA_LOCALIDAD}\n\n¿Agregar ${cantidad} igualmente?`
+                            )
+                            if (!ok) return
+                          }
+                          addItem(p, cantidad, p.farmaciaId)
+                          if (!user) return
+                          try {
+                            const resp = await carritoApi.agregar({
+                              cliente_id: user.id,
+                              producto_id: p.id,
+                              cantidad,
+                            })
+                            if (resp.status === 'conflicto_farmacia') {
+                              const aceptar = window.confirm(
+                                'Estás agregando productos de otro comercio. El delivery y tiempos pueden variar. ¿Deseas continuar?'
                               )
-                              if (!ok) return
-                            }
-                            addItem(p, cantidad, p.farmaciaId)
-                            if (!user) return
-                            try {
-                              const resp = await carritoApi.agregar({
-                                cliente_id: user.id,
-                                producto_id: p.id,
-                                cantidad,
-                              })
-                              if (resp.status === 'conflicto_farmacia') {
-                                const aceptar = window.confirm(
-                                  'Estás agregando productos de otro comercio. El delivery y tiempos pueden variar. ¿Deseas continuar?'
-                                )
-                                if (aceptar) {
-                                  await carritoApi.cambiarFarmacia({
-                                    cliente_id: user.id,
-                                    farmacia_id: p.farmaciaId,
-                                  })
-                                }
+                              if (aceptar) {
+                                await carritoApi.cambiarFarmacia({
+                                  cliente_id: user.id,
+                                  farmacia_id: p.farmaciaId,
+                                })
                               }
-                            } catch (e) {
-                              console.error('Error al sincronizar carrito con backend', e)
                             }
-                          }}
-                        >
-                          +
-                        </button>
-                      </div>
+                          } catch (e) {
+                            console.error('Error al sincronizar carrito con backend', e)
+                          }
+                        }}
+                      >
+                        +
+                      </button>
                     </div>
-                  ) : (
-                    <div className="cliente-catalogo-actions">
-                      <p className="cliente-catalogo-login-hint">
-                        Inicia sesión para ver disponibilidad y agregar al carrito.
-                      </p>
-                      <div className="cliente-catalogo-login-cta">
-                        <a href="/login" className="login-cta-primary">Iniciar sesión</a>
-                        <a href="/registro" className="login-cta-secondary">Crear cuenta</a>
-                      </div>
-                    </div>
-                  )}
+                  </div>
                 </article>
               )
             })}

@@ -18,6 +18,7 @@
   display: flex;
   align-items: center;
   gap: 0.35rem;
+  flex: 0 0 auto;
 }
 
 .catalogo-publico-logo img {
@@ -78,6 +79,7 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  flex: 0 0 auto;
 }
 
 .catalogo-publico-delivery {
@@ -189,6 +191,8 @@
 
 .catalogo-publico-toolbar-search--full {
   margin-bottom: 0.75rem;
+  flex: 1 1 auto;
+  max-width: 720px;
 }
 
 .catalogo-publico-header-bottom .catalogo-publico-toolbar-search--full {

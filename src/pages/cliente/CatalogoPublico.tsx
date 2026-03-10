@@ -70,30 +70,17 @@ export default function CatalogoPublico() {
               aria-expanded={showEstados}
             >
               <span className="catalogo-publico-envio-label">Enviar a</span>
-              <span className="catalogo-publico-envio-pais">Venezuela</span>
               <span className="catalogo-publico-envio-estado">{estadoEnvio}</span>
             </button>
             <nav className="catalogo-publico-subnav">
               <button type="button" onClick={() => handleNavFilter('')} className="catalogo-publico-subnav-item">
-                Todo
+                Ordenar
               </button>
-              <button type="button" onClick={() => handleNavFilter('oferta')} className="catalogo-publico-subnav-item">
-                Ofertas del Día
+              <button type="button" onClick={() => handleNavFilter('categoria')} className="catalogo-publico-subnav-item">
+                Categoría
               </button>
-              <button type="button" onClick={() => handleNavFilter('tarjeta regalo')} className="catalogo-publico-subnav-item">
-                Tarjetas de Regalo
-              </button>
-              <button type="button" onClick={() => handleNavFilter('lista')} className="catalogo-publico-subnav-item">
-                Listas
-              </button>
-              <button type="button" onClick={() => handleNavFilter('video salud')} className="catalogo-publico-subnav-item">
-                Prime Video
-              </button>
-              <button type="button" onClick={() => handleNavFilter('vender farmacia')} className="catalogo-publico-subnav-item">
-                Vender
-              </button>
-              <button type="button" onClick={() => handleNavFilter('soporte')} className="catalogo-publico-subnav-item">
-                Servicio al Cliente
+              <button type="button" onClick={() => handleNavFilter('marca')} className="catalogo-publico-subnav-item">
+                Marca
               </button>
             </nav>
           </div>
@@ -116,7 +103,12 @@ export default function CatalogoPublico() {
           )}
         </header>
         <main className="catalogo-publico-main">
-          <ClienteCatalogo showDeliveryBox={false} />
+          <ClienteCatalogo
+            showDeliveryBox={false}
+            showInlineFilters={false}
+            showLocationSelect={false}
+            showQuickSearch={false}
+          />
         </main>
       </div>
     </CartProvider>

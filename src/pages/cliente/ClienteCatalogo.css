@@ -685,6 +685,8 @@
 .cliente-catalogo-card .btn.btn-primary.btn-sm {
   border-radius: 999px;
   padding-inline: 0.8rem;
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  border-color: transparent;
 }
 
 .cliente-catalogo-auxiliar {
