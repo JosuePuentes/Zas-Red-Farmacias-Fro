@@ -271,7 +271,7 @@
   border-radius: 999px;
   border: 1px solid #cbd5e1;
   padding: 0.35rem 0.9rem;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   background: #ffffff;
   color: var(--color-text);
   cursor: pointer;
@@ -304,7 +304,7 @@
 
 .cliente-filters-title {
   margin: 0 0 0.5rem 0;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -315,7 +315,7 @@
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   margin-bottom: 0.25rem;
 }
 
@@ -376,11 +376,11 @@
 
 .cliente-catalogo-info .product-desc {
   margin: 0.2rem 0;
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 
 .cliente-catalogo-info .product-marca {
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   color: var(--color-text-muted);
 }
 
@@ -576,7 +576,7 @@
 }
 
 .cliente-catalogo-section-header h3 {
-  font-size: 1rem;
+  font-size: 1.15rem;
   font-weight: 600;
   margin: 0;
   color: var(--color-primary-dark);

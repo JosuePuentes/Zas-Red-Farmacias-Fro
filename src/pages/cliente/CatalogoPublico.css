@@ -7,9 +7,9 @@
 
 .catalogo-publico-header {
   padding: 0.45rem 1.25rem 0.4rem;
-  background: #0b2138;
-  color: #e5e7eb;
-  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.7);
+  background: #028ca4; /* teal principal tipo app móvil */
+  color: #e5f4f8;
+  box-shadow: 0 2px 10px rgba(0, 59, 76, 0.6);
   position: sticky;
   top: 0;
   z-index: 20;
@@ -20,6 +20,12 @@
   align-items: center;
   gap: 0.35rem;
   flex: 0 0 auto;
+}
+
+.catalogo-publico-logo-zone {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
 }
 
 .catalogo-publico-logo img {
@@ -170,15 +176,15 @@
   gap: 0.35rem;
   padding: 0.35rem 0.75rem;
   border-radius: 999px;
-  background: var(--color-primary);
-  color: white;
+  background: #ffffff;
+  color: #036371;
   font-size: 0.85rem;
   font-weight: 600;
   text-decoration: none;
 }
 
 .catalogo-publico-user-btn:hover {
-  background: var(--color-primary-dark);
+  background: #e0f2fe;
 }
 
 .catalogo-publico-user-icon {
@@ -209,8 +215,8 @@
 .catalogo-publico-toolbar-search input {
   flex: 1;
   border: none;
-  padding: 0.55rem 0.9rem;
-  font-size: 0.95rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
 }
 
 .catalogo-publico-toolbar-search input:focus {
@@ -311,13 +317,13 @@
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
 }
 
 .catalogo-publico-subnav-item {
   border: none;
   background: transparent;
-  color: #e5e7eb;
+  color: #e5f4f8;
   padding: 0.2rem 0.6rem;
   border-radius: 999px;
   cursor: pointer;
