@@ -279,6 +279,14 @@ export interface CatalogoQuery {
   lng?: number
 }
 
+export interface CatalogoResponse {
+  items: ProductoApi[]
+  page: number
+  page_size: number
+  total: number
+  total_pages: number
+}
+
 /** GET /api/cliente/catalogo — Lista catálogo con q, farmacia_id, page, page_size, lat, lng (cercanía). */
 export const catalogoApi = {
   listar: (params?: CatalogoQuery) => {
@@ -290,7 +298,7 @@ export const catalogoApi = {
     if (params?.lat != null) search.set('lat', String(params.lat))
     if (params?.lng != null) search.set('lng', String(params.lng))
     const qs = search.toString()
-    return request<ProductoApi[]>(`/cliente/catalogo${qs ? `?${qs}` : ''}`)
+    return request<CatalogoResponse>(`/cliente/catalogo${qs ? `?${qs}` : ''}`)
   },
 }
 
@@ -385,10 +393,24 @@ export const farmaciaApi = {
 }
 
 export const clienteApi = {
-  /** GET /api/cliente/catalogo — q, farmacia_id, page, page_size, lat, lng. Respuesta: id, descripcion, precio, imagen, existencia, disponible. */
-  catalogo: (params?: CatalogoQuery) => catalogoApi.listar(params),
+  /** GET /api/cliente/catalogo — q, farmacia_id, page, page_size, lat, lng. Devuelve sólo items (Productos). */
+  catalogo: async (params?: CatalogoQuery) => {
+    const res = await catalogoApi.listar(params)
+    return res.items
+  },
   /** GET /api/cliente/productos — opcional; mismo formato que catálogo. */
   productos: (params?: CatalogoQuery) => productosApi.listar(params),
   /** GET /api/cliente/delivery/estimado?lat=&lng= — costo estimado del delivery. */
   estimacionDelivery: (lat: number, lng: number) => deliveryApi.estimado(lat, lng),
+  /** PATCH /api/cliente/ubicacion — guarda ultimaLat/ultimaLng del cliente. */
+  guardarUbicacion: (lat: number, lng: number) =>
+    request<{ ok?: boolean; message?: string }>('/cliente/ubicacion', {
+      method: 'PATCH',
+      body: JSON.stringify({ lat, lng }),
+    }),
+  /** GET /api/cliente/checkout/resumen — subtotal, costoDelivery, total, numFarmacias, direccion. */
+  checkoutResumen: () =>
+    request<{ subtotal: number; costoDelivery: number; total: number; numFarmacias: number; direccion: string }>(
+      '/cliente/checkout/resumen',
+    ),
 }

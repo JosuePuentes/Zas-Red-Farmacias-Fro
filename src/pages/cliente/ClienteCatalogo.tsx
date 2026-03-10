@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
 import { useGeolocation } from '../../context/GeolocationContext'
 import type { Producto } from '../../types'
-import { clienteApi, carritoApi } from '../../api'
+import { clienteApi, carritoApi, getApiBaseUrl } from '../../api'
 import { useAuth } from '../../context/AuthContext'
 import { ESTADOS_VENEZUELA } from '../../constants/estados'
 import { DEPARTAMENTOS_ZAS, type DepartamentoZas } from '../../constants/departamentos'
@@ -93,6 +93,12 @@ export default function ClienteCatalogo() {
 
   const coords = position
 
+  // Base para imágenes del backend: VITE_API_URL (sin /api) o window.location.origin
+  const backendBase = useMemo(() => {
+    const apiBase = getApiBaseUrl()
+    return apiBase.replace(/\/api\/?$/, '')
+  }, [])
+
   useEffect(() => {
     let cancelled = false
     async function load() {
@@ -141,6 +147,8 @@ export default function ClienteCatalogo() {
       setUbicacionConfirmada(true)
       setLoadingDelivery(true)
       try {
+        // Guardar ubicación en backend
+        await clienteApi.guardarUbicacion(loc.lat, loc.lng)
         const res = await clienteApi.estimacionDelivery(loc.lat, loc.lng)
         setCostoDelivery(res.costo ?? 0)
       } catch {
@@ -242,14 +250,19 @@ export default function ClienteCatalogo() {
               const esMismoComercio = cartFarmaciaIds.has(p.farmaciaId)
               const esOtroComercio = cartItems.length > 0 && !esMismoComercio
 
+              const imagenUrl =
+                p.imagen && !p.imagen.startsWith('http')
+                  ? `${backendBase}${p.imagen}`
+                  : p.imagen
+
               return (
                 <article
                   key={key}
                   className={`cliente-catalogo-card card ${esMismoComercio ? 'producto-mismo-comercio' : ''}`}
                 >
                   <div className="product-photo">
-                    {p.imagen ? (
-                      <img src={p.imagen} alt={p.descripcion} className="product-photo-img" />
+                    {imagenUrl ? (
+                      <img src={imagenUrl} alt={p.descripcion} className="product-photo-img" />
                     ) : (
                       <span className="product-photo-placeholder">Sin imagen</span>
                     )}
