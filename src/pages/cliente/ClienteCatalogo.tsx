@@ -93,6 +93,8 @@ export default function ClienteCatalogo() {
   const [costoDelivery, setCostoDelivery] = useState<number | null>(null)
   const [loadingDelivery, setLoadingDelivery] = useState(false)
   const [modalOtrosComercios, setModalOtrosComercios] = useState<{ mejor: Producto; otros: Producto[] } | null>(null)
+  const [solicitandoCodigo, setSolicitandoCodigo] = useState<string | null>(null)
+  const [solicitudMsg, setSolicitudMsg] = useState<{ tipo: 'ok' | 'error'; texto: string } | null>(null)
 
   const coords = position
 
@@ -220,6 +222,11 @@ export default function ClienteCatalogo() {
           ))}
         </select>
       </div>
+      {solicitudMsg && (
+        <p className={`cliente-catalogo-solicitud-msg ${solicitudMsg.tipo === 'error' ? 'error' : 'ok'}`} role="status">
+          {solicitudMsg.texto}
+        </p>
+      )}
       <p className="cliente-catalogo-hint badge badge-info">
         Los productos del mismo comercio se muestran resaltados. Así evitas que el delivery se sume de varios comercios.
       </p>
@@ -286,7 +293,38 @@ export default function ClienteCatalogo() {
                     <span className="product-codigo">{p.codigo}</span>
                     <p className="product-desc">{p.descripcion}{p.presentacion ? ` · ${p.presentacion}` : ''}</p>
                     {p.marca && <p className="product-desc product-marca">{p.marca}</p>}
-                    {sinStockProducto && <p className="product-sin-stock" role="status">Sin stock</p>}
+                    {sinStockProducto && (
+                      <>
+                        <p className="product-sin-stock" role="status">Sin stock</p>
+                        {user && (
+                          <button
+                            type="button"
+                            className="btn btn-secondary btn-sm product-solicitar-btn"
+                            disabled={solicitandoCodigo === p.codigo}
+                            onClick={async () => {
+                              setSolicitandoCodigo(p.codigo)
+                              setSolicitudMsg(null)
+                              try {
+                                const res = await clienteApi.solicitarProducto(p.codigo)
+                                if (res.ok) {
+                                  setSolicitudMsg({ tipo: 'ok', texto: res.message || 'Solicitud registrada. Te avisaremos cuando esté disponible.' })
+                                } else {
+                                  let texto = res.message || 'No se pudo enviar la solicitud.'
+                                  if (res.proximaDisponible) texto += ` Puedes volver a solicitar a partir del ${res.proximaDisponible}.`
+                                  setSolicitudMsg({ tipo: 'error', texto })
+                                }
+                              } catch (e) {
+                                setSolicitudMsg({ tipo: 'error', texto: e instanceof Error ? e.message : 'Error al enviar la solicitud.' })
+                              } finally {
+                                setSolicitandoCodigo(null)
+                              }
+                            }}
+                          >
+                            {solicitandoCodigo === p.codigo ? 'Enviando...' : 'Solicitar producto'}
+                          </button>
+                        )}
+                      </>
+                    )}
                     <p className="product-precio">
                       {tienePrecio ? (
                         tieneDescuento && typeof precioBase === 'number' && typeof precioConDescuento === 'number' ? (

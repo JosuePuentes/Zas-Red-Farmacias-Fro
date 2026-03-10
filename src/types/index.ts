@@ -41,6 +41,10 @@ export interface Producto {
   existencia?: number
   /** Si es false o existencia === 0 → "Sin stock", no agregar al carrito */
   disponible?: boolean
+  /** Plan Full: suma de existencia por código en todas las farmacias */
+  existenciaGlobal?: number
+  /** Plan Full: cantidad de solicitudes de clientes para ese código */
+  productosSolicitados?: number
 }
 
 export interface CarritoItem {

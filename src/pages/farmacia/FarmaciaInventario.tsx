@@ -320,6 +320,8 @@ export default function FarmaciaInventario() {
                 <th>Código</th>
                 <th>Descripción</th>
                 <th>Existencia</th>
+                {(productosFiltrados.some((p) => p.existenciaGlobal != null)) && <th>Existencia global</th>}
+                {(productosFiltrados.some((p) => p.productosSolicitados != null)) && <th>Solicitudes</th>}
                 <th>Precio base ($)</th>
                 <th>Descuento (%)</th>
                 <th>Precio con descuento ($)</th>
@@ -328,7 +330,7 @@ export default function FarmaciaInventario() {
             <tbody>
               {cargando && productosFiltrados.length === 0 && (
                 <tr>
-                  <td colSpan={6} style={{ textAlign: 'center' }}>
+                  <td colSpan={8} style={{ textAlign: 'center' }}>
                     Cargando inventario...
                   </td>
                 </tr>
@@ -338,7 +340,13 @@ export default function FarmaciaInventario() {
                   <td>{p.codigo}</td>
                   <td>{p.descripcion}</td>
                   <td>{p.existencia ?? '-'}</td>
-                  <td>{p.precio.toFixed(2)}</td>
+                  {productosFiltrados.some((x) => x.existenciaGlobal != null) && (
+                    <td>{typeof p.existenciaGlobal === 'number' ? p.existenciaGlobal : '—'}</td>
+                  )}
+                  {productosFiltrados.some((x) => x.productosSolicitados != null) && (
+                    <td>{typeof p.productosSolicitados === 'number' ? p.productosSolicitados : '—'}</td>
+                  )}
+                  <td>{typeof p.precio === 'number' ? p.precio.toFixed(2) : '—'}</td>
                   <td>
                     <input
                       type="number"
@@ -349,12 +357,12 @@ export default function FarmaciaInventario() {
                       style={{ width: '80px' }}
                     />
                   </td>
-                  <td>{(p.precioConPorcentaje ?? p.precio).toFixed(2)}</td>
+                  <td>{typeof (p.precioConPorcentaje ?? p.precio) === 'number' ? (p.precioConPorcentaje ?? p.precio).toFixed(2) : '—'}</td>
                 </tr>
               ))}
-              {productosFiltrados.length === 0 && (
+              {!cargando && productosFiltrados.length === 0 && (
                 <tr>
-                  <td colSpan={6} style={{ textAlign: 'center' }}>
+                  <td colSpan={8} style={{ textAlign: 'center' }}>
                     No hay productos que coincidan con la búsqueda.
                   </td>
                 </tr>

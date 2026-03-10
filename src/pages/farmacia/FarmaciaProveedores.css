@@ -1,0 +1,83 @@
+.farmacia-proveedores-form {
+  margin-bottom: 1.5rem;
+}
+
+.farmacia-proveedores-form .form-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.farmacia-proveedores-form .form-group {
+  min-width: 0;
+}
+
+.farmacia-proveedores-form .form-group.flex-grow {
+  flex: 1;
+  min-width: 180px;
+}
+
+.farmacia-proveedores-form .form-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.farmacia-proveedores-msg {
+  margin: 0.5rem 0 1rem;
+  padding: 0.5rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.farmacia-proveedores-msg.error {
+  color: var(--color-danger);
+  background: #fef2f2;
+}
+
+.farmacia-proveedores-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.farmacia-proveedores-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.farmacia-proveedores-item:last-child {
+  border-bottom: none;
+}
+
+.farmacia-proveedores-item-actions {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.farmacia-proveedores-modal h4 {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+}
+
+.farmacia-proveedores-ofertas {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+}
+
+.farmacia-proveedores-ofertas li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.farmacia-proveedores-ofertas li:last-child {
+  border-bottom: none;
+}

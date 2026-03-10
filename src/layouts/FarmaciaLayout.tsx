@@ -7,11 +7,13 @@ import FarmaciaDashboard from '../pages/farmacia/FarmaciaDashboard'
 import FarmaciaPedidos from '../pages/farmacia/FarmaciaPedidos'
 import FarmaciaInventario from '../pages/farmacia/FarmaciaInventario'
 import FarmaciaPlanPro from '../pages/farmacia/FarmaciaPlanPro'
+import FarmaciaProveedores from '../pages/farmacia/FarmaciaProveedores'
 import './Layout.css'
 
 const NOTIF_MOCK = [
   { id: '1', tipo: 'inventario', texto: 'El sistema analizó tu inventario: tienes pocos antialérgicos. Te recomendamos comprar antialérgicos.', fecha: 'Hoy' },
   { id: '2', tipo: 'prioridad', texto: 'Has recibido pedidos masivos de antibióticos. Considera comprar: Amoxicilina 500mg, Azitromicina 500mg.', fecha: 'Hoy' },
+  // tipo producto_solicitado_disponible: cuando un cliente solicitó un producto y ya hay stock (notif para cliente; aquí por si se muestra en farmacia)
 ]
 
 function isMasterUser(user: { role?: string; email?: string } | null): boolean {
@@ -63,7 +65,7 @@ function FarmaciaLayoutInner() {
                     NOTIF_MOCK.map((n) => (
                       <div
                         key={n.id}
-                        className={`notif-item ${n.tipo === 'prioridad' ? 'prioridad' : 'inventario'}`}
+                        className={`notif-item ${n.tipo === 'prioridad' ? 'prioridad' : n.tipo === 'producto_solicitado_disponible' ? 'notif-item-producto-disponible' : 'inventario'}`}
                       >
                         {n.texto}
                         <span className="muted" style={{ display: 'block', marginTop: 4 }}>{n.fecha}</span>
@@ -98,6 +100,7 @@ function FarmaciaLayoutInner() {
           <Route path="pedidos" element={<FarmaciaPedidos />} />
           <Route path="inventario" element={<FarmaciaInventario />} />
           <Route path="plan-pro" element={planProActivo ? <FarmaciaPlanPro /> : <FarmaciaPlanProBlur onUnlock={() => setShowPlanProModal(true)} />} />
+          <Route path="proveedores" element={planProActivo ? <FarmaciaProveedores /> : <FarmaciaPlanProBlur onUnlock={() => setShowPlanProModal(true)} />} />
         </Routes>
       </main>
 

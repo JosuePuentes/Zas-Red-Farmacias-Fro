@@ -260,6 +260,10 @@ export interface ProductoApi {
   existencia?: number
   /** Si es false o existencia === 0 → mostrar "Sin stock" y no permitir agregar al carrito */
   disponible?: boolean
+  /** Plan Full: suma de existencia por código en todas las farmacias */
+  existenciaGlobal?: number
+  /** Plan Full: cantidad de solicitudes de clientes para ese código */
+  productosSolicitados?: number
 }
 
 export interface ActualizarDescuentoItem {
@@ -392,6 +396,66 @@ export const farmaciaApi = {
     }),
 }
 
+// ===================== PROVEEDORES (Plan Full) =====================
+
+export interface ProveedorApi {
+  id: string
+  farmaciaId: string
+  rif: string
+  nombreProveedor: string
+  telefono?: string
+  nombreAsesorVentas?: string
+  direccion?: string
+  condicionesComercialesPct?: number
+  prontoPagoPct?: number
+  [key: string]: unknown
+}
+
+export interface ProveedorBody {
+  rif: string
+  nombreProveedor: string
+  telefono?: string
+  nombreAsesorVentas?: string
+  direccion?: string
+  condicionesComercialesPct?: number
+  prontoPagoPct?: number
+}
+
+export interface ListaComparativaItem {
+  codigo: string
+  descripcion?: string
+  marca?: string
+  ofertas: { proveedorId: string; proveedorNombre?: string; precio: number; existencia: number }[]
+}
+
+export const proveedoresApi = {
+  listar: () => request<ProveedorApi[]>('/farmacia/proveedores'),
+  crear: (body: ProveedorBody) =>
+    request<ProveedorApi>('/farmacia/proveedores', { method: 'POST', body: JSON.stringify(body) }),
+  actualizar: (id: string, body: Partial<ProveedorBody>) =>
+    request<ProveedorApi>(`/farmacia/proveedores/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+  eliminar: (id: string) =>
+    request<{ ok?: boolean }>(`/farmacia/proveedores/${id}`, { method: 'DELETE' }),
+  /** POST FormData: archivo (Excel), proveedorId. Columnas: codigo, descripcion, marca, precio, existencia */
+  listaPrecio: async (proveedorId: string, file: File) => {
+    const formData = new FormData()
+    formData.append('archivo', file)
+    formData.append('proveedorId', proveedorId)
+    const token = getToken()
+    const base = getApiBaseUrl()
+    const res = await fetch(`${base}/farmacia/proveedores/lista-precio`, {
+      method: 'POST',
+      headers: { ...(token && { Authorization: `Bearer ${token}` }) },
+      body: formData,
+    })
+    const data = await res.json().catch(() => ({})) as { creados?: number; actualizados?: number; error?: string; message?: string }
+    if (!res.ok) throw new Error(data.error || data.message || 'Error al subir lista de precios')
+    return data
+  },
+  listaComparativa: () =>
+    request<ListaComparativaItem[]>('/farmacia/proveedores/lista-comparativa'),
+}
+
 export const clienteApi = {
   /** GET /api/cliente/catalogo — q, farmacia_id, page, page_size, lat, lng. Devuelve sólo items (Productos). */
   catalogo: async (params?: CatalogoQuery) => {
@@ -413,6 +477,30 @@ export const clienteApi = {
     request<{ subtotal: number; costoDelivery: number; total: number; numFarmacias: number; direccion: string }>(
       '/cliente/checkout/resumen',
     ),
+
+  /** GET /api/cliente/notificaciones — lista de notificaciones (incl. tipo producto_solicitado_disponible). Si el backend no expone el endpoint, devuelve []. */
+  notificaciones: async () => {
+    try {
+      return await request<NotificacionClienteItem[]>('/cliente/notificaciones')
+    } catch {
+      return []
+    }
+  },
+
+  /** POST /api/cliente/solicitar-producto — Body: { codigo }. 201: ok; 400: ya disponible o cooldown 7 días (proximaDisponible). */
+  solicitarProducto: async (codigo: string): Promise<{ ok: boolean; message?: string; proximaDisponible?: string }> => {
+    const res = await fetch(`${API}/cliente/solicitar-producto`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(getToken() && { Authorization: `Bearer ${getToken()}` }),
+      },
+      body: JSON.stringify({ codigo }),
+    })
+    const data = await res.json().catch(() => ({})) as { error?: string; message?: string; proximaDisponible?: string }
+    if (res.ok) return { ok: true, message: 'Solicitud registrada. Te avisaremos cuando esté disponible.' }
+    return { ok: false, message: data.error || data.message || 'No se pudo enviar la solicitud', proximaDisponible: data.proximaDisponible }
+  },
 
   // ===================== RECORDATORIOS =====================
   /** GET /api/cliente/recordatorios — lista de recordatorios del cliente. */
@@ -450,5 +538,16 @@ export interface RecetaBuscarItem {
   precio?: number
   farmaciaId?: string
   existencia?: number
+  [key: string]: unknown
+}
+
+/** Notificación del cliente (ej. producto_solicitado_disponible cuando un producto que solicitó tiene stock). */
+export interface NotificacionClienteItem {
+  id: string
+  tipo: 'producto_solicitado_disponible' | string
+  texto?: string
+  codigo?: string
+  descripcion?: string
+  fecha?: string
   [key: string]: unknown
 }

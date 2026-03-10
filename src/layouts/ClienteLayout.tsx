@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Routes, Route, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { CartProvider, useCart } from '../context/CartContext'
+import { clienteApi, type NotificacionClienteItem } from '../api'
 import ClienteCatalogo from '../pages/cliente/ClienteCatalogo'
 import ClienteCarrito from '../pages/cliente/ClienteCarrito'
 import ClienteCheckout from '../pages/cliente/ClienteCheckout'
@@ -150,10 +151,26 @@ function ClienteLayoutInner() {
   const navigate = useNavigate()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [showNotif, setShowNotif] = useState(false)
+  const [notificaciones, setNotificaciones] = useState<NotificacionClienteItem[]>([])
+
+  useEffect(() => {
+    if (showNotif && user) {
+      clienteApi.notificaciones().then(setNotificaciones).catch(() => setNotificaciones([]))
+    }
+  }, [showNotif, user])
 
   const nombre = user?.nombre && user?.apellido ? `${user.nombre} ${user.apellido}` : user?.email?.split('@')[0] || 'Cliente'
 
   const isOn = (path: string) => location.pathname === path || location.pathname === `${path}/`
+
+  function notifTexto(n: NotificacionClienteItem): string {
+    if (n.tipo === 'producto_solicitado_disponible') {
+      const detalle = [n.codigo, n.descripcion].filter(Boolean).join(' — ')
+      return detalle ? `El producto que solicitaste está disponible: ${detalle}` : (n.texto || 'El producto que solicitaste está disponible.')
+    }
+    return n.texto || 'Notificación'
+  }
 
   return (
     <div className="layout cliente-layout">
@@ -165,22 +182,55 @@ function ClienteLayoutInner() {
           <img src="/logo.png" alt="Zas!" className="cliente-header-logo" />
           <span className="cliente-header-title">Zas!</span>
         </div>
-        <button
-          type="button"
-          className="cliente-header-cart"
-          onClick={() => setOpenCart(true)}
-          aria-label="Ver carrito"
-        >
-          <span className="cliente-header-cart-icon">
-            <IconCart />
-          </span>
-          {totalItems > 0 && (
-            <span className="cliente-header-cart-badge">
-              {totalItems > 99 ? '99+' : totalItems}
+        <div className="cliente-header-actions">
+          <div className="cliente-notif-wrap" style={{ position: 'relative' }}>
+            <button
+              type="button"
+              className="cliente-header-notif"
+              onClick={() => setShowNotif((v) => !v)}
+              aria-label="Notificaciones"
+            >
+              🔔
+              {notificaciones.length > 0 && (
+                <span className="badge badge-warning cliente-notif-badge">{notificaciones.length}</span>
+              )}
+            </button>
+            {showNotif && (
+              <div className="notif-dropdown cliente-notif-dropdown">
+                {notificaciones.length === 0 ? (
+                  <p className="notif-empty">Sin notificaciones nuevas.</p>
+                ) : (
+                  notificaciones.map((n) => (
+                    <div
+                      key={n.id}
+                      className={`notif-item ${n.tipo === 'producto_solicitado_disponible' ? 'notif-item-producto-disponible' : ''}`}
+                    >
+                      {notifTexto(n)}
+                      {n.fecha && <span className="muted" style={{ display: 'block', marginTop: 4 }}>{n.fecha}</span>}
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+          <button
+            type="button"
+            className="cliente-header-cart"
+            onClick={() => setOpenCart(true)}
+            aria-label="Ver carrito"
+          >
+            <span className="cliente-header-cart-icon">
+              <IconCart />
             </span>
-          )}
-        </button>
+            {totalItems > 0 && (
+              <span className="cliente-header-cart-badge">
+                {totalItems > 99 ? '99+' : totalItems}
+              </span>
+            )}
+          </button>
+        </div>
       </header>
+      {showNotif && <div className="modal-overlay" style={{ background: 'transparent' }} onClick={() => setShowNotif(false)} aria-hidden="true" />}
 
       <div className={`cliente-sidebar-overlay ${sidebarOpen ? 'open' : ''}`} onClick={() => setSidebarOpen(false)} aria-hidden="true" />
       <div className="cliente-layout-body">

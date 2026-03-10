@@ -29,6 +29,27 @@
   margin-left: auto;
 }
 
+.cliente-catalogo-solicitud-msg {
+  margin: 0.5rem 0 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.cliente-catalogo-solicitud-msg.ok {
+  background: #f0fdf4;
+  color: var(--color-success);
+}
+
+.cliente-catalogo-solicitud-msg.error {
+  background: #fef2f2;
+  color: var(--color-danger);
+}
+
+.cliente-catalogo-card .product-solicitar-btn {
+  margin-top: 0.35rem;
+}
+
 /* Mismo comercio que el carrito */
 .cliente-catalogo-card.producto-mismo-comercio {
   box-shadow: 0 0 0 2px var(--color-primary);
