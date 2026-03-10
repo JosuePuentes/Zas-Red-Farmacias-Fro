@@ -3,11 +3,12 @@ import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { ESTADOS_VENEZUELA } from '../../constants/estados'
 import ClienteCatalogo from './ClienteCatalogo'
-import { CartProvider } from '../../context/CartContext'
+import { CartProvider, useCart } from '../../context/CartContext'
 import './CatalogoPublico.css'
 
-export default function CatalogoPublico() {
+function CatalogoPublicoInner() {
   const { isAuthenticated } = useAuth()
+  const { totalItems } = useCart()
   const [searchParams, setSearchParams] = useSearchParams()
   const [q, setQ] = useState(() => searchParams.get('q') ?? '')
   const [estadoEnvio, setEstadoEnvio] = useState('Zulia')
@@ -29,42 +30,14 @@ export default function CatalogoPublico() {
   }
 
   return (
-    <CartProvider>
-      <div className="catalogo-publico">
-        <header className="catalogo-publico-header">
-          <div className="catalogo-publico-header-top">
+    <div className="catalogo-publico">
+      <header className="catalogo-publico-header">
+        <div className="catalogo-publico-header-top">
+          <div className="catalogo-publico-logo-zone">
             <div className="catalogo-publico-logo">
               <img src="/logo.png" alt="Zas!" />
               <span>Zas! Farma</span>
             </div>
-            <form
-              className="catalogo-publico-toolbar-search catalogo-publico-toolbar-search--full"
-              onSubmit={handleBuscarSubmit}
-            >
-              <input
-                type="search"
-                placeholder="Busca aquí tu producto"
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                aria-label="Buscar productos"
-              />
-              <button type="submit" aria-label="Buscar">🔍</button>
-            </form>
-            <div className="catalogo-publico-user">
-              {!isAuthenticated ? (
-                <Link to="/login" className="catalogo-publico-user-btn">
-                  <span className="catalogo-publico-user-icon">👤</span>
-                  <span>Entrar / Crear cuenta</span>
-                </Link>
-              ) : (
-                <Link to="/cliente" className="catalogo-publico-user-btn">
-                  <span className="catalogo-publico-user-icon">👤</span>
-                  <span>Mi cuenta</span>
-                </Link>
-              )}
-            </div>
-          </div>
-          <div className="catalogo-publico-header-bottom">
             <button
               type="button"
               className="catalogo-publico-envio"
@@ -78,6 +51,43 @@ export default function CatalogoPublico() {
                 <span className="catalogo-publico-envio-estado">{estadoEnvio}</span>
               </span>
             </button>
+          </div>
+          <form
+            className="catalogo-publico-toolbar-search catalogo-publico-toolbar-search--full"
+            onSubmit={handleBuscarSubmit}
+          >
+            <input
+              type="search"
+              placeholder="Busca aquí tu producto"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              aria-label="Buscar productos"
+            />
+            <button type="submit" aria-label="Buscar">🔍</button>
+          </form>
+          <div className="catalogo-publico-user">
+            <Link to="/cliente" className="catalogo-publico-cart-btn" aria-label="Ver carrito">
+              <span className="catalogo-publico-cart-icon">🛒</span>
+              {totalItems > 0 && (
+                <span className="catalogo-publico-cart-badge">
+                  {totalItems > 99 ? '99+' : totalItems}
+                </span>
+              )}
+            </Link>
+            {!isAuthenticated ? (
+              <Link to="/login" className="catalogo-publico-user-btn">
+                <span className="catalogo-publico-user-icon">👤</span>
+                <span>Entrar</span>
+              </Link>
+            ) : (
+              <Link to="/cliente" className="catalogo-publico-user-btn">
+                <span className="catalogo-publico-user-icon">👤</span>
+                <span>Mi cuenta</span>
+              </Link>
+            )}
+          </div>
+        </div>
+        <div className="catalogo-publico-header-bottom">
             <nav className="catalogo-publico-subnav" aria-label="Categorías principales">
               <button
                 type="button"
@@ -122,41 +132,48 @@ export default function CatalogoPublico() {
                 Ofertas
               </button>
             </nav>
-            <nav className="catalogo-publico-links">
-              <Link to="/quienes-somos" className="catalogo-publico-link-sm">
-                ¿Quiénes somos?
-              </Link>
-              <Link to="/soporte" className="catalogo-publico-link-sm">
-                Contacto
-              </Link>
-            </nav>
+          <nav className="catalogo-publico-links">
+            <Link to="/quienes-somos" className="catalogo-publico-link-sm">
+              ¿Quiénes somos?
+            </Link>
+            <Link to="/soporte" className="catalogo-publico-link-sm">
+              Contacto
+            </Link>
+          </nav>
+        </div>
+        {showEstados && (
+          <div className="catalogo-publico-envio-dropdown" role="listbox" aria-label="Seleccionar estado">
+            {ESTADOS_VENEZUELA.map((estado) => (
+              <button
+                key={estado}
+                type="button"
+                className={`catalogo-publico-envio-option ${estado === estadoEnvio ? 'is-active' : ''}`}
+                onClick={() => {
+                  setEstadoEnvio(estado)
+                  setShowEstados(false)
+                }}
+              >
+                {estado}
+              </button>
+            ))}
           </div>
-          {showEstados && (
-            <div className="catalogo-publico-envio-dropdown" role="listbox" aria-label="Seleccionar estado">
-              {ESTADOS_VENEZUELA.map((estado) => (
-                <button
-                  key={estado}
-                  type="button"
-                  className={`catalogo-publico-envio-option ${estado === estadoEnvio ? 'is-active' : ''}`}
-                  onClick={() => {
-                    setEstadoEnvio(estado)
-                    setShowEstados(false)
-                  }}
-                >
-                  {estado}
-                </button>
-              ))}
-            </div>
-          )}
-        </header>
-        <main className="catalogo-publico-main">
-          <ClienteCatalogo
-            showDeliveryBox={false}
-            showInlineFilters={false}
-            showLocationSelect={false}
-          />
-        </main>
-      </div>
+        )}
+      </header>
+      <main className="catalogo-publico-main">
+        <ClienteCatalogo
+          showDeliveryBox={false}
+          showInlineFilters={false}
+          showLocationSelect={false}
+        />
+      </main>
+    </div>
+  )
+}
+
+export default function CatalogoPublico() {
+  return (
+    <CartProvider>
+      <CatalogoPublicoInner />
     </CartProvider>
   )
 }
