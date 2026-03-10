@@ -19,6 +19,7 @@ import ClienteLayout from './layouts/ClienteLayout'
 import FarmaciaLayout from './layouts/FarmaciaLayout'
 import DeliveryLayout from './layouts/DeliveryLayout'
 import CatalogoPublico from './pages/cliente/CatalogoPublico'
+import QuienesSomos from './pages/QuienesSomos'
 
 function isMasterUser(user: { role?: string; email?: string } | null): boolean {
   if (!user) return false
@@ -56,8 +57,8 @@ export default function App() {
       <GeolocationProvider>
         <MasterPortalProvider>
           <Routes>
-        <Route path="/" element={<CatalogoPublico />} />
-        <Route path="/quienes-somos" element={<Home />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/quienes-somos" element={<QuienesSomos />} />
         <Route path="/login" element={<Login />} />
         <Route path="/recuperar" element={<RecuperarPassword />} />
         <Route path="/restablecer" element={<RestablecerPassword />} />
