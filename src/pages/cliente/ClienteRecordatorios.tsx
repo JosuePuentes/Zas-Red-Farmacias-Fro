@@ -40,7 +40,7 @@ export default function ClienteRecordatorios() {
     setError(null)
     try {
       const res = await catalogoApi.listar({ q, page: 1, page_size: 20 })
-      const items = itemsDesdeRespuestaCatalogo(res as Record<string, unknown>)
+      const items = itemsDesdeRespuestaCatalogo(res as unknown as Record<string, unknown>)
       setResultadosCatalogo(
         items.map((p) => ({
           id: p.id,

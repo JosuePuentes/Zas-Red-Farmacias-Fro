@@ -24,7 +24,7 @@ export default function ClienteRecetas() {
     setResultados([])
     try {
       const res = await catalogoApi.listar({ q, page: 1, page_size: 24 })
-      const items = itemsDesdeRespuestaCatalogo(res as Record<string, unknown>)
+      const items = itemsDesdeRespuestaCatalogo(res as unknown as Record<string, unknown>)
       setResultados(items)
       setCantidades({})
     } catch (e) {

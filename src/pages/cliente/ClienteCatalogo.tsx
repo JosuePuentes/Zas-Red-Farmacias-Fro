@@ -127,7 +127,7 @@ export default function ClienteCatalogo() {
         const totalRes = (data as { total?: number }).total ?? 0
         const totalPagesRes = (data as { total_pages?: number }).total_pages ?? (data as { totalPages?: number }).totalPages ?? 1
         if (!cancelled) {
-          setProductos(itemsDesdeRespuestaCatalogo(res as Record<string, unknown>))
+          setProductos(itemsDesdeRespuestaCatalogo(res as unknown as Record<string, unknown>))
           setTotal(totalRes)
           setTotalPages(Math.max(1, totalPagesRes))
         }
