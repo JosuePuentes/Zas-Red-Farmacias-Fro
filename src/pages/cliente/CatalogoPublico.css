@@ -6,9 +6,10 @@
 }
 
 .catalogo-publico-header {
-  padding: 0.5rem 1.5rem 0.4rem;
-  background: var(--color-card);
-  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.08);
+  padding: 0.45rem 1.25rem 0.4rem;
+  background: #0b2138;
+  color: #e5e7eb;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.7);
   position: sticky;
   top: 0;
   z-index: 20;
@@ -28,9 +29,10 @@
 }
 
 .catalogo-publico-logo span {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 700;
-  color: var(--color-primary-dark);
+  color: #f9fafb;
+  letter-spacing: 0.03em;
 }
 
 .catalogo-publico-nav {
@@ -41,8 +43,8 @@
 
 .catalogo-publico-header-top {
   display: flex;
-  align-items: center;
-  gap: 1rem;
+  align-items: stretch;
+  gap: 0.75rem;
   justify-content: space-between;
 }
 
@@ -52,7 +54,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid rgba(148, 163, 184, 0.3);
   padding-top: 0.4rem;
 }
 
@@ -166,7 +168,7 @@
   background: #ffffff;
   border-radius: 999px;
   border: 1px solid #cbd5e1;
-  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.35);
   overflow: hidden;
 }
 
@@ -204,16 +206,28 @@
   align-items: center;
   gap: 0.35rem;
   border-radius: 999px;
-  border: 1px solid #fecaca;
+  border: 1px solid rgba(248, 250, 252, 0.2);
   padding: 0.25rem 0.7rem;
-  background: #fff7ed;
-  color: #b91c1c;
+  background: rgba(248, 250, 252, 0.1);
+  color: #f9fafb;
   cursor: pointer;
   font-size: 0.78rem;
 }
 
+.catalogo-publico-envio-pin {
+  font-size: 0.9rem;
+}
+
+.catalogo-publico-envio-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
 .catalogo-publico-envio-label {
-  font-weight: 600;
+  font-weight: 500;
+  font-size: 0.7rem;
+  opacity: 0.9;
 }
 
 .catalogo-publico-envio-pais {
@@ -269,15 +283,15 @@
 .catalogo-publico-subnav-item {
   border: none;
   background: transparent;
-  color: #0f172a;
+  color: #e5e7eb;
   padding: 0.2rem 0.6rem;
   border-radius: 999px;
   cursor: pointer;
 }
 
 .catalogo-publico-subnav-item:hover {
-  background: rgba(249, 115, 22, 0.12);
-  color: #b91c1c;
+  background: rgba(248, 250, 252, 0.18);
+  color: #f9fafb;
 }
 
 .catalogo-publico-links {
@@ -288,7 +302,7 @@
 }
 
 .catalogo-publico-link-sm {
-  color: var(--color-primary-dark);
+  color: #e5e7eb;
   text-decoration: none;
 }
 

@@ -35,9 +35,12 @@ export default function CatalogoPublico() {
           <div className="catalogo-publico-header-top">
             <div className="catalogo-publico-logo">
               <img src="/logo.png" alt="Zas!" />
-              <span>Zas!</span>
+              <span>Zas! Farma</span>
             </div>
-            <form className="catalogo-publico-toolbar-search catalogo-publico-toolbar-search--full" onSubmit={handleBuscarSubmit}>
+            <form
+              className="catalogo-publico-toolbar-search catalogo-publico-toolbar-search--full"
+              onSubmit={handleBuscarSubmit}
+            >
               <input
                 type="search"
                 placeholder="Busca aquí tu producto"
@@ -69,18 +72,54 @@ export default function CatalogoPublico() {
               aria-haspopup="listbox"
               aria-expanded={showEstados}
             >
-              <span className="catalogo-publico-envio-label">Enviar a</span>
-              <span className="catalogo-publico-envio-estado">{estadoEnvio}</span>
+              <span className="catalogo-publico-envio-pin">📍</span>
+              <span className="catalogo-publico-envio-text">
+                <span className="catalogo-publico-envio-label">Enviar a</span>
+                <span className="catalogo-publico-envio-estado">{estadoEnvio}</span>
+              </span>
             </button>
-            <nav className="catalogo-publico-subnav">
-              <button type="button" onClick={() => handleNavFilter('')} className="catalogo-publico-subnav-item">
-                Ordenar
+            <nav className="catalogo-publico-subnav" aria-label="Categorías principales">
+              <button
+                type="button"
+                onClick={() => handleNavFilter('')}
+                className="catalogo-publico-subnav-item"
+              >
+                Todo
               </button>
-              <button type="button" onClick={() => handleNavFilter('categoria')} className="catalogo-publico-subnav-item">
-                Categoría
+              <button
+                type="button"
+                onClick={() => handleNavFilter('medicamentos')}
+                className="catalogo-publico-subnav-item"
+              >
+                Salud y medicamentos
               </button>
-              <button type="button" onClick={() => handleNavFilter('marca')} className="catalogo-publico-subnav-item">
-                Marca
+              <button
+                type="button"
+                onClick={() => handleNavFilter('cuidado personal')}
+                className="catalogo-publico-subnav-item"
+              >
+                Cuidado personal
+              </button>
+              <button
+                type="button"
+                onClick={() => handleNavFilter('bebe')}
+                className="catalogo-publico-subnav-item"
+              >
+                Bebé
+              </button>
+              <button
+                type="button"
+                onClick={() => handleNavFilter('hogar mascotas')}
+                className="catalogo-publico-subnav-item"
+              >
+                Hogar y mascotas
+              </button>
+              <button
+                type="button"
+                onClick={() => handleNavFilter('oferta descuento promo')}
+                className="catalogo-publico-subnav-item"
+              >
+                Ofertas
               </button>
             </nav>
             <nav className="catalogo-publico-links">
