@@ -115,14 +115,12 @@ type ClienteCatalogoProps = {
   showDeliveryBox?: boolean
   showInlineFilters?: boolean
   showLocationSelect?: boolean
-  showQuickSearch?: boolean
 }
 
 export default function ClienteCatalogo({
   showDeliveryBox = true,
   showInlineFilters = true,
   showLocationSelect = true,
-  showQuickSearch = true,
 }: ClienteCatalogoProps) {
   const [searchParams] = useSearchParams()
   const [busqueda, setBusqueda] = useState(() => searchParams.get('q') ?? '')
