@@ -125,6 +125,11 @@ export default function Home() {
             En <strong>Zas!</strong> consigues todo a la mano.
           </p>
         </header>
+        <div style={{ marginBottom: '1rem' }}>
+          <Link to="/" className="auth-back">
+            ← Volver al catálogo
+          </Link>
+        </div>
 
         <section className="home-carousel-wrap">
           <div

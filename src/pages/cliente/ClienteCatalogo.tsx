@@ -10,12 +10,6 @@ import { ESTADOS_VENEZUELA } from '../../constants/estados'
 import { DEPARTAMENTOS_ZAS, type DepartamentoZas } from '../../constants/departamentos'
 import './ClienteCatalogo.css'
 
-const MOCK_PRODUCTOS: Producto[] = [
-  { id: '1', codigo: 'COD-001', descripcion: 'Paracetamol 500mg', principioActivo: 'Paracetamol', presentacion: 'Caja 20 tab', marca: 'La Sante', precio: 5.5, descuentoPorcentaje: 10, precioConPorcentaje: 4.95, farmaciaId: 'f1', existencia: 10 },
-  { id: '2', codigo: 'COD-002', descripcion: 'Ibuprofeno 400mg', principioActivo: 'Ibuprofeno', presentacion: 'Caja 30 tab', marca: 'Cofasa', precio: 6.0, farmaciaId: 'f1', existencia: 30 },
-  { id: '3', codigo: 'COD-003', descripcion: 'Vitamina C 1g', principioActivo: 'Ácido ascórbico', presentacion: 'Frasco 30 tab', marca: 'Genven', precio: 8.0, descuentoPorcentaje: 20, precioConPorcentaje: 6.4, farmaciaId: 'f2', existencia: 20 },
-]
-
 function getPrecioBase(p: Producto): number | null {
   return typeof p.precio === 'number' ? p.precio : null
 }
@@ -96,7 +90,32 @@ function agruparPorMejorPrecio(productos: Producto[]): { key: string; mejor: Pro
 const MENSAJE_STOCK_OTRA_LOCALIDAD =
   'El comercio con mejor precio solo dispone de esa cantidad. Los demás están en otra localidad; si procedes con el pedido, el costo de envío puede variar ligeramente.'
 
-export default function ClienteCatalogo() {
+const HERO_BANNERS = [
+  {
+    id: 1,
+    title: 'Encuentra tus medicamentos sin ruletear farmacias',
+    subtitle: 'Compara precios entre varias farmacias y recibe tu pedido en menos de 30 minutos.',
+    image: '/images/zas-app.png',
+  },
+  {
+    id: 2,
+    title: 'Recetas y recordatorios en un solo lugar',
+    subtitle: 'Sube tus recetas, crea recordatorios y deja que Zas! se encargue del resto.',
+    image: '/images/zas-recetas.png',
+  },
+  {
+    id: 3,
+    title: 'Promociones y descuentos en tus marcas favoritas',
+    subtitle: 'Aprovecha ofertas de laboratorios y farmacias aliadas sin salir de casa.',
+    image: '/images/zas-promos.png',
+  },
+]
+
+type ClienteCatalogoProps = {
+  showDeliveryBox?: boolean
+}
+
+export default function ClienteCatalogo({ showDeliveryBox = true }: ClienteCatalogoProps) {
   const [busqueda, setBusqueda] = useState('')
   const [estado, setEstado] = useState('')
   const [searchParams] = useSearchParams()
@@ -133,6 +152,15 @@ export default function ClienteCatalogo() {
     return apiBase.replace(/\/api\/?$/, '')
   }, [])
 
+  const [heroIndex, setHeroIndex] = useState(0)
+
+  useEffect(() => {
+    const t = setInterval(() => {
+      setHeroIndex((i) => (i + 1) % HERO_BANNERS.length)
+    }, 6500)
+    return () => clearInterval(t)
+  }, [])
+
   useEffect(() => {
     let cancelled = false
     async function load() {
@@ -160,9 +188,9 @@ export default function ClienteCatalogo() {
       } catch (e) {
         if (!cancelled) {
           console.error(e)
-          setError('No se pudo cargar el catálogo, mostrando datos de prueba.')
-          setProductos(MOCK_PRODUCTOS)
-          setTotal(MOCK_PRODUCTOS.length)
+          setError('No se pudo cargar el catálogo. Intenta de nuevo en unos segundos.')
+          setProductos([])
+          setTotal(0)
           setTotalPages(1)
         }
       } finally {
@@ -260,51 +288,49 @@ export default function ClienteCatalogo() {
 
   const cartFarmaciaIds = useMemo(() => new Set(cartItems.map((i) => i.farmaciaId)), [cartItems])
   const isLoggedIn = !!user
+  const hero = HERO_BANNERS[heroIndex]
 
   return (
     <div className="cliente-catalogo container">
+      {showDeliveryBox && (
+        <>
+          <div className="cliente-catalogo-delivery">
+            <span className="cliente-catalogo-delivery-label">Costo del delivery:</span>
+            <span className="cliente-catalogo-delivery-monto">
+              {loadingDelivery ? '…' : costoDelivery != null ? `$ ${costoDelivery.toFixed(2)}` : '—'}
+            </span>
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
+              onClick={handleConfirmarUbicacion}
+              disabled={gpsLoading}
+            >
+              {gpsLoading ? 'Obteniendo…' : ubicacionConfirmada ? 'Ubicación confirmada' : 'Confirmar ubicación'}
+            </button>
+          </div>
+          {gpsError && <p className="auth-error" style={{ marginTop: 4, marginBottom: 0 }}>{gpsError}</p>}
+        </>
+      )}
       <section className="cliente-catalogo-hero">
         <div className="cliente-catalogo-hero-text">
-          <h2>Encuentra tus medicamentos sin ruletear farmacias</h2>
-          <p>
-            Compara precios entre varias farmacias y recibe tu pedido en menos de 30 minutos, sin colas ni
-            ruleteos. Zas! los busca por ti.
-          </p>
+          <h2>{hero.title}</h2>
+          <p>{hero.subtitle}</p>
+          <div className="cliente-catalogo-hero-dots">
+            {HERO_BANNERS.map((b, idx) => (
+              <button
+                key={b.id}
+                type="button"
+                className={`hero-dot ${idx === heroIndex ? 'active' : ''}`}
+                onClick={() => setHeroIndex(idx)}
+                aria-label={`Ver banner ${idx + 1}`}
+              />
+            ))}
+          </div>
         </div>
         <div className="cliente-catalogo-hero-banner">
-          <img src="/images/zas-app.png" alt="Zas! catálogo" />
+          <img src={hero.image} alt={hero.title} />
         </div>
       </section>
-      <section className="cliente-catalogo-trust">
-        <div className="cliente-catalogo-trust-item">
-          <h4>Pagos protegidos</h4>
-          <p>Tus datos viajan cifrados y tus compras están respaldadas.</p>
-        </div>
-        <div className="cliente-catalogo-trust-item">
-          <h4>Farmacias verificadas</h4>
-          <p>Solo aliados registrados y auditados en la red Zas!.</p>
-        </div>
-        <div className="cliente-catalogo-trust-item">
-          <h4>Acompañamiento humano</h4>
-          <p>Si algo pasa con tu pedido, un equipo te atiende.</p>
-        </div>
-      </section>
-      {/* Calculadora delivery (compacta) */}
-      <div className="cliente-catalogo-delivery">
-        <span className="cliente-catalogo-delivery-label">Costo del delivery:</span>
-        <span className="cliente-catalogo-delivery-monto">
-          {loadingDelivery ? '…' : costoDelivery != null ? `$ ${costoDelivery.toFixed(2)}` : '—'}
-        </span>
-        <button
-          type="button"
-          className="btn btn-primary btn-sm"
-          onClick={handleConfirmarUbicacion}
-          disabled={gpsLoading}
-        >
-          {gpsLoading ? 'Obteniendo…' : ubicacionConfirmada ? 'Ubicación confirmada' : 'Confirmar ubicación'}
-        </button>
-      </div>
-      {gpsError && <p className="auth-error" style={{ marginTop: 4, marginBottom: 0 }}>{gpsError}</p>}
 
       <div className="cliente-catalogo-location">
         <span className="cliente-catalogo-location-label">Ubicación</span>
