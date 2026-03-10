@@ -4,7 +4,6 @@ import { GeolocationProvider } from './context/GeolocationContext'
 import { MasterPortalProvider } from './context/MasterPortalContext'
 
 // Públicas
-import Home from './pages/Home'
 import Login from './pages/Login'
 import RegisterCliente from './pages/RegisterCliente'
 import RegisterDelivery from './pages/RegisterDelivery'
