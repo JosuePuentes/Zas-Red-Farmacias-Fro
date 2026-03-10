@@ -1,8 +1,6 @@
 import { useState } from 'react'
-import { clienteApi, getApiBaseUrl, type RecetaBuscarItem } from '../../api'
+import { clienteApi, type RecetaBuscarItem } from '../../api'
 import './ClienteRecetas.css'
-
-const backendBase = () => getApiBaseUrl().replace(/\/api\/?$/, '')
 
 export default function ClienteRecetas() {
   const [textoBusqueda, setTextoBusqueda] = useState('')
