@@ -325,6 +325,22 @@ export default function ClienteCatalogo({
         </>
       )}
       <section className="cliente-catalogo-hero">
+        <button
+          type="button"
+          className="cliente-catalogo-hero-arrow cliente-catalogo-hero-arrow--left"
+          aria-label="Banner anterior"
+          onClick={() => setHeroIndex((i) => (i - 1 + HERO_BANNERS.length) % HERO_BANNERS.length)}
+        >
+          ‹
+        </button>
+        <button
+          type="button"
+          className="cliente-catalogo-hero-arrow cliente-catalogo-hero-arrow--right"
+          aria-label="Siguiente banner"
+          onClick={() => setHeroIndex((i) => (i + 1) % HERO_BANNERS.length)}
+        >
+          ›
+        </button>
         <div className="cliente-catalogo-hero-text">
           <h2>{hero.title}</h2>
           <p>{hero.subtitle}</p>

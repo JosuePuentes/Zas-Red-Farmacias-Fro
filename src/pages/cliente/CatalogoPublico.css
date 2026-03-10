@@ -23,16 +23,16 @@
 }
 
 .catalogo-publico-logo img {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   object-fit: contain;
 }
 
 .catalogo-publico-logo span {
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: #f9fafb;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
 }
 
 .catalogo-publico-nav {
@@ -82,6 +82,40 @@
   align-items: center;
   gap: 0.75rem;
   flex: 0 0 auto;
+}
+
+.catalogo-publico-cart-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  text-decoration: none;
+  color: #f9fafb;
+  font-size: 0.9rem;
+}
+
+.catalogo-publico-cart-icon {
+  font-size: 1.25rem;
+}
+
+.catalogo-publico-cart-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translate(35%, -35%);
+  min-width: 18px;
+  padding: 0 4px;
+  height: 18px;
+  border-radius: 999px;
+  background: #f97316;
+  color: #111827;
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .catalogo-publico-delivery {
@@ -175,8 +209,8 @@
 .catalogo-publico-toolbar-search input {
   flex: 1;
   border: none;
-  padding: 0.4rem 0.8rem;
-  font-size: 0.85rem;
+  padding: 0.55rem 0.9rem;
+  font-size: 0.95rem;
 }
 
 .catalogo-publico-toolbar-search input:focus {
