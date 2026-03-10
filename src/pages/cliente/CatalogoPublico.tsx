@@ -119,13 +119,6 @@ function CatalogoPublicoInner() {
               </button>
               <button
                 type="button"
-                onClick={() => handleNavFilter('hogar mascotas')}
-                className="catalogo-publico-subnav-item"
-              >
-                Hogar y mascotas
-              </button>
-              <button
-                type="button"
                 onClick={() => handleNavFilter('oferta descuento promo')}
                 className="catalogo-publico-subnav-item"
               >
