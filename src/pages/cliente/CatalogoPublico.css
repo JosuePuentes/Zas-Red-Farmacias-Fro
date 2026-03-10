@@ -6,11 +6,7 @@
 }
 
 .catalogo-publico-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.75rem 1.5rem;
+  padding: 0.5rem 1.5rem 0.4rem;
   background: var(--color-card);
   box-shadow: 0 2px 12px rgba(15, 23, 42, 0.08);
   position: sticky;
@@ -40,6 +36,23 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
+}
+
+.catalogo-publico-header-top {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.catalogo-publico-header-bottom {
+  margin-top: 0.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 0.4rem;
 }
 
 .catalogo-publico-link {
@@ -178,6 +191,91 @@
   margin-bottom: 0.75rem;
 }
 
+.catalogo-publico-header-bottom .catalogo-publico-toolbar-search--full {
+  margin-bottom: 0;
+}
+
+.catalogo-publico-envio {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  border: 1px solid #fecaca;
+  padding: 0.25rem 0.7rem;
+  background: #fff7ed;
+  color: #b91c1c;
+  cursor: pointer;
+  font-size: 0.78rem;
+}
+
+.catalogo-publico-envio-label {
+  font-weight: 600;
+}
+
+.catalogo-publico-envio-pais {
+  font-weight: 500;
+}
+
+.catalogo-publico-envio-estado {
+  font-weight: 700;
+}
+
+.catalogo-publico-envio-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 1.5rem;
+  margin-top: 0.25rem;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.18);
+  padding: 0.4rem 0.2rem;
+  max-height: 260px;
+  overflow-y: auto;
+  z-index: 30;
+}
+
+.catalogo-publico-envio-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.25rem 0.8rem;
+  border: none;
+  background: transparent;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.catalogo-publico-envio-option:hover {
+  background: #eff6ff;
+}
+
+.catalogo-publico-envio-option.is-active {
+  background: #dbeafe;
+  font-weight: 600;
+}
+
+.catalogo-publico-subnav {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+}
+
+.catalogo-publico-subnav-item {
+  border: none;
+  background: transparent;
+  color: #0f172a;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.catalogo-publico-subnav-item:hover {
+  background: rgba(249, 115, 22, 0.12);
+  color: #b91c1c;
+}
+
 .catalogo-publico-gps-error {
   margin: 0.5rem 0;
   font-size: 0.8rem;
@@ -188,6 +286,27 @@
   .catalogo-publico-main {
     max-width: 1320px;
     margin: 0 auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .catalogo-publico-header-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .catalogo-publico-header-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .catalogo-publico-subnav {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .catalogo-publico-subnav-item {
+    white-space: nowrap;
   }
 }
 

@@ -594,7 +594,7 @@ export default function ClienteCatalogo({
 
               const imagenUrl =
                 p.imagen && !p.imagen.startsWith('http')
-                  ? `${backendBase}${p.imagen}`
+                  ? `${backendBase}/${p.imagen.replace(/^\/+/, '')}`
                   : p.imagen
 
               const recomendacionesAux = getRecomendacionesAuxiliar(p)
