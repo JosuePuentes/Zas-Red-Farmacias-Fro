@@ -1,51 +1,58 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import MapView from '../../components/MapView'
 import { VENEZUELA_CENTER } from '../../context/GeolocationContext'
 import type { Coords } from '../../context/GeolocationContext'
-
-// Tipos alineados con backend: pedido con posición delivery y ETA
-interface PedidoCliente {
-  _id: string
-  estado: string
-  total: number
-  direccionEntrega?: string
-  latEntrega?: number
-  lngEntrega?: number
-  // Posición en tiempo real del delivery (backend enviará por WebSocket o polling)
-  deliveryLat?: number
-  deliveryLng?: number
-  etaMinutos?: number
-  etaHoraLlegada?: string
-  createdAt?: string
-}
-
-// Mock: reemplazar por clienteApi.misPedidos() o similar
-const MOCK_PEDIDOS: PedidoCliente[] = [
-  {
-    _id: '1',
-    estado: 'en_camino',
-    total: 25.5,
-    direccionEntrega: 'Av. Principal, edificio 5',
-    latEntrega: 10.4806,
-    lngEntrega: -66.9036,
-    deliveryLat: 10.481,
-    deliveryLng: -66.902,
-    etaMinutos: 8,
-    etaHoraLlegada: '14:35',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    _id: '2',
-    estado: 'recibido',
-    total: 12,
-    direccionEntrega: 'Calle 10',
-    createdAt: new Date(Date.now() - 86400000).toISOString(),
-  },
-]
+import { clienteApi, type PedidoClienteApi } from '../../api'
+import './ClientePedidos.css'
 
 export default function ClientePedidos() {
-  const [pedidos] = useState<PedidoCliente[]>(MOCK_PEDIDOS)
-  const [seleccionado, setSeleccionado] = useState<PedidoCliente | null>(null)
+  const [pedidos, setPedidos] = useState<PedidoClienteApi[]>([])
+  const [seleccionado, setSeleccionado] = useState<PedidoClienteApi | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    async function load() {
+      try {
+        setLoading(true)
+        setError(null)
+        const data = await clienteApi.misPedidos()
+        if (!cancelled) setPedidos(data)
+      } catch (e) {
+        console.error('Error al cargar pedidos del cliente', e)
+        if (!cancelled) {
+          setError('No se pudieron cargar tus pedidos. Intenta nuevamente.')
+          setPedidos([])
+        }
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    load()
+    const id = window.setInterval(load, 30000)
+    return () => {
+      cancelled = true
+      window.clearInterval(id)
+    }
+  }, [])
+
+  const pedidosEnCurso = useMemo(
+    () => pedidos.filter((p) => !['entregado', 'cancelado', 'denegado'].includes(p.estado)),
+    [pedidos],
+  )
+  const pedidosHistoricos = useMemo(
+    () => pedidos.filter((p) => ['entregado', 'cancelado', 'denegado'].includes(p.estado)),
+    [pedidos],
+  )
+
+  function getPasoEstado(estado: string): 1 | 2 | 3 | 4 {
+    const e = estado.toLowerCase()
+    if (e === 'entregado' || e === 'recibido') return 4
+    if (e === 'en_camino') return 3
+    if (e === 'asignado' || e === 'pendiente_asignacion_delivery') return 2
+    return 1
+  }
 
   const destinoCoords: Coords | null =
     seleccionado && seleccionado.latEntrega != null && seleccionado.lngEntrega != null
@@ -60,37 +67,94 @@ export default function ClientePedidos() {
     <div className="container">
       <h2>Mis pedidos</h2>
 
-      {pedidos.length === 0 ? (
+      {error && (
+        <div className="card">
+          <p className="auth-error">{error}</p>
+        </div>
+      )}
+
+      {loading ? (
+        <div className="card">
+          <p className="muted">Cargando tus pedidos...</p>
+        </div>
+      ) : pedidos.length === 0 ? (
         <div className="card">
           <p className="muted">Aún no tienes pedidos. Cuando hagas uno, aparecerá aquí y podrás seguir en tiempo real al delivery.</p>
         </div>
       ) : (
         <>
-          <div className="card">
-            <p className="muted">Selecciona un pedido para ver el mapa y la hora aproximada de llegada del delivery.</p>
-          </div>
+          {pedidosEnCurso.length > 0 && (
+            <>
+              <div className="card">
+                <h3>Pedidos en curso</h3>
+                <p className="muted">
+                  Aquí verás el estado de verificación, recogida, ruta y entrega. Puedes abrir el mapa para seguir el pedido.
+                </p>
+              </div>
 
-          <ul className="card-list">
-            {pedidos.map((p) => (
-              <li key={p._id} className="card">
-                <p><strong>Pedido #{p._id.slice(-6)}</strong> · {p.estado.replace('_', ' ')} · $ {p.total.toFixed(2)}</p>
-                {p.direccionEntrega && <p className="muted">{p.direccionEntrega}</p>}
-                {(p.estado === 'en_camino' || p.estado === 'asignado') && (
-                  <>
-                    {p.etaMinutos != null && <p>Llegada aprox.: {p.etaMinutos} min · ~{p.etaHoraLlegada || '—'}</p>}
-                    <button type="button" className="btn btn-primary btn-sm" onClick={() => setSeleccionado(p)}>
-                      Ver mapa en tiempo real
-                    </button>
-                  </>
-                )}
-                {p.estado === 'recibido' && (
-                  <button type="button" className="btn btn-secondary btn-sm" onClick={() => setSeleccionado(p)}>
-                    Ver ubicación de entrega
-                  </button>
-                )}
-              </li>
-            ))}
-          </ul>
+              <ul className="card-list">
+                {pedidosEnCurso.map((p) => {
+                  const paso = getPasoEstado(p.estado)
+                  return (
+                    <li key={p._id} className="card">
+                      <p>
+                        <strong>Pedido #{p._id.slice(-6)}</strong> · {p.estado.replace(/_/g, ' ')} · $ {p.total.toFixed(2)}
+                      </p>
+                      {p.direccionEntrega && <p className="muted">{p.direccionEntrega}</p>}
+                      <div className="pedido-steps">
+                        <div className={`pedido-step ${paso >= 1 ? 'activo' : ''}`}>
+                          <span className="circle" />
+                          <span className="label">Verificación</span>
+                        </div>
+                        <div className={`pedido-step ${paso >= 2 ? 'activo' : ''}`}>
+                          <span className="circle" />
+                          <span className="label">Recogida</span>
+                        </div>
+                        <div className={`pedido-step ${paso >= 3 ? 'activo' : ''}`}>
+                          <span className="circle" />
+                          <span className="label">En camino</span>
+                        </div>
+                        <div className={`pedido-step ${paso >= 4 ? 'activo' : ''}`}>
+                          <span className="circle" />
+                          <span className="label">Entregado</span>
+                        </div>
+                      </div>
+                      {(p.estado === 'en_camino' || p.estado === 'asignado' || p.estado === 'pendiente_asignacion_delivery') && (
+                        <>
+                          {p.etaMinutos != null && (
+                            <p>
+                              Llegada aprox.: {p.etaMinutos} min · ~{p.etaHoraLlegada || '—'}
+                            </p>
+                          )}
+                          <button type="button" className="btn btn-primary btn-sm" onClick={() => setSeleccionado(p)}>
+                            Ver seguimiento en mapa
+                          </button>
+                        </>
+                      )}
+                    </li>
+                  )
+                })}
+              </ul>
+            </>
+          )}
+
+          {pedidosHistoricos.length > 0 && (
+            <>
+              <div className="card" style={{ marginTop: '1rem' }}>
+                <h3>Pedidos anteriores</h3>
+              </div>
+              <ul className="card-list">
+                {pedidosHistoricos.map((p) => (
+                  <li key={p._id} className="card">
+                    <p>
+                      <strong>Pedido #{p._id.slice(-6)}</strong> · {p.estado.replace(/_/g, ' ')} · $ {p.total.toFixed(2)}
+                    </p>
+                    {p.direccionEntrega && <p className="muted">{p.direccionEntrega}</p>}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
 
           {seleccionado && (
             <div className="card pedido-mapa-card">

@@ -632,6 +632,9 @@ export const clienteApi = {
     }
   },
 
+  /** GET /api/cliente/pedidos — pedidos del cliente (en curso e históricos). */
+  misPedidos: () => request<PedidoClienteApi[]>('/cliente/pedidos'),
+
   /** POST /api/cliente/solicitar-producto — Body: { codigo }. 201: ok; 400: ya disponible o cooldown 7 días (proximaDisponible). */
   solicitarProducto: async (codigo: string): Promise<{ ok: boolean; message?: string; proximaDisponible?: string }> => {
     const res = await fetch(`${API}/cliente/solicitar-producto`, {
@@ -695,4 +698,18 @@ export interface NotificacionClienteItem {
   descripcion?: string
   fecha?: string
   [key: string]: unknown
+}
+
+export interface PedidoClienteApi {
+  _id: string
+  estado: string
+  total: number
+  direccionEntrega?: string
+  latEntrega?: number
+  lngEntrega?: number
+  deliveryLat?: number
+  deliveryLng?: number
+  etaMinutos?: number
+  etaHoraLlegada?: string
+  createdAt?: string
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import FacturaTicket, { type FacturaTicketData } from '../../components/FacturaTicket'
 import MapView from '../../components/MapView'
 import { VENEZUELA_CENTER, useGeolocation } from '../../context/GeolocationContext'
@@ -16,6 +16,7 @@ export default function DeliveryPedidos() {
 
   const { requestLocation, loading: gpsLoading, error: gpsError } = useGeolocation()
   const [ubicacionEntrega, setUbicacionEntrega] = useState<Coords | null>(null)
+  const prevPedidosCountRef = useRef<number>(0)
 
   const destinoCoords: Coords | null =
     seleccionado?.coordsEntrega ? seleccionado.coordsEntrega : null
@@ -59,6 +60,20 @@ export default function DeliveryPedidos() {
       cargarPedidos()
     }
   }, [activo])
+
+  // Sonido cuando llegan nuevos pedidos (sólo si está activo)
+  useEffect(() => {
+    if (!activo) {
+      prevPedidosCountRef.current = pedidos.length
+      return
+    }
+    const prev = prevPedidosCountRef.current
+    if (pedidos.length > prev && prev !== 0) {
+      const audio = new Audio('/sounds/notify.mp3')
+      audio.play().catch(() => {})
+    }
+    prevPedidosCountRef.current = pedidos.length
+  }, [activo, pedidos.length])
 
   async function handleActivar() {
     try {

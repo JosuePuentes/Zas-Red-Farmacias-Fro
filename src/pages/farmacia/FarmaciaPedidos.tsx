@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { farmaciaApi, type PedidoFarmaciaApi } from '../../api'
 
 export default function FarmaciaPedidos() {
@@ -6,6 +6,7 @@ export default function FarmaciaPedidos() {
   const [loading, setLoading] = useState(true)
   const [procesandoId, setProcesandoId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const prevPedidosCountRef = useRef<number>(0)
 
   async function load() {
     try {
@@ -25,6 +26,16 @@ export default function FarmaciaPedidos() {
   useEffect(() => {
     load()
   }, [])
+
+  // Sonido cuando llegan nuevos pedidos para la farmacia
+  useEffect(() => {
+    const prev = prevPedidosCountRef.current
+    if (pedidos.length > prev && prev !== 0) {
+      const audio = new Audio('/sounds/notify.mp3')
+      audio.play().catch(() => {})
+    }
+    prevPedidosCountRef.current = pedidos.length
+  }, [pedidos.length])
 
   async function handleValidar(id: string) {
     setProcesandoId(id)
