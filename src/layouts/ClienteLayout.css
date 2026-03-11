@@ -222,7 +222,18 @@
 }
 
 .cliente-sidebar-toggle {
-  display: none; /* ocultamos el botón de menú (3 rayas) */
+  /* Botón para abrir/cerrar el menú lateral en móvil */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin-bottom: 0.75rem;
+  border-radius: 999px;
+  border: none;
+  background: #e2e8f0;
+  color: var(--color-text);
+  font-size: 1.1rem;
 }
 
 .cliente-sidebar-user {
@@ -480,6 +491,11 @@
 }
 
 @media (min-width: 1024px) {
+  /* En escritorio el sidebar está siempre visible, no necesitamos botón toggle */
+  .cliente-sidebar-toggle {
+    display: none;
+  }
+
   .cliente-sidebar-overlay {
     display: none;
   }
