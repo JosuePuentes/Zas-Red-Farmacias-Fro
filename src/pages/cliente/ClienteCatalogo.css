@@ -700,6 +700,17 @@
   padding-bottom: 0.5rem;
 }
 
+/* Siempre 4 productos por fila en escritorio (salvo última fila). */
+.cliente-catalogo-grid-siempre-4 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 768px) {
+  .cliente-catalogo-grid-siempre-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
 @media (min-width: 1024px) {
   .cliente-catalogo {
     padding-bottom: 2rem;
@@ -713,12 +724,6 @@
 
   .cliente-catalogo-section-list {
     grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1280px) {
-  .cliente-catalogo-section-list {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
 

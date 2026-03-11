@@ -7,7 +7,7 @@ import { catalogoApi, clienteApi, carritoApi, buildProductImageUrl } from '../..
 import { useAuth } from '../../context/AuthContext'
 import { itemsDesdeRespuestaCatalogo } from '../../utils/catalogo'
 import { ESTADOS_VENEZUELA } from '../../constants/estados'
-import { DEPARTAMENTOS_ZAS, type DepartamentoZas } from '../../constants/departamentos'
+import { DEPARTAMENTOS_ZAS, ORDER_DEPARTAMENTOS_CATALOGO, type DepartamentoZas } from '../../constants/departamentos'
 import './ClienteCatalogo.css'
 
 function getPrecioBase(p: Producto): number | null {
@@ -42,12 +42,25 @@ function sinStock(p: Producto): boolean {
 
 function getCategoriaProducto(p: Producto): DepartamentoZas | 'Otros' {
   if (p.categoria && DEPARTAMENTOS_ZAS.includes(p.categoria as DepartamentoZas)) return p.categoria as DepartamentoZas
-  const desc = `${p.descripcion} ${p.principioActivo}`.toLowerCase()
+  const desc = `${p.descripcion} ${p.principioActivo || ''}`.toLowerCase()
   if (desc.includes('ibuprof') || desc.includes('paracetam')) return 'Analgésicos y Antipiréticos'
   if (desc.includes('antibiót') || desc.includes('amoxic') || desc.includes('ciproflox')) return 'Antibióticos'
   if (desc.includes('vitamina') || desc.includes('suplemento')) return 'Vitaminas y Suplementos'
   if (desc.includes('gel') || desc.includes('shampoo') || desc.includes('jabón')) return 'Cuidado Personal'
   return 'Otros'
+}
+
+/** Clave para ordenar productos A–Z por descripción (o principio activo). */
+function getOrdenAlfabetico(p: Producto): string {
+  const texto = (p.descripcion || p.principioActivo || p.codigo || '').trim().toLowerCase()
+  return texto
+}
+
+/** Prioridad de categoría: medicamentos primero (mismo criterio en móvil y escritorio). */
+function getOrdenCategoria(categoria: DepartamentoZas | 'Otros'): number {
+  if (categoria === 'Otros') return ORDER_DEPARTAMENTOS_CATALOGO.length + 1
+  const idx = ORDER_DEPARTAMENTOS_CATALOGO.indexOf(categoria)
+  return idx >= 0 ? idx : ORDER_DEPARTAMENTOS_CATALOGO.length
 }
 
 function getRecomendacionesAuxiliar(p: Producto): string[] {
@@ -283,7 +296,17 @@ export default function ClienteCatalogo({
     if (filtroMarcas.length) {
       lista = lista.filter((p) => p.marca && filtroMarcas.includes(p.marca))
     }
-    if (orden !== 'relevancia') {
+    if (orden === 'relevancia') {
+      // Mismo filtro en móvil y escritorio: primero medicamentos (por categoría), luego A–Z por descripción
+      lista = [...lista].sort((a, b) => {
+        const catA = getCategoriaProducto(a)
+        const catB = getCategoriaProducto(b)
+        const ordA = getOrdenCategoria(catA)
+        const ordB = getOrdenCategoria(catB)
+        if (ordA !== ordB) return ordA - ordB
+        return getOrdenAlfabetico(a).localeCompare(getOrdenAlfabetico(b), 'es')
+      })
+    } else {
       lista = [...lista].sort((a, b) => {
         const pa = getPrecioEfectivo(a)
         const pb = getPrecioEfectivo(b)
@@ -302,17 +325,18 @@ export default function ClienteCatalogo({
   )
 
   const grupos = useMemo(() => agruparPorMejorPrecio(productosFiltrados), [productosFiltrados])
-  const secciones = useMemo(() => {
-    const conCategoria = DEPARTAMENTOS_ZAS.map((dep) => ({
-      nombre: dep,
-      grupos: grupos.filter((g) => getCategoriaProducto(g.mejor) === dep),
-    })).filter((s) => s.grupos.length > 0)
-    const otros = grupos.filter((g) => getCategoriaProducto(g.mejor) === 'Otros')
-    if (otros.length > 0) {
-      return [...conCategoria, { nombre: 'Otros' as const, grupos: otros }]
-    }
-    return conCategoria
-  }, [grupos])
+  /** Una sola lista: primero medicamentos (categoría), luego A–Z por descripción (mismo en móvil y escritorio). */
+  const gruposOrdenados = useMemo(
+    () => [...grupos].sort((a, b) => {
+      const catA = getCategoriaProducto(a.mejor)
+      const catB = getCategoriaProducto(b.mejor)
+      const ordA = getOrdenCategoria(catA)
+      const ordB = getOrdenCategoria(catB)
+      if (ordA !== ordB) return ordA - ordB
+      return getOrdenAlfabetico(a.mejor).localeCompare(getOrdenAlfabetico(b.mejor), 'es')
+    }),
+    [grupos],
+  )
 
   const cartFarmaciaIds = useMemo(() => new Set(cartItems.map((i) => i.farmaciaId)), [cartItems])
   const isLoggedIn = !!user
@@ -661,13 +685,8 @@ export default function ClienteCatalogo({
         </div>
       )}
 
-      {secciones.map((sec) => (
-        <section key={sec.nombre} className="cliente-catalogo-section">
-          <div className="cliente-catalogo-section-header">
-            <h3>{sec.nombre}</h3>
-          </div>
-          <div className="cliente-catalogo-section-list">
-            {sec.grupos.map(({ key, mejor, otros }) => {
+      <div className="cliente-catalogo-section-list cliente-catalogo-grid-siempre-4">
+        {gruposOrdenados.map(({ key, mejor, otros }) => {
               const p = mejor
               const precioBase = getPrecioBase(p)
               const precioConDescuento = getPrecioConDescuento(p)
@@ -858,10 +877,8 @@ export default function ClienteCatalogo({
                   </div>
                 </article>
               )
-            })}
-          </div>
-        </section>
-      ))}
+        })}
+      </div>
 
       {modalOtrosComercios && (
         <div
