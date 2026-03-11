@@ -222,73 +222,7 @@
 }
 
 .cliente-sidebar-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border: none;
-  border-radius: 8px;
-  background: var(--color-primary);
-  color: white;
-  font-size: 1.2rem;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-.cliente-sidebar-toggle:hover {
-  background: var(--color-primary-dark);
-}
-@media (min-width: 768px) {
-  .cliente-sidebar-toggle {
-    margin: 0 auto 0.5rem;
-  }
-}
-
-/* Escritorio: SIN franja fija. Solo un botón flotante que abre un panel lateral. */
-@media (min-width: 768px) {
-  .cliente-sidebar-overlay.open {
-    display: block; /* permitir cerrar al hacer clic fuera */
-  }
-
-  .cliente-sidebar {
-    position: static; /* que no ocupe ancho visible */
-    width: 0;
-    min-width: 0;
-    padding: 0;
-    border-right: none;
-    background: transparent;
-    overflow: visible;
-  }
-
-  /* Botón flotante sobre el contenido, pegado al borde izquierdo */
-  .cliente-sidebar-toggle {
-    position: fixed;
-    top: calc(80px + var(--safe-top));
-    left: 0.75rem;
-    z-index: 42;
-  }
-
-  /* Panel lateral flotante que aparece desde la izquierda cuando el sidebar está "open" */
-  .cliente-sidebar-panel {
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    width: 260px;
-    max-width: 85vw;
-    background: var(--color-card);
-    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.12);
-    padding: 1.25rem 1rem;
-    padding-top: calc(1.25rem + var(--safe-top));
-    overflow-x: hidden;
-    overflow-y: auto;
-    transform: translateX(-100%);
-    transition: transform 0.25s ease;
-  }
-
-  .cliente-sidebar.open .cliente-sidebar-panel {
-    transform: translateX(0);
-  }
+  display: none; /* ocultamos el botón de menú (3 rayas) */
 }
 
 .cliente-sidebar-user {
@@ -542,5 +476,35 @@
      para que no tape el contenido del catálogo ni otras páginas. */
   .cliente-bottom-nav {
     display: none;
+  }
+}
+
+/* Escritorio (>=1024px): sidebar fijo visible como navbar vertical blanco a la izquierda */
+@media (min-width: 1024px) {
+  .cliente-sidebar-overlay {
+    display: none;
+  }
+
+  .cliente-sidebar {
+    position: relative;
+    top: auto;
+    left: auto;
+    bottom: auto;
+    transform: none;
+    width: 260px;
+    max-width: 260px;
+    box-shadow: none;
+    border-right: 1px solid #e2e8f0;
+    background: var(--color-card);
+  }
+
+  .cliente-sidebar-panel {
+    position: static;
+    width: auto;
+    max-width: none;
+    box-shadow: none;
+    padding: 1.5rem 1rem 1rem;
+    overflow: visible;
+    transform: none;
   }
 }
