@@ -9,6 +9,7 @@ import AdminFarmacias from '../pages/admin/AdminFarmacias'
 import AdminDelivery from '../pages/admin/AdminDelivery'
 import AdminSolicitudesFarmacia from '../pages/admin/AdminSolicitudesFarmacia'
 import AdminSolicitudesPlanPro from '../pages/admin/AdminSolicitudesPlanPro'
+import AdminFinanzas from '../pages/admin/AdminFinanzas'
 import './Layout.css'
 
 export default function AdminLayout() {
@@ -71,6 +72,7 @@ export default function AdminLayout() {
         <NavLink to="/admin/solicitudes-plan-pro">
           Solic. Plan Pro {solPlanPro > 0 && <span className="badge badge-warning">{solPlanPro}</span>}
         </NavLink>
+        <NavLink to="/admin/finanzas">Finanzas</NavLink>
         <NavLink to="/elegir-portal" className="layout-nav-portal">Cambiar portal</NavLink>
       </nav>
       <main className="layout-main">
@@ -82,6 +84,7 @@ export default function AdminLayout() {
           <Route path="solicitudes-farmacia" element={<AdminSolicitudesFarmacia />} />
           <Route path="delivery" element={<AdminDelivery />} />
           <Route path="solicitudes-plan-pro" element={<AdminSolicitudesPlanPro />} />
+          <Route path="finanzas" element={<AdminFinanzas />} />
         </Routes>
       </main>
     </div>

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { solicitudFarmaciaApi } from '../api'
 import MapPicker from '../components/MapPicker'
 import type { Coords } from '../context/GeolocationContext'
+import { useGeolocation } from '../context/GeolocationContext'
 import { ESTADOS_VENEZUELA } from '../constants/estados'
 import './Auth.css'
 
@@ -21,6 +22,7 @@ export default function RegisterFarmacia() {
   const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
   const [coords, setCoords] = useState<Coords | null>(null)
+  const { requestLocation, loading: gpsLoading, error: gpsError } = useGeolocation()
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }))
@@ -121,6 +123,23 @@ export default function RegisterFarmacia() {
             <p className="muted" style={{ marginBottom: 8 }}>
               Haz clic en el mapa para marcar el punto exacto donde está ubicada tu farmacia. El delivery usará esta ubicación para recoger los pedidos.
             </p>
+            <button
+              type="button"
+              className="btn btn-secondary btn-sm"
+              onClick={async () => {
+                const loc = await requestLocation()
+                if (loc) setCoords(loc)
+              }}
+              disabled={gpsLoading}
+              style={{ marginBottom: 8 }}
+            >
+              {gpsLoading ? 'Obteniendo ubicación…' : 'Usar mi ubicación actual'}
+            </button>
+            {gpsError && (
+              <p className="auth-error" style={{ marginBottom: 8 }}>
+                {gpsError}
+              </p>
+            )}
             <MapPicker value={coords} onChange={setCoords} height="40vh" zoom={14} />
             {coords && (
               <p className="muted" style={{ marginTop: 6 }}>

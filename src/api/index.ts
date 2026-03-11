@@ -249,6 +249,27 @@ export interface DeliveryMaster {
   telefono?: string
 }
 
+export interface FinanzasResumenMaster {
+  totalVentas: number
+  totalComisionVentas3Pct: number
+  totalDeliveryBruto: number
+  totalComisionDelivery20Pct: number
+  gananciaTotalApp: number
+  porFarmacia: {
+    farmaciaId: string
+    nombreFarmacia: string
+    totalVentas: number
+    comision3Pct: number
+  }[]
+  porDelivery: {
+    deliveryId: string
+    nombre: string
+    totalDeliveryBruto: number
+    pagarDelivery: number
+    comisionApp20Pct: number
+  }[]
+}
+
 export interface SolicitudDeliveryMaster {
   _id: string
   tipoVehiculo: string
@@ -287,6 +308,7 @@ export const masterApi = {
   solicitudesPlanPro: () => request<SolicitudPlanProMaster[]>('/master/solicitudes-plan-pro'),
   aprobarPlanPro: (id: string) => request(`/master/solicitudes-plan-pro/${id}/aprobar`, { method: 'POST' }),
   denegarPlanPro: (id: string) => request(`/master/solicitudes-plan-pro/${id}/denegar`, { method: 'POST' }),
+  finanzasResumen: () => request<FinanzasResumenMaster>('/master/finanzas/resumen'),
 }
 
 // ===================== PLAN PRO (FARMACIA) =====================
