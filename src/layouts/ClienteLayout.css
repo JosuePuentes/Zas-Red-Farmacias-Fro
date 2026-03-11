@@ -480,16 +480,6 @@
 }
 
 @media (min-width: 1024px) {
-  /* En escritorio forzamos un fondo uniforme detrás de todo el layout
-     para evitar que se vea una franja de color distinta en el extremo izquierdo. */
-  .cliente-layout::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: var(--color-bg);
-    z-index: -1;
-  }
-
   .cliente-sidebar-overlay {
     display: none;
   }
@@ -503,8 +493,8 @@
     width: 260px;
     max-width: 260px;
     box-shadow: none;
-    border-right: 1px solid #e2e8f0;
-    background: var(--color-card);
+    border-right: none;
+    background: transparent; /* dejamos ver la franja azul de fondo */
   }
 
   .cliente-sidebar-panel {
@@ -515,5 +505,35 @@
     padding: 1.5rem 1rem 1rem;
     overflow: visible;
     transform: none;
+  }
+
+  /* Colores de texto y enlaces del menú cuando se muestra sobre la franja azul */
+  .cliente-sidebar-name,
+  .cliente-sidebar-email,
+  .cliente-sidebar-welcome,
+  .cliente-sidebar-filters-label {
+    color: #e0f2fe;
+  }
+
+  .cliente-sidebar-nav a {
+    color: #f9fafb;
+  }
+
+  .cliente-sidebar-nav a:hover {
+    background: rgba(15, 23, 42, 0.18);
+  }
+
+  .cliente-sidebar-nav a.active {
+    background: rgba(15, 23, 42, 0.35);
+    color: #f9fafb;
+  }
+
+  .cliente-sidebar-nav .cliente-sidebar-logout {
+    color: #e0f2fe;
+  }
+
+  .cliente-sidebar-nav .cliente-sidebar-logout:hover {
+    background: rgba(248, 250, 252, 0.08);
+    color: #fee2e2;
   }
 }
