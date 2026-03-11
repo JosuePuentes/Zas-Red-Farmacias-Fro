@@ -1,5 +1,7 @@
 import { Routes, Route, NavLink, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { masterApi } from '../api'
 import AdminDashboard from '../pages/admin/AdminDashboard'
 import AdminPedidos from '../pages/admin/AdminPedidos'
 import AdminUsuarios from '../pages/admin/AdminUsuarios'
@@ -12,6 +14,37 @@ import './Layout.css'
 export default function AdminLayout() {
   const { logout } = useAuth()
   const navigate = useNavigate()
+  const [solFarmacia, setSolFarmacia] = useState(0)
+  const [solDelivery, setSolDelivery] = useState(0)
+  const [solPlanPro, setSolPlanPro] = useState(0)
+
+  useEffect(() => {
+    let cancelled = false
+    async function loadBadges() {
+      try {
+        const [sf, sd, sp] = await Promise.all([
+          masterApi.solicitudesFarmacia().catch(() => []),
+          masterApi.solicitudesDelivery().catch(() => []),
+          masterApi.solicitudesPlanPro().catch(() => []),
+        ])
+        if (cancelled) return
+        setSolFarmacia(sf.length)
+        setSolDelivery(sd.filter((s) => s.estado === 'pendiente').length)
+        setSolPlanPro(sp.filter((s) => s.estado === 'pendiente').length)
+      } catch {
+        if (cancelled) return
+        setSolFarmacia(0)
+        setSolDelivery(0)
+        setSolPlanPro(0)
+      }
+    }
+    loadBadges()
+    const id = window.setInterval(loadBadges, 60000)
+    return () => {
+      cancelled = true
+      window.clearInterval(id)
+    }
+  }, [])
 
   return (
     <div className="layout">
@@ -29,9 +62,15 @@ export default function AdminLayout() {
         <NavLink to="/admin/pedidos">Pedidos</NavLink>
         <NavLink to="/admin/usuarios">Clientes</NavLink>
         <NavLink to="/admin/farmacias">Farmacias</NavLink>
-        <NavLink to="/admin/solicitudes-farmacia">Solic. farmacia</NavLink>
-        <NavLink to="/admin/delivery">Delivery</NavLink>
-        <NavLink to="/admin/solicitudes-plan-pro">Solic. Plan Pro</NavLink>
+        <NavLink to="/admin/solicitudes-farmacia">
+          Solic. farmacia {solFarmacia > 0 && <span className="badge badge-warning">{solFarmacia}</span>}
+        </NavLink>
+        <NavLink to="/admin/delivery">
+          Delivery {solDelivery > 0 && <span className="badge badge-warning">{solDelivery}</span>}
+        </NavLink>
+        <NavLink to="/admin/solicitudes-plan-pro">
+          Solic. Plan Pro {solPlanPro > 0 && <span className="badge badge-warning">{solPlanPro}</span>}
+        </NavLink>
         <NavLink to="/elegir-portal" className="layout-nav-portal">Cambiar portal</NavLink>
       </nav>
       <main className="layout-main">
