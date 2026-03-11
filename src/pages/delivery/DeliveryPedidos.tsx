@@ -14,7 +14,7 @@ export default function DeliveryPedidos() {
   const [seleccionado, setSeleccionado] = useState<PedidoDeliveryApi | null>(null)
   const [aceptandoId, setAceptandoId] = useState<string | null>(null)
 
-  const { position, requestLocation, loading: gpsLoading, error: gpsError } = useGeolocation()
+  const { requestLocation, loading: gpsLoading, error: gpsError } = useGeolocation()
   const [ubicacionEntrega, setUbicacionEntrega] = useState<Coords | null>(null)
 
   const destinoCoords: Coords | null =
