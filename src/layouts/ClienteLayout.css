@@ -388,6 +388,17 @@
   min-height: 0;
 }
 
+.cliente-layout-main {
+  flex: 1;
+}
+
+@media (min-width: 1024px) {
+  .cliente-layout-main {
+    max-width: 1320px;
+    margin: 0 auto;
+  }
+}
+
 .cliente-sidebar-nav .cliente-sidebar-logout {
   width: 100%;
   padding: 0.75rem 1rem;
@@ -419,17 +430,6 @@
     display: flex;
     flex-direction: row;
     min-height: 0;
-  }
-
-  .cliente-sidebar {
-    width: 260px;
-  }
-
-  .cliente-layout-main {
-    flex: 1;
-    margin: 0;
-    max-width: none;
-    overflow-y: auto;
   }
 }
 
@@ -481,10 +481,6 @@
 @media (min-width: 768px) {
   .cliente-layout {
     flex-direction: row;
-  }
-
-  .cliente-sidebar {
-    padding-top: 1.5rem;
   }
 }
 
