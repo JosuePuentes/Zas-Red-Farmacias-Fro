@@ -485,9 +485,16 @@
   }
 
   .cliente-sidebar {
-    /* En escritorio ocultamos por completo el sidebar
-       para que no aparezca la franja/columna lateral. */
-    display: none;
+    position: relative;
+    top: auto;
+    left: auto;
+    bottom: auto;
+    transform: none;
+    width: 260px;
+    max-width: 260px;
+    box-shadow: none;
+    border-right: 1px solid #e2e8f0;
+    background: var(--color-card);
   }
 
   .cliente-sidebar-panel {
