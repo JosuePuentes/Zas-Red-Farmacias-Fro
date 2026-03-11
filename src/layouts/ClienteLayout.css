@@ -480,6 +480,16 @@
 }
 
 @media (min-width: 1024px) {
+  /* En escritorio forzamos un fondo uniforme detrás de todo el layout
+     para evitar que se vea una franja de color distinta en el extremo izquierdo. */
+  .cliente-layout::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: var(--color-bg);
+    z-index: -1;
+  }
+
   .cliente-sidebar-overlay {
     display: none;
   }
