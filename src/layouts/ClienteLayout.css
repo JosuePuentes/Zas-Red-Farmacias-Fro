@@ -479,23 +479,15 @@
   }
 }
 
-/* Escritorio (>=1024px): sidebar fijo visible como navbar vertical blanco a la izquierda */
 @media (min-width: 1024px) {
   .cliente-sidebar-overlay {
     display: none;
   }
 
   .cliente-sidebar {
-    position: relative;
-    top: auto;
-    left: auto;
-    bottom: auto;
-    transform: none;
-    width: 260px;
-    max-width: 260px;
-    box-shadow: none;
-    border-right: 1px solid #e2e8f0;
-    background: var(--color-card);
+    /* En escritorio ocultamos por completo el sidebar
+       para que no aparezca la franja/columna lateral. */
+    display: none;
   }
 
   .cliente-sidebar-panel {
