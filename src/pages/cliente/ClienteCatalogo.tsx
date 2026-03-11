@@ -297,8 +297,11 @@ export default function ClienteCatalogo({
       lista = lista.filter((p) => p.marca && filtroMarcas.includes(p.marca))
     }
     if (orden === 'relevancia') {
-      // Mismo filtro en móvil y escritorio: primero medicamentos (por categoría), luego A–Z por descripción
+      // Primero con stock, luego medicamentos (categoría), luego A–Z por descripción — sin confundir al cliente
       lista = [...lista].sort((a, b) => {
+        const stockA = sinStock(a) ? 1 : 0
+        const stockB = sinStock(b) ? 1 : 0
+        if (stockA !== stockB) return stockA - stockB
         const catA = getCategoriaProducto(a)
         const catB = getCategoriaProducto(b)
         const ordA = getOrdenCategoria(catA)
@@ -325,9 +328,12 @@ export default function ClienteCatalogo({
   )
 
   const grupos = useMemo(() => agruparPorMejorPrecio(productosFiltrados), [productosFiltrados])
-  /** Una sola lista: primero medicamentos (categoría), luego A–Z por descripción (mismo en móvil y escritorio). */
+  /** Una sola lista: primero con stock, luego medicamentos (categoría), luego A–Z por descripción. */
   const gruposOrdenados = useMemo(
     () => [...grupos].sort((a, b) => {
+      const stockA = sinStock(a.mejor) ? 1 : 0
+      const stockB = sinStock(b.mejor) ? 1 : 0
+      if (stockA !== stockB) return stockA - stockB
       const catA = getCategoriaProducto(a.mejor)
       const catB = getCategoriaProducto(b.mejor)
       const ordA = getOrdenCategoria(catA)
