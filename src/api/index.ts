@@ -328,9 +328,41 @@ export const catalogoApi = {
 }
 
 /** GET /api/cliente/delivery/estimado?lat=&lng= — Estimación costo delivery (backend puede usar items del carrito por sesión). */
+export interface PedidoDeliveryApi {
+  _id: string
+  clienteNombre: string
+  clienteCedula: string
+  direccionEntrega: string
+  direccionFarmacia?: string
+  items: { descripcion: string; precioUnidad: number; cantidad: number; total: number }[]
+  total: number
+  estado: string
+  createdAt?: string
+  /** Coordenadas farmacia y entrega para el mapa del delivery. */
+  coordsFarmacia?: { lat: number; lng: number }
+  coordsEntrega?: { lat: number; lng: number }
+}
+
 export const deliveryApi = {
+  /** GET /api/cliente/delivery/estimado?lat=&lng= — costo estimado del delivery. */
   estimado: (lat: number, lng: number) =>
     request<{ costo: number; message?: string }>(`/cliente/delivery/estimado?lat=${lat}&lng=${lng}`),
+
+  /** GET /api/delivery/pedidos — pedidos asignados o pendientes para el repartidor autenticado. */
+  pedidos: () => request<PedidoDeliveryApi[]>('/delivery/pedidos'),
+
+  /** POST /api/delivery/estado — marcar delivery activo/inactivo (y opcionalmente su última ubicación). */
+  setEstado: (body: { activo: boolean; lat?: number; lng?: number }) =>
+    request<{ ok?: boolean; message?: string }>('/delivery/estado', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+
+  /** POST /api/delivery/pedidos/:id/aceptar — el primero que acepta se queda con el pedido. */
+  aceptarPedido: (id: string) =>
+    request<{ ok?: boolean; message?: string }>(`/delivery/pedidos/${id}/aceptar`, {
+      method: 'POST',
+    }),
 }
 
 /** GET /api/cliente/productos — Endpoint alternativo/detalle de productos (mismo formato que catálogo). */
@@ -415,6 +447,18 @@ export interface DashboardFarmaciaStats {
   [key: string]: unknown
 }
 
+export interface PedidoFarmaciaApi {
+  _id: string
+  clienteNombre: string
+  clienteCedula?: string
+  clienteTelefono?: string
+  direccionEntrega: string
+  items: { descripcion: string; cantidad: number; precioUnidad: number; total: number }[]
+  total: number
+  estado: string
+  createdAt?: string
+}
+
 export const farmaciaApi = {
   /** GET /api/farmacia/dashboard — Total usuarios app, ventas, inventario, etc. (solo números, sin datos personales). */
   dashboard: async () => {
@@ -436,6 +480,17 @@ export const farmaciaApi = {
       method: 'POST',
       body: JSON.stringify({ decisiones }),
     }),
+
+  /** GET /api/farmacia/pedidos — pedidos dirigidos a esta farmacia. */
+  pedidos: () => request<PedidoFarmaciaApi[]>('/farmacia/pedidos'),
+
+  /** POST /api/farmacia/pedidos/:id/validar — farmacia valida el pedido (descuenta inventario y lo pasa a delivery). */
+  validarPedido: (id: string) =>
+    request<{ ok?: boolean; message?: string }>(`/farmacia/pedidos/${id}/validar`, { method: 'POST' }),
+
+  /** POST /api/farmacia/pedidos/:id/denegar — farmacia rechaza el pedido. */
+  denegarPedido: (id: string) =>
+    request<{ ok?: boolean; message?: string }>(`/farmacia/pedidos/${id}/denegar`, { method: 'POST' }),
 }
 
 // ===================== PROVEEDORES (Plan Full) =====================
