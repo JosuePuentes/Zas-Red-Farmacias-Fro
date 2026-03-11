@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import FacturaTicket, { type FacturaTicketData } from '../../components/FacturaTicket'
 import MapView from '../../components/MapView'
-import { VENEZUELA_CENTER } from '../../context/GeolocationContext'
+import { VENEZUELA_CENTER, useGeolocation } from '../../context/GeolocationContext'
 import type { Coords } from '../../context/GeolocationContext'
 import { deliveryApi, type PedidoDeliveryApi } from '../../api'
 
@@ -13,6 +13,9 @@ export default function DeliveryPedidos() {
   const [facturaPedido, setFacturaPedido] = useState<PedidoDeliveryApi | null>(null)
   const [seleccionado, setSeleccionado] = useState<PedidoDeliveryApi | null>(null)
   const [aceptandoId, setAceptandoId] = useState<string | null>(null)
+
+  const { position, requestLocation, loading: gpsLoading, error: gpsError } = useGeolocation()
+  const [ubicacionEntrega, setUbicacionEntrega] = useState<Coords | null>(null)
 
   const destinoCoords: Coords | null =
     seleccionado?.coordsEntrega ? seleccionado.coordsEntrega : null
@@ -59,11 +62,17 @@ export default function DeliveryPedidos() {
 
   async function handleActivar() {
     try {
-      await deliveryApi.setEstado({ activo: true })
+      const loc = await requestLocation()
+      if (!loc) {
+        alert('Debes activar tu ubicación (GPS) para poder recibir pedidos.')
+        return
+      }
+      setUbicacionEntrega(loc)
+      await deliveryApi.setEstado({ activo: true, lat: loc.lat, lng: loc.lng })
+      setActivo(true)
     } catch {
-      // si falla, igual activamos solo a nivel de frontend
+      alert('No se pudo activar tu ubicación. Verifica los permisos de GPS.')
     }
-    setActivo(true)
   }
 
   async function handleDesactivar() {
@@ -97,12 +106,42 @@ export default function DeliveryPedidos() {
     <div className="container">
       <h2>Pedidos</h2>
       {!activo ? (
-        <div className="card">
-          <p>Activa tu disponibilidad y mantén el GPS activo para recibir pedidos cerca de ti.</p>
-          <button type="button" className="btn btn-primary" onClick={handleActivar}>
-            Activar
-          </button>
-        </div>
+        <>
+          <div className="card" style={{ textAlign: 'center', padding: '2rem 1rem' }}>
+            <p style={{ marginBottom: '1.5rem' }}>
+              Activa tu disponibilidad y mantén el GPS activo para recibir pedidos cerca de ti.
+            </p>
+            <button
+              type="button"
+              className="btn btn-primary"
+              style={{ minWidth: '220px', minHeight: '56px', fontSize: '1.1rem' }}
+              onClick={handleActivar}
+              disabled={gpsLoading}
+            >
+              {gpsLoading ? 'Activando ubicación…' : 'Activar y compartir ubicación'}
+            </button>
+            {gpsError && (
+              <p className="auth-error" style={{ marginTop: 12 }}>
+                {gpsError}
+              </p>
+            )}
+          </div>
+
+          <div className="card" style={{ marginTop: '1rem' }}>
+            <h3>Tu ubicación (desactivado)</h3>
+            <p className="muted">Activa tu disponibilidad para ver el mapa con tu ubicación actual.</p>
+            <div style={{ pointerEvents: 'none', filter: 'grayscale(1) opacity(0.4)' }}>
+              <MapView
+                center={VENEZUELA_CENTER}
+                deliveryPosition={ubicacionEntrega ?? VENEZUELA_CENTER}
+                destinoPosition={null}
+                height="40vh"
+                zoom={6}
+                fitBounds={false}
+              />
+            </div>
+          </div>
+        </>
       ) : (
         <>
           <p className="badge badge-success">
@@ -116,6 +155,21 @@ export default function DeliveryPedidos() {
             <button type="button" className="btn btn-secondary btn-sm" onClick={handleDesactivar}>
               Desactivar
             </button>
+          </div>
+
+          <div className="card" style={{ marginTop: '1rem' }}>
+            <h3>Tu ubicación actual</h3>
+            <p className="muted">
+              Este mapa muestra tu punto de partida para los pedidos que aceptes.
+            </p>
+            <MapView
+              center={ubicacionEntrega ?? VENEZUELA_CENTER}
+              deliveryPosition={ubicacionEntrega ?? undefined}
+              destinoPosition={null}
+              height="40vh"
+              zoom={14}
+              fitBounds={false}
+            />
           </div>
 
           {error && (
