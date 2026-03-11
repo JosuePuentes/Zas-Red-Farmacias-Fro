@@ -146,13 +146,18 @@ function IconUser() {
 
 function ClienteLayoutInner() {
   const { user, logout } = useAuth()
-  const isMaster = user && ((user.role || '').toString().toLowerCase() === 'master' || (user.role || '').toString().toLowerCase() === 'admin' || (user.email || '').toString().toLowerCase().trim() === 'admin@zas.com')
+  const isMaster =
+    user &&
+    ((user.role || '').toString().toLowerCase() === 'master' ||
+      (user.role || '').toString().toLowerCase() === 'admin' ||
+      (user.email || '').toString().toLowerCase().trim() === 'admin@zas.com')
   const { totalItems, setOpenCart } = useCart()
   const navigate = useNavigate()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [showNotif, setShowNotif] = useState(false)
   const [notificaciones, setNotificaciones] = useState<NotificacionClienteItem[]>([])
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false)
 
   useEffect(() => {
     if (showNotif && user) {
@@ -175,6 +180,15 @@ function ClienteLayoutInner() {
   return (
     <div className="layout cliente-layout">
       <header className="layout-header cliente-layout-header">
+        <button
+          type="button"
+          className="cliente-menu-btn"
+          onClick={() => setSidebarOpen((o) => !o)}
+          aria-label={sidebarOpen ? 'Cerrar menú' : 'Abrir menú'}
+          aria-expanded={sidebarOpen}
+        >
+          ☰
+        </button>
         <div className="cliente-header-center">
           <img src="/logo.png" alt="Zas!" className="cliente-header-logo" />
           <span className="cliente-header-title">Zas!</span>
@@ -225,6 +239,49 @@ function ClienteLayoutInner() {
               </span>
             )}
           </button>
+          <div className="cliente-account-wrap">
+            <button
+              type="button"
+              className="cliente-header-account"
+              onClick={() => setAccountMenuOpen((v) => !v)}
+              aria-label="Cuenta de usuario"
+              aria-expanded={accountMenuOpen}
+            >
+              <IconUser />
+            </button>
+            {accountMenuOpen && (
+              <div className="cliente-account-dropdown">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAccountMenuOpen(false)
+                    navigate('/cliente/mi-cuenta')
+                  }}
+                >
+                  Mi perfil
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAccountMenuOpen(false)
+                    setSidebarOpen(true)
+                  }}
+                >
+                  Ver módulos
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAccountMenuOpen(false)
+                    logout()
+                    navigate('/')
+                  }}
+                >
+                  Cerrar sesión
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
       {showNotif && <div className="modal-overlay" style={{ background: 'transparent' }} onClick={() => setShowNotif(false)} aria-hidden="true" />}
@@ -266,7 +323,7 @@ function ClienteLayoutInner() {
 
         <main className="layout-main cliente-layout-main">
         <Routes>
-          <Route index element={<ClienteCatalogo showDeliveryBox={false} showSearchBar useLocationButton showInlineFilters={false} />} />
+          <Route index element={<ClienteCatalogo showDeliveryBox showSearchBar useLocationButton showInlineFilters={false} />} />
           <Route path="carrito" element={<ClienteCarrito />} />
           <Route path="checkout" element={<ClienteCheckout />} />
           <Route path="recordatorios" element={<ClienteRecordatorios />} />

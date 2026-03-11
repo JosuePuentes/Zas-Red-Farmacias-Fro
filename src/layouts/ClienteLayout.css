@@ -10,7 +10,16 @@
 }
 
 .cliente-menu-btn {
-  display: none; /* Se desactiva el botón de menú (3 líneas) en todas las vistas */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: none;
+  background: rgba(255, 255, 255, 0.18);
+  color: white;
+  font-size: 1.2rem;
 }
 
 .cliente-menu-btn:hover {
@@ -97,6 +106,55 @@
   display: flex;
   align-items: center;
   gap: 0.35rem;
+}
+
+.cliente-account-wrap {
+  position: relative;
+}
+
+.cliente-header-account {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  cursor: pointer;
+}
+
+.cliente-header-account:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.cliente-account-dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  background: var(--color-card);
+  color: var(--color-text);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.25);
+  padding: 0.35rem 0.1rem;
+  min-width: 170px;
+  z-index: 30;
+}
+
+.cliente-account-dropdown button {
+  display: block;
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: left;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.cliente-account-dropdown button:hover {
+  background: #f1f5f9;
 }
 
 .cliente-notif-wrap {
