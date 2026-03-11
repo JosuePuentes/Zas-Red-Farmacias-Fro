@@ -705,6 +705,12 @@
     padding-bottom: 2rem;
   }
 
+  /* En escritorio mantenemos el banner/hero dentro del área blanca,
+     sin que se pegue al borde izquierdo de la pantalla. */
+  .cliente-catalogo-hero {
+    margin: 0 0 1.75rem;
+  }
+
   .cliente-catalogo-section-list {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
