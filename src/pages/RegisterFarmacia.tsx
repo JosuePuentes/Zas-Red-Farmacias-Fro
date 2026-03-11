@@ -125,15 +125,15 @@ export default function RegisterFarmacia() {
             </p>
             <button
               type="button"
-              className="btn btn-secondary btn-sm"
+              className="btn btn-primary btn-block"
               onClick={async () => {
                 const loc = await requestLocation()
                 if (loc) setCoords(loc)
               }}
               disabled={gpsLoading}
-              style={{ marginBottom: 8 }}
+              style={{ marginBottom: 12 }}
             >
-              {gpsLoading ? 'Obteniendo ubicación…' : 'Usar mi ubicación actual'}
+              {gpsLoading ? 'Obteniendo ubicación…' : 'Usar mi ubicación actual (GPS)'}
             </button>
             {gpsError && (
               <p className="auth-error" style={{ marginBottom: 8 }}>
