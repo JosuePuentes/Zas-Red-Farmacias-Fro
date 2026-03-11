@@ -234,25 +234,37 @@ function ClienteLayoutInner() {
 
       <div className={`cliente-sidebar-overlay ${sidebarOpen ? 'open' : ''}`} onClick={() => setSidebarOpen(false)} aria-hidden="true" />
       <div className="cliente-layout-body">
-        <aside className={`cliente-sidebar ${sidebarOpen ? 'open' : ''}`}>
-          <div className="cliente-sidebar-user">
-            <div className="cliente-sidebar-avatar">{nombre.charAt(0).toUpperCase()}</div>
-            <p className="cliente-sidebar-name">{nombre}</p>
-            <p className="cliente-sidebar-email">{user?.email}</p>
+        <aside className={`cliente-sidebar ${sidebarOpen ? 'open' : ''}`} aria-label="Menú de navegación">
+          <button
+            type="button"
+            className="cliente-sidebar-toggle"
+            onClick={() => setSidebarOpen((o) => !o)}
+            aria-label={sidebarOpen ? 'Cerrar menú' : 'Abrir menú'}
+            aria-expanded={sidebarOpen}
+          >
+            {sidebarOpen ? '✕' : '☰'}
+          </button>
+          <div className="cliente-sidebar-panel">
+            <div className="cliente-sidebar-user">
+              <div className="cliente-sidebar-avatar">{nombre.charAt(0).toUpperCase()}</div>
+              <p className="cliente-sidebar-name">{nombre}</p>
+              <p className="cliente-sidebar-email">{user?.email}</p>
+            </div>
+            <p className="cliente-sidebar-welcome">¡Hola! ¿Qué necesitas hoy?</p>
+            <div className="cliente-sidebar-filters-label" aria-hidden="true">Menú y módulos</div>
+            <nav className="cliente-sidebar-nav">
+              <NavLink to="/cliente" end onClick={() => setSidebarOpen(false)}>Catálogo</NavLink>
+              <NavLink to="/cliente/recordatorios" onClick={() => setSidebarOpen(false)}>Recordatorios</NavLink>
+              <NavLink to="/cliente/recetas" onClick={() => setSidebarOpen(false)}>Recetas</NavLink>
+              <NavLink to="/cliente/mi-cuenta" onClick={() => setSidebarOpen(false)}>Mi perfil</NavLink>
+              <NavLink to="/cliente/mis-pedidos" onClick={() => setSidebarOpen(false)}>Mis pedidos</NavLink>
+              <NavLink to="/cliente/soporte" onClick={() => setSidebarOpen(false)}>Soporte</NavLink>
+              {isMaster && <NavLink to="/elegir-portal" onClick={() => setSidebarOpen(false)}>Cambiar portal</NavLink>}
+              <button type="button" className="cliente-sidebar-logout" onClick={() => { setSidebarOpen(false); logout(); navigate('/'); }}>
+                Salir
+              </button>
+            </nav>
           </div>
-          <p className="cliente-sidebar-welcome">¡Hola! ¿Qué necesitas hoy?</p>
-          <nav className="cliente-sidebar-nav">
-            <NavLink to="/cliente" end onClick={() => setSidebarOpen(false)}>Catálogo</NavLink>
-            <NavLink to="/cliente/recordatorios" onClick={() => setSidebarOpen(false)}>Recordatorios</NavLink>
-            <NavLink to="/cliente/recetas" onClick={() => setSidebarOpen(false)}>Recetas</NavLink>
-            <NavLink to="/cliente/mi-cuenta" onClick={() => setSidebarOpen(false)}>Mi perfil</NavLink>
-            <NavLink to="/cliente/mis-pedidos" onClick={() => setSidebarOpen(false)}>Mis pedidos</NavLink>
-            <NavLink to="/cliente/soporte" onClick={() => setSidebarOpen(false)}>Soporte</NavLink>
-            {isMaster && <NavLink to="/elegir-portal" onClick={() => setSidebarOpen(false)}>Cambiar portal</NavLink>}
-            <button type="button" className="cliente-sidebar-logout" onClick={() => { setSidebarOpen(false); logout(); navigate('/'); }}>
-              Salir
-            </button>
-          </nav>
         </aside>
 
         <main className="layout-main cliente-layout-main">
