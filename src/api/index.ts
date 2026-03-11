@@ -238,6 +238,8 @@ export interface FarmaciaMaster {
   telefono: string
   email?: string
   estado?: string
+  lat?: number
+  lng?: number
 }
 
 export interface DeliveryMaster {

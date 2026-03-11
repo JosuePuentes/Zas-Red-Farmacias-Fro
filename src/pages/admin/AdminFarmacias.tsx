@@ -138,6 +138,17 @@ export default function AdminFarmacias() {
                       </span>
                       <span className="usr-m-telefono">{f.telefono}</span>
                       {f.estado && <span className="usr-m-role">Estado: {f.estado}</span>}
+                      {f.lat != null && f.lng != null && (
+                        <span className="usr-m-role" style={{ display: 'block', marginTop: 4 }}>
+                          <a
+                            href={`https://www.google.com/maps?q=${encodeURIComponent(`${f.nombreFarmacia} @ ${f.lat},${f.lng}`)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Ver ubicación en Google Maps
+                          </a>
+                        </span>
+                      )}
                     </div>
                   </li>
                 ))}
