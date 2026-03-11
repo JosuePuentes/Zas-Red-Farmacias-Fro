@@ -64,7 +64,7 @@ export default function MapView({
         }}
         onLoad={(map) => {
           if (bounds) {
-            map.fitBounds(bounds, { padding: 40 })
+            map.fitBounds(bounds, { top: 40, right: 40, bottom: 40, left: 40 })
           }
         }}
       >
