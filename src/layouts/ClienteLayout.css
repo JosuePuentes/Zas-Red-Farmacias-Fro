@@ -480,19 +480,6 @@
 }
 
 @media (min-width: 1024px) {
-  /* Escritorio: fondo claro completo y solo una línea/columna del color principal a la izquierda */
-  .cliente-layout::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: var(--color-bg);
-    z-index: -1;
-  }
-
-  .cliente-layout {
-    border-left: 10px solid var(--color-primary);
-  }
-
   .cliente-sidebar-overlay {
     display: none;
   }
