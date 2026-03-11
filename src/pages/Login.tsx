@@ -108,6 +108,9 @@ export default function Login() {
             {loading ? 'Entrando...' : 'Entrar'}
           </button>
         </form>
+        <p className="auth-register">
+          ¿No tienes cuenta? <Link to="/registro">Crear cuenta</Link>
+        </p>
         <Link to="/recuperar" className="auth-back">
           ¿Olvidaste tu contraseña?
         </Link>

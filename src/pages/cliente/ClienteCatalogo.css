@@ -261,6 +261,116 @@
   max-width: 220px;
 }
 
+/* Barra de búsqueda en portal cliente */
+.cliente-catalogo-search-bar-form {
+  position: relative;
+  margin-bottom: 0.75rem;
+}
+.cliente-catalogo-search-input {
+  width: 100%;
+  padding: 0.6rem 2.5rem 0.6rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+  outline: none;
+}
+.cliente-catalogo-search-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(14, 116, 144, 0.2);
+}
+.cliente-catalogo-search-icon {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  font-size: 1.1rem;
+}
+
+/* Botón "Enviar a" + dropdown estado (portal cliente) */
+.cliente-catalogo-location-btn-wrap {
+  position: relative;
+  margin-bottom: 0.75rem;
+}
+.cliente-catalogo-location-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.9rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--color-text);
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+.cliente-catalogo-location-btn:hover {
+  border-color: var(--color-primary);
+  background: #f0fdfa;
+}
+.cliente-catalogo-location-btn-icon {
+  font-size: 1rem;
+}
+.cliente-catalogo-location-btn-label {
+  color: var(--color-text-muted);
+}
+.cliente-catalogo-location-btn-estado {
+  font-weight: 600;
+  color: var(--color-primary-dark);
+}
+.cliente-catalogo-location-dropdown-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  background: transparent;
+}
+.cliente-catalogo-location-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 0.35rem;
+  min-width: 200px;
+  max-height: 280px;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+  border: 1px solid #e2e8f0;
+  z-index: 10;
+}
+.cliente-catalogo-location-option {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  text-align: left;
+  font-size: 0.9rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--color-text);
+}
+.cliente-catalogo-location-option:hover {
+  background: #f1f5f9;
+}
+
+.cliente-catalogo-filters-single {
+  margin-bottom: 0.5rem;
+}
+.cliente-filter-chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  margin-left: 0.25rem;
+}
+.cliente-filters-panel-combined {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
 .cliente-catalogo-filters {
   display: flex;
   flex-wrap: wrap;

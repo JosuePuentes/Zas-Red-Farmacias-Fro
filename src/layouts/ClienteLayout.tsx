@@ -257,7 +257,7 @@ function ClienteLayoutInner() {
 
         <main className="layout-main cliente-layout-main">
         <Routes>
-          <Route index element={<ClienteCatalogo />} />
+          <Route index element={<ClienteCatalogo showDeliveryBox={false} showSearchBar useLocationButton showInlineFilters={false} />} />
           <Route path="carrito" element={<ClienteCarrito />} />
           <Route path="checkout" element={<ClienteCheckout />} />
           <Route path="recordatorios" element={<ClienteRecordatorios />} />

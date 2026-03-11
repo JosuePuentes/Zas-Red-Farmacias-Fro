@@ -1,18 +1,25 @@
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
+import { authApi } from '../../api'
 import { ESTADOS_VENEZUELA } from '../../constants/estados'
 import ClienteCatalogo from './ClienteCatalogo'
 import { CartProvider, useCart } from '../../context/CartContext'
 import './CatalogoPublico.css'
 
 function CatalogoPublicoInner() {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, setAuth } = useAuth()
   const { totalItems } = useCart()
+  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const [q, setQ] = useState(() => searchParams.get('q') ?? '')
   const [estadoEnvio, setEstadoEnvio] = useState('Zulia')
   const [showEstados, setShowEstados] = useState(false)
+  const [showLoginModal, setShowLoginModal] = useState(false)
+  const [loginEmail, setLoginEmail] = useState('')
+  const [loginPassword, setLoginPassword] = useState('')
+  const [loginError, setLoginError] = useState('')
+  const [loginLoading, setLoginLoading] = useState(false)
 
   function handleBuscarSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -28,6 +35,48 @@ function CatalogoPublicoInner() {
     if (value) next.q = value
     setSearchParams(next)
   }, [q, setSearchParams])
+
+  async function handleLoginSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setLoginError('')
+    setLoginLoading(true)
+    try {
+      const { ok, status, data } = await authApi.loginWithStatus(loginEmail, loginPassword)
+      if (status === 403) {
+        const code = (data as { code?: string }).code
+        if (code === 'SOLICITUD_FARMACIA_PENDIENTE' || code === 'SOLICITUD_DELIVERY_PENDIENTE') {
+          setLoginError((data as { error?: string }).error || 'Tu solicitud está siendo verificada.')
+          return
+        }
+      }
+      if (ok && (data as { token?: string; user?: unknown }).token && (data as { user?: unknown }).user) {
+        const d = data as { token: string; user: { role?: string; email?: string; id?: string; nombre?: string; apellido?: string } }
+        setAuth(d.token, {
+          id: d.user.id || '',
+          email: d.user.email || loginEmail,
+          role: (d.user.role as 'admin' | 'cliente' | 'farmacia' | 'delivery') || 'cliente',
+          nombre: d.user.nombre,
+          apellido: d.user.apellido,
+        })
+        setShowLoginModal(false)
+        setLoginEmail('')
+        setLoginPassword('')
+        const role = (d.user.role || '').toString().toLowerCase()
+        const emailNorm = (d.user.email || loginEmail || '').toString().toLowerCase().trim()
+        const esMaster = role === 'master' || role === 'admin' || emailNorm === 'admin@zas.com'
+        if (esMaster) navigate('/elegir-portal', { replace: true })
+        else if (role === 'farmacia') navigate('/farmacia', { replace: true })
+        else if (role === 'delivery') navigate('/delivery', { replace: true })
+        else navigate('/cliente', { replace: true })
+        return
+      }
+      setLoginError((data as { error?: string; message?: string }).error || (data as { message?: string }).message || 'Error al iniciar sesión')
+    } catch {
+      setLoginError('Error al iniciar sesión. Intenta de nuevo.')
+    } finally {
+      setLoginLoading(false)
+    }
+  }
 
   return (
     <div className="catalogo-publico">
@@ -75,10 +124,15 @@ function CatalogoPublicoInner() {
               )}
             </Link>
             {!isAuthenticated ? (
-              <Link to="/login" className="catalogo-publico-user-btn">
+              <button
+                type="button"
+                className="catalogo-publico-user-btn"
+                onClick={() => setShowLoginModal(true)}
+                aria-label="Entrar"
+              >
                 <span className="catalogo-publico-user-icon">👤</span>
                 <span>Entrar</span>
-              </Link>
+              </button>
             ) : (
               <Link to="/cliente" className="catalogo-publico-user-btn">
                 <span className="catalogo-publico-user-icon">👤</span>
@@ -152,11 +206,63 @@ function CatalogoPublicoInner() {
           </div>
         )}
       </header>
+
+      {showLoginModal && (
+        <>
+          <div className="catalogo-publico-modal-backdrop" onClick={() => setShowLoginModal(false)} aria-hidden="true" />
+          <div className="catalogo-publico-login-modal" role="dialog" aria-labelledby="login-modal-title">
+            <div className="catalogo-publico-login-modal-inner">
+              <h2 id="login-modal-title">Iniciar sesión</h2>
+              <form onSubmit={handleLoginSubmit}>
+                {loginError && <div className="auth-error">{loginError}</div>}
+                <div className="form-group">
+                  <label htmlFor="login-modal-email">Correo</label>
+                  <input
+                    id="login-modal-email"
+                    type="email"
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
+                    placeholder="tu@correo.com"
+                    required
+                    autoComplete="email"
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="login-modal-password">Contraseña</label>
+                  <input
+                    id="login-modal-password"
+                    type="password"
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    placeholder="••••••••"
+                    required
+                    autoComplete="current-password"
+                  />
+                </div>
+                <button type="submit" className="btn btn-primary btn-block" disabled={loginLoading}>
+                  {loginLoading ? 'Entrando...' : 'Entrar'}
+                </button>
+              </form>
+              <p className="catalogo-publico-login-modal-registro">
+                ¿No tienes cuenta? <Link to="/registro" onClick={() => setShowLoginModal(false)}>Crear cuenta</Link>
+              </p>
+              <Link to="/recuperar" className="auth-back" onClick={() => setShowLoginModal(false)}>
+                ¿Olvidaste tu contraseña?
+              </Link>
+              <button type="button" className="catalogo-publico-login-modal-close" onClick={() => setShowLoginModal(false)} aria-label="Cerrar">
+                ×
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
       <main className="catalogo-publico-main">
         <ClienteCatalogo
           showDeliveryBox={false}
           showInlineFilters={false}
           showLocationSelect={false}
+          showHero={!isAuthenticated}
         />
       </main>
     </div>

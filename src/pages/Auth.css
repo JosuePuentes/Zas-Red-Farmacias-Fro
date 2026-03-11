@@ -32,6 +32,16 @@
   font-size: 0.9rem;
 }
 
+.auth-register {
+  margin: 1rem 0 0.5rem 0;
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+}
+.auth-register a {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
 .auth-back {
   display: inline-block;
   margin-top: 1rem;

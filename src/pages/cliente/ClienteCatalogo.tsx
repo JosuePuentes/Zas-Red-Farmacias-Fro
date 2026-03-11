@@ -115,16 +115,26 @@ type ClienteCatalogoProps = {
   showDeliveryBox?: boolean
   showInlineFilters?: boolean
   showLocationSelect?: boolean
+  /** En portal cliente: barra de búsqueda en tiempo real arriba del contenido */
+  showSearchBar?: boolean
+  /** Botón tipo "Enviar a" con dropdown de estado en lugar del select "Todo el país" */
+  useLocationButton?: boolean
+  /** Si false, no se muestra el banner/hero de promociones (ej. cuando el usuario está logueado) */
+  showHero?: boolean
 }
 
 export default function ClienteCatalogo({
   showDeliveryBox = true,
   showInlineFilters = true,
   showLocationSelect = true,
+  showSearchBar = false,
+  useLocationButton = false,
+  showHero = true,
 }: ClienteCatalogoProps) {
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [busqueda, setBusqueda] = useState(() => searchParams.get('q') ?? '')
   const [estado, setEstado] = useState('')
+  const [showEstadosDropdown, setShowEstadosDropdown] = useState(false)
   const searchInputRef = useRef<HTMLInputElement | null>(null)
   const { addItem, items: cartItems } = useCart()
   const { user } = useAuth()
@@ -148,7 +158,7 @@ export default function ClienteCatalogo({
   const [orden, setOrden] = useState<'relevancia' | 'precio-asc' | 'precio-desc'>('relevancia')
   const [filtroCategorias, setFiltroCategorias] = useState<string[]>([])
   const [filtroMarcas, setFiltroMarcas] = useState<string[]>([])
-  const [panelFiltros, setPanelFiltros] = useState<'orden' | 'categoria' | 'marca' | null>(null)
+  const [panelFiltros, setPanelFiltros] = useState<'orden' | 'categoria' | 'marca' | 'todos' | null>(null)
 
   const coords = position
 
@@ -245,6 +255,17 @@ export default function ClienteCatalogo({
     setBusqueda(q)
   }, [searchParams])
 
+  // Búsqueda en tiempo real: sincronizar término con la URL (preservar resto de params)
+  useEffect(() => {
+    const value = busqueda.trim()
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev)
+      if (value) next.set('q', value)
+      else next.delete('q')
+      return next
+    }, { replace: true })
+  }, [busqueda, setSearchParams])
+
   const categoriasDisponibles = useMemo(
     () => Array.from(new Set(productos.map((p) => p.categoria).filter((c): c is string => !!c))).sort(),
     [productos],
@@ -318,43 +339,93 @@ export default function ClienteCatalogo({
           {gpsError && <p className="auth-error" style={{ marginTop: 4, marginBottom: 0 }}>{gpsError}</p>}
         </>
       )}
-      <section className="cliente-catalogo-hero">
-        <button
-          type="button"
-          className="cliente-catalogo-hero-arrow cliente-catalogo-hero-arrow--left"
-          aria-label="Banner anterior"
-          onClick={() => setHeroIndex((i) => (i - 1 + HERO_BANNERS.length) % HERO_BANNERS.length)}
-        >
-          ‹
-        </button>
-        <button
-          type="button"
-          className="cliente-catalogo-hero-arrow cliente-catalogo-hero-arrow--right"
-          aria-label="Siguiente banner"
-          onClick={() => setHeroIndex((i) => (i + 1) % HERO_BANNERS.length)}
-        >
-          ›
-        </button>
-        <div className="cliente-catalogo-hero-text">
-          <h2>{hero.title}</h2>
-          <p>{hero.subtitle}</p>
-          <div className="cliente-catalogo-hero-dots">
-            {HERO_BANNERS.map((b, idx) => (
-              <button
-                key={b.id}
-                type="button"
-                className={`hero-dot ${idx === heroIndex ? 'active' : ''}`}
-                onClick={() => setHeroIndex(idx)}
-                aria-label={`Ver banner ${idx + 1}`}
-              />
-            ))}
+      {showHero && (
+        <section className="cliente-catalogo-hero">
+          <button
+            type="button"
+            className="cliente-catalogo-hero-arrow cliente-catalogo-hero-arrow--left"
+            aria-label="Banner anterior"
+            onClick={() => setHeroIndex((i) => (i - 1 + HERO_BANNERS.length) % HERO_BANNERS.length)}
+          >
+            ‹
+          </button>
+          <button
+            type="button"
+            className="cliente-catalogo-hero-arrow cliente-catalogo-hero-arrow--right"
+            aria-label="Siguiente banner"
+            onClick={() => setHeroIndex((i) => (i + 1) % HERO_BANNERS.length)}
+          >
+            ›
+          </button>
+          <div className="cliente-catalogo-hero-text">
+            <h2>{hero.title}</h2>
+            <p>{hero.subtitle}</p>
+            <div className="cliente-catalogo-hero-dots">
+              {HERO_BANNERS.map((b, idx) => (
+                <button
+                  key={b.id}
+                  type="button"
+                  className={`hero-dot ${idx === heroIndex ? 'active' : ''}`}
+                  onClick={() => setHeroIndex(idx)}
+                  aria-label={`Ver banner ${idx + 1}`}
+                />
+              ))}
+            </div>
           </div>
+          <div className="cliente-catalogo-hero-banner">
+            <img src={hero.image} alt={hero.title} />
+          </div>
+        </section>
+      )}
+      {showSearchBar && (
+        <form
+          className="cliente-catalogo-search-bar-form"
+          onSubmit={(e) => e.preventDefault()}
+          role="search"
+        >
+          <input
+            ref={searchInputRef}
+            type="search"
+            className="cliente-catalogo-search-input"
+            placeholder="Busca aquí tu producto"
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            aria-label="Buscar productos"
+          />
+          <span className="cliente-catalogo-search-icon" aria-hidden>🔍</span>
+        </form>
+      )}
+      {showLocationSelect && useLocationButton && (
+        <div className="cliente-catalogo-location-btn-wrap">
+          <button
+            type="button"
+            className="cliente-catalogo-location-btn"
+            onClick={() => setShowEstadosDropdown((v) => !v)}
+            aria-haspopup="listbox"
+            aria-expanded={showEstadosDropdown}
+          >
+            <span className="cliente-catalogo-location-btn-icon">📍</span>
+            <span className="cliente-catalogo-location-btn-label">Enviar a</span>
+            <span className="cliente-catalogo-location-btn-estado">{estado || 'Elegir estado'}</span>
+          </button>
+          {showEstadosDropdown && (
+            <>
+              <div className="cliente-catalogo-location-dropdown-backdrop" onClick={() => setShowEstadosDropdown(false)} aria-hidden="true" />
+              <div className="cliente-catalogo-location-dropdown" role="listbox">
+                <button type="button" role="option" className="cliente-catalogo-location-option" onClick={() => { setEstado(''); setShowEstadosDropdown(false); }}>
+                  Todo el país
+                </button>
+                {ESTADOS_VENEZUELA.map((e) => (
+                  <button key={e} type="button" role="option" className="cliente-catalogo-location-option" onClick={() => { setEstado(e); setShowEstadosDropdown(false); }}>
+                    {e}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
         </div>
-        <div className="cliente-catalogo-hero-banner">
-          <img src={hero.image} alt={hero.title} />
-        </div>
-      </section>
-      {showLocationSelect && (
+      )}
+      {showLocationSelect && !useLocationButton && (
         <div className="cliente-catalogo-location">
           <span className="cliente-catalogo-location-label">Ubicación</span>
           <select value={estado} onChange={(e) => setEstado(e.target.value)}>
@@ -387,6 +458,18 @@ export default function ClienteCatalogo({
             onClick={() => setPanelFiltros(panelFiltros === 'marca' ? null : 'marca')}
           >
             Marca
+          </button>
+        </div>
+      )}
+      {!showInlineFilters && (
+        <div className="cliente-catalogo-filters cliente-catalogo-filters-single">
+          <button
+            type="button"
+            className={`cliente-filter-chip ${panelFiltros === 'todos' ? 'is-active' : ''}`}
+            onClick={() => setPanelFiltros(panelFiltros === 'todos' ? null : 'todos')}
+          >
+            Filtros
+            {tieneFiltrosActivos && <span className="cliente-filter-chip-dot" />}
           </button>
         </div>
       )}
@@ -467,6 +550,61 @@ export default function ClienteCatalogo({
               {m}
             </label>
           ))}
+        </div>
+      )}
+      {!showInlineFilters && panelFiltros === 'todos' && (
+        <div className="cliente-filters-panel cliente-filters-panel-combined">
+          <p className="cliente-filters-title">Ordenar por</p>
+          <label className="cliente-filters-option">
+            <input type="radio" name="orden-combined" value="relevancia" checked={orden === 'relevancia'} onChange={() => setOrden('relevancia')} />
+            Relevancia
+          </label>
+          <label className="cliente-filters-option">
+            <input type="radio" name="orden-combined" value="precio-asc" checked={orden === 'precio-asc'} onChange={() => setOrden('precio-asc')} />
+            Precio más bajo
+          </label>
+          <label className="cliente-filters-option">
+            <input type="radio" name="orden-combined" value="precio-desc" checked={orden === 'precio-desc'} onChange={() => setOrden('precio-desc')} />
+            Precio más alto
+          </label>
+          {categoriasDisponibles.length > 0 && (
+            <>
+              <p className="cliente-filters-title">Categoría</p>
+              {categoriasDisponibles.map((c) => (
+                <label key={c} className="cliente-filters-option">
+                  <input
+                    type="checkbox"
+                    checked={filtroCategorias.includes(c)}
+                    onChange={(e) => {
+                      if (e.target.checked) setFiltroCategorias((prev) => [...prev, c])
+                      else setFiltroCategorias((prev) => prev.filter((x) => x !== c))
+                      setPage(0)
+                    }}
+                  />
+                  {c}
+                </label>
+              ))}
+            </>
+          )}
+          {marcasDisponibles.length > 0 && (
+            <>
+              <p className="cliente-filters-title">Marca</p>
+              {marcasDisponibles.map((m) => (
+                <label key={m} className="cliente-filters-option">
+                  <input
+                    type="checkbox"
+                    checked={filtroMarcas.includes(m)}
+                    onChange={(e) => {
+                      if (e.target.checked) setFiltroMarcas((prev) => [...prev, m])
+                      else setFiltroMarcas((prev) => prev.filter((x) => x !== m))
+                      setPage(0)
+                    }}
+                  />
+                  {m}
+                </label>
+              ))}
+            </>
+          )}
         </div>
       )}
       {solicitudMsg && (
