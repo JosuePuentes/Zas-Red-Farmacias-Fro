@@ -31,10 +31,26 @@ export default function DeliveryLayout() {
         {isMasterUser(user) && <NavLink to="/elegir-portal">Cambiar portal</NavLink>}
       </nav>
       <main className="layout-main">
-        <Routes>
-          <Route index element={<DeliveryPedidos />} />
-          <Route path="estadisticas" element={<DeliveryEstadisticas />} />
-        </Routes>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', width: '100%' }}>
+          <aside style={{ flex: '0 0 260px' }}>
+            <div className="card">
+              <h3>Mi perfil de delivery</h3>
+              <p><strong>{user?.nombre} {user?.apellido}</strong></p>
+              {user?.cedula && <p className="muted">Cédula: {user.cedula}</p>}
+              {user?.telefono && <p className="muted">Teléfono: {user.telefono}</p>}
+              <p className="muted">Tipo de usuario: Delivery</p>
+              <p className="muted" style={{ marginTop: '0.5rem' }}>
+                Tu solicitud debe estar aprobada por el administrador para poder recibir pedidos.
+              </p>
+            </div>
+          </aside>
+          <section style={{ flex: 1, minWidth: 0 }}>
+            <Routes>
+              <Route index element={<DeliveryPedidos />} />
+              <Route path="estadisticas" element={<DeliveryEstadisticas />} />
+            </Routes>
+          </section>
+        </div>
       </main>
     </div>
   )

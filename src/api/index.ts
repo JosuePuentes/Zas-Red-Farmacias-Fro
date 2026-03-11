@@ -138,6 +138,50 @@ export const solicitudFarmaciaApi = {
   }) => request('/solicitud-farmacia', { method: 'POST', body: JSON.stringify(body) }),
 }
 
+export const solicitudDeliveryApi = {
+  enviar: async (body: {
+    tipoVehiculo: 'moto' | 'carro'
+    cedula: string
+    nombresCompletos: string
+    direccion: string
+    telefono: string
+    correo: string
+    password: string
+    numeroLicencia: string
+    matriculaVehiculo: string
+    fotoLicencia: File
+    carnetCirculacion: File
+    fotoCarnet: File
+    fotoVehiculo: File
+  }) => {
+    const formData = new FormData()
+    formData.append('tipoVehiculo', body.tipoVehiculo)
+    formData.append('cedula', body.cedula)
+    formData.append('nombresCompletos', body.nombresCompletos)
+    formData.append('direccion', body.direccion)
+    formData.append('telefono', body.telefono)
+    formData.append('correo', body.correo)
+    formData.append('password', body.password)
+    formData.append('numeroLicencia', body.numeroLicencia)
+    formData.append('matriculaVehiculo', body.matriculaVehiculo)
+    formData.append('fotoLicencia', body.fotoLicencia)
+    formData.append('carnetCirculacion', body.carnetCirculacion)
+    formData.append('fotoCarnet', body.fotoCarnet)
+    formData.append('fotoVehiculo', body.fotoVehiculo)
+
+    const token = getToken()
+    const base = getApiBaseUrl()
+    const res = await fetch(`${base}/solicitud-delivery`, {
+      method: 'POST',
+      headers: { ...(token && { Authorization: `Bearer ${token}` }) },
+      body: formData,
+    })
+    const data = await res.json().catch(() => ({})) as { ok?: boolean; error?: string; message?: string }
+    if (!res.ok) throw new Error(data.error || data.message || 'Error al enviar solicitud de delivery')
+    return data
+  },
+}
+
 // ===================== TIPOS MASTER =====================
 
 export interface SolicitudFarmacia {
