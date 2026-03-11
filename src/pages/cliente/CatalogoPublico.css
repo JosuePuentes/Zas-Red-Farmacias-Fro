@@ -1,13 +1,18 @@
 .catalogo-publico {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   background: var(--color-bg);
+  -webkit-overflow-scrolling: touch;
 }
 
 .catalogo-publico-header {
-  padding: 0.45rem 1.25rem 0.4rem;
-  background: #028ca4; /* teal principal tipo app móvil */
+  padding: 0.5rem 1rem 0.4rem;
+  padding-top: calc(0.5rem + var(--safe-top));
+  padding-left: calc(1rem + env(safe-area-inset-left, 0));
+  padding-right: calc(1rem + env(safe-area-inset-right, 0));
+  background: #028ca4;
   color: #e5f4f8;
   box-shadow: 0 2px 10px rgba(0, 59, 76, 0.6);
   position: sticky;
@@ -199,7 +204,12 @@
 
 .catalogo-publico-main {
   flex: 1;
-  padding: 1rem 1.5rem 2rem;
+  padding: 1rem 1rem 2rem;
+  padding-left: calc(1rem + env(safe-area-inset-left, 0));
+  padding-right: calc(1rem + env(safe-area-inset-right, 0));
+  padding-bottom: calc(2rem + var(--safe-bottom));
+  min-width: 0;
+  overflow-x: hidden;
 }
 
 .catalogo-publico-toolbar-search {
@@ -357,35 +367,127 @@
 }
 
 @media (min-width: 1024px) {
+  .catalogo-publico-header {
+    padding-left: calc(1.5rem + env(safe-area-inset-left, 0));
+    padding-right: calc(1.5rem + env(safe-area-inset-right, 0));
+  }
+
   .catalogo-publico-main {
     max-width: 1320px;
     margin: 0 auto;
+    padding-left: calc(1.5rem + env(safe-area-inset-left, 0));
+    padding-right: calc(1.5rem + env(safe-area-inset-right, 0));
   }
 }
 
+/* ----- Móvil: apariencia de app ----- */
 @media (max-width: 768px) {
   .catalogo-publico-header-top {
     flex-direction: column;
     align-items: stretch;
+    gap: 0.6rem;
+  }
+
+  .catalogo-publico-logo-zone {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    min-height: 44px;
+  }
+
+  .catalogo-publico-logo {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0;
+  }
+
+  .catalogo-publico-logo img {
+    width: 36px;
+    height: 36px;
+  }
+
+  .catalogo-publico-logo span {
+    font-size: 1.15rem;
+  }
+
+  .catalogo-publico-envio {
+    min-height: 44px;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .catalogo-publico-toolbar-search {
+    min-height: 44px;
+  }
+
+  .catalogo-publico-toolbar-search input {
+    font-size: 16px; /* evita zoom en iOS */
+    padding: 0.5rem 0.85rem;
+  }
+
+  .catalogo-publico-toolbar-search button {
+    min-width: 48px;
+    min-height: 44px;
+    padding: 0 1rem;
+  }
+
+  .catalogo-publico-user {
+    min-height: 44px;
+    align-items: center;
+  }
+
+  .catalogo-publico-cart-btn,
+  .catalogo-publico-user-btn {
+    min-height: 44px;
+    padding: 0.5rem 0.85rem;
+    font-size: 0.9rem;
   }
 
   .catalogo-publico-header-bottom {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
   }
 
   .catalogo-publico-subnav {
     width: 100%;
     overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 0.25rem;
+    margin: 0 calc(-1rem - env(safe-area-inset-left, 0)) 0 calc(-1rem - env(safe-area-inset-right, 0));
+    padding-left: calc(1rem + env(safe-area-inset-left, 0));
+    padding-right: calc(1rem + env(safe-area-inset-right, 0));
+  }
+
+  .catalogo-publico-subnav::-webkit-scrollbar {
+    display: none;
   }
 
   .catalogo-publico-subnav-item {
     white-space: nowrap;
+    min-height: 40px;
+    padding: 0.4rem 0.85rem;
+    font-size: 0.9rem;
+    flex-shrink: 0;
   }
 
   .catalogo-publico-links {
     width: 100%;
     justify-content: flex-start;
+    gap: 0.75rem;
+  }
+
+  .catalogo-publico-link-sm {
+    padding: 0.4rem 0;
+    font-size: 0.9rem;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
   }
 }
 

@@ -1,5 +1,6 @@
 .cliente-catalogo {
   padding-bottom: 6rem;
+  min-width: 0;
 }
 
 .cliente-catalogo-hero {
@@ -602,6 +603,98 @@
 @media (min-width: 1280px) {
   .cliente-catalogo-section-list {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* ----- Móvil: apariencia de app ----- */
+@media (max-width: 768px) {
+  .cliente-catalogo {
+    padding-bottom: calc(2rem + var(--safe-bottom));
+  }
+
+  .cliente-catalogo-hero {
+    margin: 0 -1rem 1.25rem;
+    padding: 1.2rem 1rem;
+    min-height: 180px;
+    border-radius: 14px;
+  }
+
+  .cliente-catalogo-hero-text h2 {
+    font-size: 1.25rem;
+  }
+
+  .cliente-catalogo-hero-text p {
+    font-size: 0.9rem;
+  }
+
+  .cliente-catalogo-hero-banner {
+    flex: 0 0 140px;
+    max-width: 160px;
+  }
+
+  .cliente-catalogo-hero-arrow {
+    width: 36px;
+    height: 36px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+  }
+
+  .cliente-catalogo-hero-arrow--left {
+    left: 0.5rem;
+  }
+
+  .cliente-catalogo-hero-arrow--right {
+    right: 0.5rem;
+  }
+
+  .cliente-catalogo-section-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .cliente-catalogo-section-header h3 {
+    font-size: 1.05rem;
+  }
+
+  .cliente-catalogo-card {
+    padding: 0.75rem;
+  }
+
+  .cliente-catalogo-card .product-photo {
+    height: 140px;
+  }
+
+  .cliente-catalogo-card .btn,
+  .cliente-catalogo-card .product-solicitar-btn {
+    min-height: 44px;
+    padding: 0.5rem 0.85rem;
+    font-size: 0.85rem;
+  }
+
+  .cliente-filter-chip {
+    min-height: 40px;
+    padding: 0.45rem 0.9rem;
+    font-size: 0.9rem;
+  }
+
+  .cliente-catalogo-pagination button {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .cliente-catalogo-modal-backdrop {
+    padding: 1rem;
+    padding-left: calc(1rem + env(safe-area-inset-left, 0));
+    padding-right: calc(1rem + env(safe-area-inset-right, 0));
+    padding-bottom: calc(1rem + var(--safe-bottom));
+  }
+
+  .cliente-catalogo-modal {
+    border-radius: 14px;
+    max-height: 85vh;
   }
 }
 
