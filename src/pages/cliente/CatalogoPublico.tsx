@@ -131,12 +131,14 @@ function CatalogoPublicoInner() {
                 aria-label="Entrar"
               >
                 <span className="catalogo-publico-user-icon">👤</span>
-                <span>Entrar</span>
               </button>
             ) : (
-              <Link to="/cliente" className="catalogo-publico-user-btn">
+              <Link
+                to="/cliente"
+                className="catalogo-publico-user-btn"
+                aria-label="Ir a mi cuenta y ver módulos"
+              >
                 <span className="catalogo-publico-user-icon">👤</span>
-                <span>Mi cuenta</span>
               </Link>
             )}
           </div>
