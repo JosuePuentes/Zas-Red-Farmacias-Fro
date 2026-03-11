@@ -135,6 +135,8 @@ export const solicitudFarmaciaApi = {
     email: string
     password: string
     estadoUbicacion?: string
+    lat: number
+    lng: number
   }) => request('/solicitud-farmacia', { method: 'POST', body: JSON.stringify(body) }),
 }
 
