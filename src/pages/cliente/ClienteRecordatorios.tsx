@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react'
-import { catalogoApi, clienteApi, getApiBaseUrl, type RecordatorioItem } from '../../api'
+import { catalogoApi, clienteApi, buildProductImageUrl, type RecordatorioItem } from '../../api'
 import { itemsDesdeRespuestaCatalogo } from '../../utils/catalogo'
 import './ClienteRecordatorios.css'
-
-const backendBase = () => getApiBaseUrl().replace(/\/api\/?$/, '')
 
 function formatCountdown(proximaFecha: string | undefined): string {
   if (!proximaFecha) return '—'
@@ -99,13 +97,10 @@ export default function ClienteRecordatorios() {
           <ul className="cliente-recordatorios-resultados">
             {resultadosCatalogo.map((item) => (
               <li key={item.id} className="card">
-                {item.imagen && (
-                  <img
-                    src={item.imagen.startsWith('http') ? item.imagen : `${backendBase()}${item.imagen}`}
-                    alt=""
-                    className="cliente-recordatorios-thumb"
-                  />
-                )}
+                {(() => {
+                  const imgUrl = buildProductImageUrl(item.imagen)
+                  return imgUrl ? <img src={imgUrl} alt="" className="cliente-recordatorios-thumb" /> : null
+                })()}
                 <div>
                   <strong>{item.descripcion}</strong>
                   <span className="muted"> {item.codigo}</span>
@@ -136,13 +131,10 @@ export default function ClienteRecordatorios() {
         <ul className="cliente-recordatorios-lista">
           {list.map((r) => (
             <li key={r.id} className="card">
-              {r.imagen && (
-                <img
-                  src={r.imagen.startsWith('http') ? r.imagen : `${backendBase()}${r.imagen}`}
-                  alt=""
-                  className="cliente-recordatorios-thumb"
-                />
-              )}
+{(() => {
+                  const imgUrl = buildProductImageUrl(r.imagen)
+                  return imgUrl ? <img src={imgUrl} alt="" className="cliente-recordatorios-thumb" /> : null
+                })()}
               <div className="cliente-recordatorios-info">
                 <strong>{r.descripcion ?? r.codigo ?? 'Sin nombre'}</strong>
                 {r.precioReferencia != null && (

@@ -48,11 +48,13 @@ En Vercel solo se despliega el frontend. Las peticiones a `/api/*` no llegan a n
 **Solución:** en el proyecto de Vercel, configura la variable de entorno:
 
 - **Nombre:** `VITE_API_URL`
-- **Valor:** URL pública del backend (origen, sin `/api`), por ejemplo:
+- **Valor:** URL pública del backend (origen, **sin** `/api`), por ejemplo:
+  - `https://zas-red-farmacias-back.onrender.com`
   - `https://tu-backend.railway.app`
-  - `https://tu-backend.onrender.com`
 
 Vuelve a desplegar para que el build tome la variable. El frontend enviará entonces las peticiones al backend real en lugar de a `/api` del mismo dominio.
+
+Imágenes del catálogo: ver **`INSTRUCCIONES_FRONTEND_IMAGENES_CATALOGO.md`** (base = `VITE_API_URL`, URL imagen = base + "/" + path; si no hay imagen → placeholder).
 
 ## Sincronizar con el backend
 

@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
 import { useGeolocation } from '../../context/GeolocationContext'
 import type { Producto } from '../../types'
-import { catalogoApi, clienteApi, carritoApi, getApiBaseUrl } from '../../api'
+import { catalogoApi, clienteApi, carritoApi, buildProductImageUrl } from '../../api'
 import { useAuth } from '../../context/AuthContext'
 import { itemsDesdeRespuestaCatalogo } from '../../utils/catalogo'
 import { ESTADOS_VENEZUELA } from '../../constants/estados'
@@ -151,12 +151,6 @@ export default function ClienteCatalogo({
   const [panelFiltros, setPanelFiltros] = useState<'orden' | 'categoria' | 'marca' | null>(null)
 
   const coords = position
-
-  // Base para imágenes del backend: VITE_API_URL (sin /api) o window.location.origin
-  const backendBase = useMemo(() => {
-    const apiBase = getApiBaseUrl()
-    return apiBase.replace(/\/api\/?$/, '')
-  }, [])
 
   const [heroIndex, setHeroIndex] = useState(0)
 
@@ -557,15 +551,7 @@ export default function ClienteCatalogo({
               const precioMin = preciosEfectivos.length ? Math.min(...preciosEfectivos) : null
               const precioMax = preciosEfectivos.length ? Math.max(...preciosEfectivos) : null
 
-              let imagenUrl: string | null = null
-              if (p.imagen) {
-                const raw = String(p.imagen).replace(/\\/g, '/')
-                if (raw.startsWith('http')) {
-                  imagenUrl = raw
-                } else {
-                  imagenUrl = `${backendBase}/${raw.replace(/^\/+/, '')}`
-                }
-              }
+              const imagenUrl = buildProductImageUrl(p.imagen)
 
               const recomendacionesAux = getRecomendacionesAuxiliar(p)
 

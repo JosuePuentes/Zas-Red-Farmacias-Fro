@@ -8,6 +8,27 @@ export function getApiBaseUrl(): string {
   return BASE ? `${BASE.replace(/\/$/, '')}/api` : (typeof window !== 'undefined' ? `${window.location.origin}/api` : '/api')
 }
 
+/** Base del backend sin /api (ej. para montar URLs de imágenes estáticas). Variable: VITE_API_URL. */
+export function getBackendBaseUrl(): string {
+  const b = BASE ? BASE.replace(/\/$/, '') : (typeof window !== 'undefined' ? window.location.origin : '')
+  return b
+}
+
+/**
+ * URL de imagen de catálogo/producto.
+ * Si imagen viene (ej. "public/productos/7591127123626.jpg") y no empieza por http:
+ *   url = base + "/" + imagen.replace(/^\/+/, '')
+ * Si imagen es null o vacío → retorna null (usar placeholder).
+ */
+export function buildProductImageUrl(imagen: string | null | undefined): string | null {
+  if (imagen == null || String(imagen).trim() === '') return null
+  const raw = String(imagen).replace(/\\/g, '/').trim()
+  if (raw.startsWith('http://') || raw.startsWith('https://')) return raw
+  const base = getBackendBaseUrl()
+  if (!base) return null
+  return `${base}/${raw.replace(/^\/+/, '')}`
+}
+
 import { getMasterPortalHeaders } from '../lib/masterPortalStorage'
 
 function getToken(): string | null {
