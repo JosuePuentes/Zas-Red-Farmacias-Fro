@@ -180,20 +180,30 @@ function ClienteLayoutInner() {
   return (
     <div className="layout cliente-layout">
       <header className="layout-header cliente-layout-header">
-        <button
-          type="button"
-          className="cliente-menu-btn"
-          onClick={() => setSidebarOpen((o) => !o)}
-          aria-label={sidebarOpen ? 'Cerrar menú' : 'Abrir menú'}
-          aria-expanded={sidebarOpen}
-        >
-          ☰
-        </button>
-        <div className="cliente-header-center">
-          <img src="/logo.png" alt="Zas!" className="cliente-header-logo" />
-          <span className="cliente-header-title">Zas!</span>
-        </div>
-        <div className="cliente-header-actions">
+        <div className="cliente-header-inner">
+          <button
+            type="button"
+            className="cliente-menu-btn"
+            onClick={() => setSidebarOpen((o) => !o)}
+            aria-label={sidebarOpen ? 'Cerrar menú' : 'Abrir menú'}
+            aria-expanded={sidebarOpen}
+          >
+            ☰
+          </button>
+          <div className="cliente-header-center">
+            <img src="/logo.png" alt="Zas!" className="cliente-header-logo" />
+            <span className="cliente-header-title">Zas!</span>
+          </div>
+          <nav className="cliente-desktop-nav" aria-label="Módulos del portal">
+            <NavLink to="/cliente" end>Catálogo</NavLink>
+            <NavLink to="/cliente/recordatorios">Recordatorios</NavLink>
+            <NavLink to="/cliente/recetas">Recetas</NavLink>
+            <NavLink to="/cliente/mi-cuenta">Mi perfil</NavLink>
+            <NavLink to="/cliente/mis-pedidos">Mis pedidos</NavLink>
+            <NavLink to="/cliente/soporte">Soporte</NavLink>
+            {isMaster && <NavLink to="/elegir-portal">Cambiar portal</NavLink>}
+          </nav>
+          <div className="cliente-header-actions">
           <div className="cliente-notif-wrap" style={{ position: 'relative' }}>
             <button
               type="button"
@@ -282,6 +292,7 @@ function ClienteLayoutInner() {
               </div>
             )}
           </div>
+        </div>
         </div>
       </header>
       {showNotif && <div className="modal-overlay" style={{ background: 'transparent' }} onClick={() => setShowNotif(false)} aria-hidden="true" />}

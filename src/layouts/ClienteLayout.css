@@ -9,6 +9,18 @@
   gap: 0.75rem;
 }
 
+.cliente-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.cliente-desktop-nav {
+  display: none;
+}
+
 .cliente-menu-btn {
   display: inline-flex;
   align-items: center;
@@ -549,7 +561,51 @@
 }
 
 @media (min-width: 1024px) {
-  /* En escritorio el sidebar está siempre visible, no necesitamos botón toggle */
+  /* Escritorio: navbar fija arriba, sin sidebar lateral */
+  .cliente-layout-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .cliente-header-inner {
+    max-width: 1320px;
+    margin: 0 auto;
+  }
+
+  .cliente-desktop-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex: 1;
+    justify-content: center;
+    margin: 0 1rem;
+  }
+
+  .cliente-desktop-nav a {
+    padding: 0.4rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.95);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .cliente-desktop-nav a:hover {
+    background: rgba(255, 255, 255, 0.18);
+    color: white;
+  }
+
+  .cliente-desktop-nav a.active {
+    background: rgba(255, 255, 255, 0.28);
+    color: white;
+  }
+
   .cliente-sidebar-toggle {
     display: none;
   }
@@ -559,25 +615,15 @@
   }
 
   .cliente-sidebar {
-    position: relative;
-    top: auto;
-    left: auto;
-    bottom: auto;
-    transform: none;
-    width: 260px;
-    max-width: 260px;
-    box-shadow: none;
-    border-right: 1px solid #e2e8f0;
-    background: var(--color-card);
+    display: none;
   }
 
-  .cliente-sidebar-panel {
-    position: static;
-    width: auto;
-    max-width: none;
-    box-shadow: none;
-    padding: 1.5rem 1rem 1rem;
-    overflow: visible;
-    transform: none;
+  .cliente-layout-body {
+    flex-direction: column;
+    padding-top: 56px; /* altura del header fijo */
+  }
+
+  .cliente-layout-main {
+    width: 100%;
   }
 }
