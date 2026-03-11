@@ -233,7 +233,7 @@ export default function FarmaciaInventario() {
     <div className="container">
       <h2>Inventario</h2>
       <p className="muted">
-        Carga tu inventario por Excel. Columnas: codigo, descripcion, marca, precio, existencia
+        Carga tu inventario por Excel. Columnas: código, descripción, marca, departamento, precio, existencia.
       </p>
 
       <div className="card form-group">
@@ -302,7 +302,10 @@ export default function FarmaciaInventario() {
       ) : (
         <div className="card" style={{ marginTop: '1rem' }}>
           <h3>Base de datos · Descuentos</h3>
-          <p className="muted">Toda la base de códigos y descripciones. Con Plan Pro ves Existencia global y Solicitudes.</p>
+          <p className="muted">
+            Vista tipo hoja de cálculo con tu inventario. Con <strong>Plan Pro</strong> ves además
+            {' '}<strong>Existencia global</strong> y <strong>Solicitudes</strong> por código.
+          </p>
           <div className="form-group" style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end' }}>
             <div style={{ flex: '0 0 220px' }}>
               <label>Descuento masivo (%) para todos los productos</label>
@@ -335,9 +338,15 @@ export default function FarmaciaInventario() {
                 <tr>
                   <th>Código</th>
                   <th>Descripción</th>
+                  <th>Marca</th>
+                  <th>Departamento</th>
                   <th>Existencia</th>
-                  {(productosFiltrados.some((p) => p.existenciaGlobal != null)) && <th>Existencia global</th>}
-                  {(productosFiltrados.some((p) => p.productosSolicitados != null)) && <th>Solicitudes</th>}
+                  {planProActivo && productosFiltrados.some((p) => p.existenciaGlobal != null) && (
+                    <th>Existencia global</th>
+                  )}
+                  {planProActivo && productosFiltrados.some((p) => p.productosSolicitados != null) && (
+                    <th>Solicitudes</th>
+                  )}
                   <th>Precio base ($)</th>
                   <th>Descuento (%)</th>
                   <th>Precio con descuento ($)</th>
@@ -355,11 +364,13 @@ export default function FarmaciaInventario() {
                   <tr key={p.id}>
                     <td>{p.codigo}</td>
                     <td>{p.descripcion}</td>
+                    <td>{p.marca || '—'}</td>
+                    <td>{p.categoria || '—'}</td>
                     <td>{p.existencia ?? '-'}</td>
-                    {productosFiltrados.some((x) => x.existenciaGlobal != null) && (
+                    {planProActivo && productosFiltrados.some((x) => x.existenciaGlobal != null) && (
                       <td>{typeof p.existenciaGlobal === 'number' ? p.existenciaGlobal : '—'}</td>
                     )}
-                    {productosFiltrados.some((x) => x.productosSolicitados != null) && (
+                    {planProActivo && productosFiltrados.some((x) => x.productosSolicitados != null) && (
                       <td>{typeof p.productosSolicitados === 'number' ? p.productosSolicitados : '—'}</td>
                     )}
                     <td>{typeof p.precio === 'number' ? p.precio.toFixed(2) : '—'}</td>
