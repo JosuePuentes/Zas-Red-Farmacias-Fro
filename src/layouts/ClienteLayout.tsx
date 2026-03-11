@@ -175,9 +175,6 @@ function ClienteLayoutInner() {
   return (
     <div className="layout cliente-layout">
       <header className="layout-header cliente-layout-header">
-        <button type="button" className="cliente-menu-btn" onClick={() => setSidebarOpen((o) => !o)} aria-label="Menú">
-          ☰
-        </button>
         <div className="cliente-header-center">
           <img src="/logo.png" alt="Zas!" className="cliente-header-logo" />
           <span className="cliente-header-title">Zas!</span>
