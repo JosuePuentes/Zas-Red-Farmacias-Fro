@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { clienteApi } from '../../api'
-import type { RecetaBuscarItem } from '../../api'
+import { clienteApi, type RecetaBuscarItem } from '../../api'
+import { analizarRecetaDesdeImagen } from '../../services/geminiRecetas'
 import './ClienteRecetas.css'
 
 export default function ClienteRecetas() {
@@ -39,6 +39,39 @@ export default function ClienteRecetas() {
     }
   }
 
+  async function manejarImagenReceta(file: File | null) {
+    if (!file) return
+    setLoading(true)
+    setError(null)
+    setResultados([])
+    try {
+      const analisis = await analizarRecetaDesdeImagen(file)
+      if (!analisis.es_recipe || !analisis.medicamento) {
+        setError('No se pudo detectar un récipe médico válido en la imagen.')
+        return
+      }
+
+      const q = `${analisis.medicamento} ${analisis.dosis}`.trim()
+      const encontrados = await clienteApi.recetasBuscar(q)
+
+      for (const item of encontrados) {
+        const cantidad = 1
+        if (item.codigo) {
+          await clienteApi.recetasAgregarAlCarrito({ codigo: item.codigo, cantidad })
+        } else if (item.id) {
+          await clienteApi.recetasAgregarAlCarrito({ productoId: item.id, cantidad })
+        }
+      }
+
+      setResultados(encontrados)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Error al analizar la imagen de la receta')
+      setResultados([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="container cliente-recetas">
       <h2>Recetas</h2>
@@ -62,6 +95,16 @@ export default function ClienteRecetas() {
           <button type="button" className="btn btn-primary" onClick={analizarReceta} disabled={loading}>
             {loading ? 'Analizando receta...' : 'Analizar receta y agregar al carrito'}
           </button>
+        </div>
+        <hr />
+        <div className="form-group">
+          <label htmlFor="recetas-imagen">O sube una foto del récipe</label>
+          <input
+            id="recetas-imagen"
+            type="file"
+            accept="image/*"
+            onChange={(e) => manejarImagenReceta(e.target.files?.[0] ?? null)}
+          />
         </div>
       </div>
 
