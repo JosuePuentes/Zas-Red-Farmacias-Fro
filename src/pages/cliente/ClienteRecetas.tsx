@@ -39,7 +39,8 @@ export default function ClienteRecetas() {
     }
   }
 
-  async function manejarImagenReceta(file: File | null) {
+  // Maneja la carga de una imagen de récipe y delega el análisis al backend
+  async function handleAnalyzeRecipe(file: File | null) {
     if (!file) return
     setLoading(true)
     setError(null)
@@ -103,7 +104,7 @@ export default function ClienteRecetas() {
             id="recetas-imagen"
             type="file"
             accept="image/*"
-            onChange={(e) => manejarImagenReceta(e.target.files?.[0] ?? null)}
+            onChange={(e) => handleAnalyzeRecipe(e.target.files?.[0] ?? null)}
           />
         </div>
       </div>
