@@ -7,23 +7,52 @@ export default function AdminDelivery() {
   const [deliveryRegistrados, setDeliveryRegistrados] = useState<DeliveryMaster[]>([])
   const [loading, setLoading] = useState(true)
   const [busqueda, setBusqueda] = useState('')
+  const [procesandoId, setProcesandoId] = useState<string | null>(null)
+
+  async function load() {
+    setLoading(true)
+    try {
+      const [sol, del] = await Promise.all([
+        masterApi.solicitudesDelivery().catch(() => []),
+        masterApi.delivery().catch(() => []),
+      ])
+      setSolicitudes(sol)
+      setDeliveryRegistrados(del)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    async function load() {
-      setLoading(true)
-      try {
-        const [sol, del] = await Promise.all([
-          masterApi.solicitudesDelivery().catch(() => []),
-          masterApi.delivery().catch(() => []),
-        ])
-        setSolicitudes(sol)
-        setDeliveryRegistrados(del)
-      } finally {
-        setLoading(false)
-      }
-    }
     load()
   }, [])
+
+  async function handleAprobar(id: string) {
+    setProcesandoId(id)
+    try {
+      await masterApi.aprobarDelivery(id)
+      await load()
+    } catch (e) {
+      // eslint-disable-next-line no-alert
+      alert(e instanceof Error ? e.message : 'Error al aprobar solicitud de delivery')
+    } finally {
+      setProcesandoId(null)
+    }
+  }
+
+  async function handleDenegar(id: string) {
+    if (!window.confirm('¿Denegar esta solicitud de delivery?')) return
+    setProcesandoId(id)
+    try {
+      await masterApi.denegarDelivery(id)
+      await load()
+    } catch (e) {
+      // eslint-disable-next-line no-alert
+      alert(e instanceof Error ? e.message : 'Error al denegar solicitud de delivery')
+    } finally {
+      setProcesandoId(null)
+    }
+  }
 
   const solicitudesFiltradas = useMemo(() => {
     const q = busqueda.trim().toLowerCase()
@@ -108,6 +137,25 @@ export default function AdminDelivery() {
                       </span>
                       <span className="usr-m-telefono">{s.telefono}</span>
                       <span className="usr-m-role">Estado: {s.estado}</span>
+                      <div className="sol-f-actions" style={{ marginTop: '0.5rem' }}>
+                        <button
+                          type="button"
+                          className="btn btn-primary sol-f-btn-ok"
+                          onClick={() => handleAprobar(s._id)}
+                          disabled={procesandoId === s._id}
+                        >
+                          {procesandoId === s._id ? 'Aprobando...' : 'Aprobar'}
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-secondary sol-f-btn-no"
+                          onClick={() => handleDenegar(s._id)}
+                          disabled={procesandoId === s._id}
+                          style={{ marginLeft: 8 }}
+                        >
+                          Denegar
+                        </button>
+                      </div>
                     </div>
                   </li>
                 ))}
