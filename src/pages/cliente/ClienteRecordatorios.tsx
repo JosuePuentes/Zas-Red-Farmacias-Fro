@@ -34,7 +34,10 @@ export default function ClienteRecordatorios() {
 
   async function buscarEnCatalogo() {
     const q = busqueda.trim()
-    if (!q) return
+    if (!q) {
+      setResultadosCatalogo([])
+      return
+    }
     setError(null)
     try {
       const res = await catalogoApi.listar({ q, page: 1, page_size: 20 })
@@ -46,13 +49,21 @@ export default function ClienteRecordatorios() {
           descripcion: p.descripcion || p.codigo,
           imagen: p.imagen,
           precio: p.precioConPorcentaje ?? p.precio ?? undefined,
-        }))
+        })),
       )
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error al buscar')
       setResultadosCatalogo([])
     }
   }
+
+  // Búsqueda en tiempo real mientras el usuario escribe (con pequeño debounce)
+  useEffect(() => {
+    const id = window.setTimeout(() => {
+      void buscarEnCatalogo()
+    }, 400)
+    return () => window.clearTimeout(id)
+  }, [busqueda])
 
   async function agregarRecordatorio(item: { id: string; codigo: string; descripcion: string; imagen?: string; precio?: number }) {
     setAgregando(true)
@@ -87,11 +98,7 @@ export default function ClienteRecordatorios() {
             placeholder="Buscar en catálogo (mismo que en Catálogo)..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && buscarEnCatalogo()}
           />
-          <button type="button" className="btn btn-primary" onClick={buscarEnCatalogo}>
-            Buscar
-          </button>
         </div>
         {resultadosCatalogo.length > 0 && (
           <ul className="cliente-recordatorios-resultados">
