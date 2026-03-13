@@ -715,14 +715,17 @@ export const clienteApi = {
       },
       body: formData,
     })
-    const data = await res.json().catch(() => ({})) as { error?: string; message?: string } & AnalisisReceta
+    const data = await res.json().catch(() => ({})) as AnalisisReceta & { error?: string; message?: string }
     if (!res.ok) throw new Error(data.error || data.message || 'Error al analizar la imagen de la receta')
     return {
+      medicamentos: Array.isArray(data.medicamentos) ? data.medicamentos : [],
+      es_recipe_valido: Boolean(data.es_recipe_valido),
+      // compat: seguimos exponiendo el shape viejo
       medicamento: data.medicamento || '',
       dosis: data.dosis || '',
       cantidad: data.cantidad || '',
       es_recipe: Boolean(data.es_recipe),
-    } as AnalisisReceta
+    }
   },
 }
 
@@ -747,8 +750,19 @@ export interface RecetaBuscarItem {
   [key: string]: unknown
 }
 
+export interface AnalisisRecetaMedicamento {
+  nombre: string
+  concentracion: string
+  dosis: string
+  cantidad_total: number
+}
+
 /** Resultado del análisis de una imagen de récipe realizado en el backend (Gemini u otro OCR). */
 export interface AnalisisReceta {
+  // contrato nuevo
+  medicamentos: AnalisisRecetaMedicamento[]
+  es_recipe_valido: boolean
+  // campos viejos (compatibilidad)
   medicamento: string
   dosis: string
   cantidad: string

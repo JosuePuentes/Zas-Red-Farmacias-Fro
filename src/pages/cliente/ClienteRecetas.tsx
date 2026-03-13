@@ -47,24 +47,31 @@ export default function ClienteRecetas() {
     setResultados([])
     try {
       const analisis = await analizarRecetaDesdeImagen(file)
-      if (!analisis.es_recipe || !analisis.medicamento) {
+      if (!analisis.es_recipe_valido || !analisis.medicamentos.length) {
         setError('No se pudo detectar un récipe médico válido en la imagen.')
         return
       }
 
-      const q = `${analisis.medicamento} ${analisis.dosis}`.trim()
-      const encontrados = await clienteApi.recetasBuscar(q)
+      const acumulados: RecetaBuscarItem[] = []
 
-      for (const item of encontrados) {
-        const cantidad = 1
-        if (item.codigo) {
-          await clienteApi.recetasAgregarAlCarrito({ codigo: item.codigo, cantidad })
-        } else if (item.id) {
-          await clienteApi.recetasAgregarAlCarrito({ productoId: item.id, cantidad })
+      // Para cada medicamento detectado, buscar en catálogo y agregar al carrito
+      for (const med of analisis.medicamentos) {
+        const q = `${med.nombre} ${med.concentracion}`.trim()
+        if (!q) continue
+
+        const encontrados = await clienteApi.recetasBuscar(q)
+        for (const item of encontrados) {
+          const cantidad = 1
+          if (item.codigo) {
+            await clienteApi.recetasAgregarAlCarrito({ codigo: item.codigo, cantidad })
+          } else if (item.id) {
+            await clienteApi.recetasAgregarAlCarrito({ productoId: item.id, cantidad })
+          }
         }
+        acumulados.push(...encontrados)
       }
 
-      setResultados(encontrados)
+      setResultados(acumulados)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error al analizar la imagen de la receta')
       setResultados([])
