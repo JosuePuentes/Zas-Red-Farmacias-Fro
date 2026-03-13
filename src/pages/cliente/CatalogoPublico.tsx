@@ -31,6 +31,28 @@ function CatalogoCartIcon() {
   )
 }
 
+function CatalogoUserIcon() {
+  return (
+    <svg className="catalogo-publico-user-icon-svg" viewBox="0 0 24 24" aria-hidden="true">
+      <circle
+        cx="12"
+        cy="9"
+        r="3.2"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+      />
+      <path
+        d="M6.2 19.2c1.6-2.2 3.4-3.2 5.8-3.2s4.2 1 5.8 3.2"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
 function CatalogoPublicoInner() {
   const { isAuthenticated, setAuth } = useAuth()
   const { totalItems } = useCart()
@@ -156,7 +178,9 @@ function CatalogoPublicoInner() {
                 onClick={() => setShowLoginModal(true)}
                 aria-label="Entrar"
               >
-                <span className="catalogo-publico-user-icon">👤</span>
+                <span className="catalogo-publico-user-icon">
+                  <CatalogoUserIcon />
+                </span>
               </button>
             ) : (
               <Link
@@ -164,7 +188,9 @@ function CatalogoPublicoInner() {
                 className="catalogo-publico-user-btn"
                 aria-label="Ir a mi cuenta y ver módulos"
               >
-                <span className="catalogo-publico-user-icon">👤</span>
+                <span className="catalogo-publico-user-icon">
+                  <CatalogoUserIcon />
+                </span>
               </Link>
             )}
           </div>

@@ -114,6 +114,11 @@
   font-size: 1.25rem;
 }
 
+.catalogo-publico-cart-icon-svg {
+  width: 1.4em;
+  height: 1.4em;
+}
+
 .catalogo-publico-cart-badge {
   position: absolute;
   top: 0;
@@ -197,6 +202,11 @@
 
 .catalogo-publico-user-icon {
   font-size: 1rem;
+}
+
+.catalogo-publico-user-icon-svg {
+  width: 1.2em;
+  height: 1.2em;
 }
 
 .catalogo-publico-user-link {
