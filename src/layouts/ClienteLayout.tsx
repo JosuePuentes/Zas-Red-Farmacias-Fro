@@ -12,6 +12,7 @@ import ClienteRecordatorios from '../pages/cliente/ClienteRecordatorios'
 import ClienteRecetas from '../pages/cliente/ClienteRecetas'
 import ClienteSoporte from '../pages/cliente/ClienteSoporte'
 import CartModal from '../components/CartModal'
+import DonaChat from '../components/DonaChat'
 import './Layout.css'
 import './ClienteLayout.css'
 
@@ -346,6 +347,7 @@ function ClienteLayoutInner() {
         </main>
       </div>
       <CartModal />
+      <DonaChat userName={nombre} />
 
       <nav className="cliente-bottom-nav" aria-label="Navegación principal cliente">
         <button

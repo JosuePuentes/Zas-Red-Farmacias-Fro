@@ -249,6 +249,145 @@
   justify-content: center;
 }
 
+/* ==== Dona Chat (chatbot) ==== */
+
+.dona-chat-toggle {
+  position: fixed;
+  right: 1rem;
+  bottom: 5.5rem;
+  z-index: 40;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 999px;
+  border: none;
+  background: #0f766e;
+  color: #ecfeff;
+  font-size: 0.9rem;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.35);
+}
+
+.dona-chat-toggle-icon {
+  font-size: 1.15rem;
+}
+
+.dona-chat-toggle-text {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .dona-chat-toggle-text {
+    display: inline;
+  }
+}
+
+.dona-chat-window {
+  position: fixed;
+  right: 0.75rem;
+  bottom: 5.5rem;
+  width: min(360px, 100% - 1.5rem);
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-card);
+  color: var(--color-text);
+  border-radius: 1rem;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.45);
+  z-index: 50;
+  overflow: hidden;
+}
+
+.dona-chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.6);
+}
+
+.dona-chat-title {
+  font-weight: 700;
+}
+
+.dona-chat-subtitle {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.dona-chat-close {
+  border: none;
+  background: transparent;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.dona-chat-messages {
+  padding: 0.75rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.dona-msg {
+  margin-bottom: 0.4rem;
+  display: flex;
+}
+
+.dona-msg-bubble {
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.9rem;
+  max-width: 90%;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.dona-msg-assistant {
+  justify-content: flex-start;
+}
+
+.dona-msg-assistant .dona-msg-bubble {
+  background: #e0f2fe;
+  color: #0f172a;
+}
+
+.dona-msg-user {
+  justify-content: flex-end;
+}
+
+.dona-msg-user .dona-msg-bubble {
+  background: #0f766e;
+  color: #ecfeff;
+}
+
+.dona-typing {
+  opacity: 0.9;
+}
+
+.dona-chat-error {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  color: #b91c1c;
+}
+
+.dona-chat-input-row {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.6rem 0.75rem 0.75rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.6);
+}
+
+.dona-chat-input-row input {
+  flex: 1;
+  border-radius: 999px;
+  border: 1px solid #cbd5e1;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.9rem;
+}
+
+.dona-chat-input-row input:disabled {
+  background: #f9fafb;
+}
+
 @media (min-width: 768px) {
   .cliente-menu-btn {
     display: none;
