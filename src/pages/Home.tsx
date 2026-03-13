@@ -95,6 +95,30 @@ const MARCAS = [
   },
 ]
 
+function HomeCartIcon() {
+  return (
+    <svg className="home-cart-icon-svg" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M3.5 5h2.4l1.4 9.5h10.1l1.6-7.5H7.1"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="10" cy="19.5" r="1.5" fill="none" stroke="currentColor" strokeWidth="1.7" />
+      <circle cx="17.5" cy="19.5" r="1.5" fill="none" stroke="currentColor" strokeWidth="1.7" />
+      <path
+        d="M9 9.2h7.5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
 export default function Home() {
   const [slideIndex, setSlideIndex] = useState(0)
   const [estadoEnvio, setEstadoEnvio] = useState<string>('Venezuela')
@@ -187,7 +211,9 @@ export default function Home() {
               </Link>
             </div>
             <Link to="/cliente" className="home-header-cart" aria-label="Ir al carrito / catálogo">
-              <span className="home-cart-icon">🛒</span>
+              <span className="home-cart-icon">
+                <HomeCartIcon />
+              </span>
               <span className="home-cart-text">Carrito</span>
             </Link>
           </div>

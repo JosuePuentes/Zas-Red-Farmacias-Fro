@@ -7,6 +7,30 @@ import ClienteCatalogo from './ClienteCatalogo'
 import { CartProvider, useCart } from '../../context/CartContext'
 import './CatalogoPublico.css'
 
+function CatalogoCartIcon() {
+  return (
+    <svg className="catalogo-publico-cart-icon-svg" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M3.5 5h2.4l1.4 9.5h10.1l1.6-7.5H7.1"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="10" cy="19.5" r="1.5" fill="none" stroke="currentColor" strokeWidth="1.7" />
+      <circle cx="17.5" cy="19.5" r="1.5" fill="none" stroke="currentColor" strokeWidth="1.7" />
+      <path
+        d="M9 9.2h7.5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
 function CatalogoPublicoInner() {
   const { isAuthenticated, setAuth } = useAuth()
   const { totalItems } = useCart()
@@ -116,7 +140,9 @@ function CatalogoPublicoInner() {
           </form>
           <div className="catalogo-publico-user">
             <Link to="/cliente" className="catalogo-publico-cart-btn" aria-label="Ver carrito">
-              <span className="catalogo-publico-cart-icon">🛒</span>
+              <span className="catalogo-publico-cart-icon">
+                <CatalogoCartIcon />
+              </span>
               {totalItems > 0 && (
                 <span className="catalogo-publico-cart-badge">
                   {totalItems > 99 ? '99+' : totalItems}

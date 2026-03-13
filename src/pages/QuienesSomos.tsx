@@ -1,13 +1,35 @@
 import { Link } from 'react-router-dom'
 import './Home.css'
 
+function HomeBackIcon() {
+  return (
+    <svg className="home-back-icon-svg" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M5 11.5 12 5l7 6.5V19a1.6 1.6 0 0 1-1.6 1.6H6.6A1.6 1.6 0 0 1 5 19v-7.5Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M9.5 20V14h5v6"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
 export default function QuienesSomos() {
   return (
     <div className="home">
       <div className="home-content">
         <section className="home-hero">
           <Link to="/" className="home-back-icon" aria-label="Volver al inicio">
-            🏠
+            <HomeBackIcon />
           </Link>
           <div className="home-hero-main">
             <img src="/logo.png" alt="Zas! - Red de farmacias" className="home-logo-img" />
