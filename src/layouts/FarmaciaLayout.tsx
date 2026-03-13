@@ -120,7 +120,17 @@ function FarmaciaPlanProBlur({ onUnlock }: { onUnlock: () => void }) {
   return (
     <div className="plan-pro-blur">
       <p>Este módulo es exclusivo del <strong>Plan Pro</strong>.</p>
-      <p className="muted">Lista comparativa, carrito, órdenes de compra, proveedores, alertas de precio e inventario.</p>
+      <p className="muted" style={{ marginBottom: '0.75rem' }}>
+        Con Plan Pro tendrás herramientas avanzadas para gestionar mejor tu farmacia:
+      </p>
+      <ul className="muted" style={{ textAlign: 'left', marginBottom: '0.75rem' }}>
+        <li>Lista comparativa de productos entre proveedores.</li>
+        <li>Control y seguimiento de órdenes de compra.</li>
+        <li>Relación con proveedores siempre al día.</li>
+        <li>Análisis de precisión en tus compras.</li>
+        <li>Acceso a las unidades globales de productos.</li>
+        <li>Acceso a todas las solicitudes recibidas de productos.</li>
+      </ul>
       <button type="button" className="btn btn-primary" onClick={onUnlock}>
         Desbloquear Plan Pro — $ 4,99/mes
       </button>

@@ -263,7 +263,10 @@ export default function ClienteCatalogo({
   const setCant = (id: string, value: number) => setCantidades((c) => ({ ...c, [id]: Math.max(1, value) }))
 
   useEffect(() => {
-    if (searchParams.get('buscar') === '1' && searchInputRef.current) searchInputRef.current.focus()
+    if (searchParams.get('buscar') === '1' && searchInputRef.current) {
+      searchInputRef.current.focus()
+      searchInputRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
     const q = searchParams.get('q') ?? ''
     setBusqueda(q)
   }, [searchParams])
@@ -290,6 +293,13 @@ export default function ClienteCatalogo({
 
   const productosFiltrados = useMemo(() => {
     let lista = productos
+    const promosOnly = searchParams.get('promos') === '1'
+    if (promosOnly) {
+      lista = lista.filter((p) => {
+        const descPct = getDescuentoPorcentaje(p)
+        return descPct > 0
+      })
+    }
     if (filtroCategorias.length) {
       lista = lista.filter((p) => p.categoria && filtroCategorias.includes(p.categoria))
     }

@@ -13,7 +13,7 @@ export default function FarmaciaPedidos() {
       setLoading(true)
       setError(null)
       const data = await farmaciaApi.pedidos()
-      setPedidos(data)
+      setPedidos(Array.isArray(data) ? data : [])
     } catch (e) {
       console.error('Error al cargar pedidos de farmacia', e)
       setError('No se pudieron cargar los pedidos. Intenta nuevamente.')
