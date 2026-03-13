@@ -20,15 +20,22 @@ function IconCart() {
   return (
     <svg className="cliente-icon" viewBox="0 0 24 24" aria-hidden="true">
       <path
-        d="M3 4h2l2 13h11l2-9H7"
+        d="M3.5 5h2.4l1.4 9.5h10.1l1.6-7.5H7.1"
         fill="none"
         stroke="currentColor"
-        strokeWidth="1.6"
+        strokeWidth="1.7"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <circle cx="10" cy="20" r="1.4" fill="none" stroke="currentColor" strokeWidth="1.6" />
-      <circle cx="18" cy="20" r="1.4" fill="none" stroke="currentColor" strokeWidth="1.6" />
+      <circle cx="10" cy="19.5" r="1.5" fill="none" stroke="currentColor" strokeWidth="1.7" />
+      <circle cx="17.5" cy="19.5" r="1.5" fill="none" stroke="currentColor" strokeWidth="1.7" />
+      <path
+        d="M9 9.2h7.5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+      />
     </svg>
   )
 }
@@ -37,18 +44,18 @@ function IconHome() {
   return (
     <svg className="cliente-icon" viewBox="0 0 24 24" aria-hidden="true">
       <path
-        d="M4 11.5 12 4l8 7.5V20a1.5 1.5 0 0 1-1.5 1.5H5.5A1.5 1.5 0 0 1 4 20v-8.5Z"
+        d="M4.5 11.2 12 4l7.5 7.2V19a1.7 1.7 0 0 1-1.7 1.7H6.2A1.7 1.7 0 0 1 4.5 19v-7.8Z"
         fill="none"
         stroke="currentColor"
-        strokeWidth="1.6"
+        strokeWidth="1.7"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
       <path
-        d="M10 21.5V14h4v7.5"
+        d="M9.5 20.7V14h5v6.7"
         fill="none"
         stroke="currentColor"
-        strokeWidth="1.6"
+        strokeWidth="1.7"
         strokeLinecap="round"
       />
     </svg>

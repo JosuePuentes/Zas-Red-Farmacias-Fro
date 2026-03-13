@@ -128,8 +128,9 @@ export default function DonaChat({ userName }: DonaChatProps) {
         }}
         aria-label={open ? 'Cerrar chat con Dona' : 'Abrir chat con Dona'}
       >
-        <span className="dona-chat-toggle-icon">💬</span>
-        <span className="dona-chat-toggle-text">Habla con Dona</span>
+        <span className="dona-chat-avatar">
+          <span className="dona-chat-avatar-face" />
+        </span>
       </button>
 
       {open && (
