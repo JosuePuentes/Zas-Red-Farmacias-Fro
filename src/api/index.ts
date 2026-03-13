@@ -701,6 +701,29 @@ export const clienteApi = {
       method: 'POST',
       body: JSON.stringify(body),
     }),
+  /** POST /api/cliente/recetas/analizar-imagen — subir una foto del récipe para que el backend la analice (Gemini u otro OCR). */
+  recetasAnalizarImagen: async (file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const base = getApiBaseUrl()
+    const token = getToken()
+    const res = await fetch(`${base}/cliente/recetas/analizar-imagen`, {
+      method: 'POST',
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+      body: formData,
+    })
+    const data = await res.json().catch(() => ({})) as { error?: string; message?: string } & AnalisisReceta
+    if (!res.ok) throw new Error(data.error || data.message || 'Error al analizar la imagen de la receta')
+    return {
+      medicamento: data.medicamento || '',
+      dosis: data.dosis || '',
+      cantidad: data.cantidad || '',
+      es_recipe: Boolean(data.es_recipe),
+    } as AnalisisReceta
+  },
 }
 
 // Tipos usados por recordatorios/recetas (ajustar según respuesta real del backend)
@@ -722,6 +745,14 @@ export interface RecetaBuscarItem {
   farmaciaId?: string
   existencia?: number
   [key: string]: unknown
+}
+
+/** Resultado del análisis de una imagen de récipe realizado en el backend (Gemini u otro OCR). */
+export interface AnalisisReceta {
+  medicamento: string
+  dosis: string
+  cantidad: string
+  es_recipe: boolean
 }
 
 /** Notificación del cliente (ej. producto_solicitado_disponible cuando un producto que solicitó tiene stock). */
