@@ -1,13 +1,9 @@
 import { useState } from 'react'
 import { clienteApi } from '../../api'
-import { useAuth } from '../../context/AuthContext'
-import { useCart } from '../../context/CartContext'
 import type { RecetaBuscarItem } from '../../api'
 import './ClienteRecetas.css'
 
 export default function ClienteRecetas() {
-  const { user } = useAuth()
-  const { addItem } = useCart()
   const [textoReceta, setTextoReceta] = useState('')
   const [loading, setLoading] = useState(false)
   const [resultados, setResultados] = useState<RecetaBuscarItem[]>([])
