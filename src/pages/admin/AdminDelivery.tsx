@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { masterApi, type DeliveryMaster, type SolicitudDeliveryMaster } from '../../api'
+import { masterApi, type DeliveryMaster, type SolicitudDeliveryMaster, getBackendBaseUrl } from '../../api'
 
 // Listar solicitudes de delivery pendientes y repartidores ya registrados
 export default function AdminDelivery() {
@@ -8,6 +8,7 @@ export default function AdminDelivery() {
   const [loading, setLoading] = useState(true)
   const [busqueda, setBusqueda] = useState('')
   const [procesandoId, setProcesandoId] = useState<string | null>(null)
+  const [detalle, setDetalle] = useState<SolicitudDeliveryMaster | null>(null)
 
   async function load() {
     setLoading(true)
@@ -92,6 +93,17 @@ export default function AdminDelivery() {
     })
   }, [deliveryRegistrados, busqueda])
 
+  const backendBase = getBackendBaseUrl()
+
+  function buildSolicitudImageUrl(path?: string): string | null {
+    if (!path) return null
+    const raw = String(path).replace(/\\/g, '/').trim()
+    if (!raw) return null
+    if (raw.startsWith('http://') || raw.startsWith('https://')) return raw
+    if (!backendBase) return null
+    return `${backendBase}/${raw.replace(/^\/+/, '')}`
+  }
+
   return (
     <div className="container">
       <h2>Delivery</h2>
@@ -138,6 +150,14 @@ export default function AdminDelivery() {
                       <span className="usr-m-telefono">{s.telefono}</span>
                       <span className="usr-m-role">Estado: {s.estado}</span>
                       <div className="sol-f-actions" style={{ marginTop: '0.5rem' }}>
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={() => setDetalle(s)}
+                        style={{ marginRight: 8 }}
+                      >
+                        Ver detalles
+                      </button>
                         <button
                           type="button"
                           className="btn btn-primary sol-f-btn-ok"
@@ -187,6 +207,64 @@ export default function AdminDelivery() {
             )}
           </section>
         </>
+      )}
+
+      {detalle && (
+        <div className="modal-overlay" onClick={() => setDetalle(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <h3 style={{ margin: 0 }}>Detalle de solicitud delivery</h3>
+              <button type="button" className="btn btn-secondary btn-sm" onClick={() => setDetalle(null)}>
+                Cerrar
+              </button>
+            </div>
+            <div className="card" style={{ marginBottom: '1rem' }}>
+              <p><strong>{detalle.nombresCompletos}</strong> ({detalle.tipoVehiculo})</p>
+              <p>Cédula: {detalle.cedula}</p>
+              {detalle.matriculaVehiculo && <p>Matrícula vehículo: {detalle.matriculaVehiculo}</p>}
+              <p>Teléfono: {detalle.telefono}</p>
+              <p>Correo: {detalle.correo}</p>
+              <p>Dirección: {detalle.direccion}</p>
+              <p>Número de licencia: {detalle.numeroLicencia}</p>
+              <p>Estado de la solicitud: {detalle.estado}</p>
+            </div>
+            <div className="card">
+              <h4 style={{ marginTop: 0 }}>Documentos cargados</h4>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))', gap: '0.75rem' }}>
+                <DocumentoImagen label="Licencia" url={buildSolicitudImageUrl(detalle.fotoLicenciaUrl) ?? undefined} />
+                <DocumentoImagen label="Carnet de circulación" url={buildSolicitudImageUrl(detalle.carnetCirculacionUrl) ?? undefined} />
+                <DocumentoImagen label="Foto tipo carnet" url={buildSolicitudImageUrl(detalle.fotoCarnetUrl) ?? undefined} />
+                <DocumentoImagen label="Foto del vehículo" url={buildSolicitudImageUrl(detalle.fotoVehiculoUrl) ?? undefined} />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+interface DocumentoImagenProps {
+  label: string
+  url?: string
+}
+
+function DocumentoImagen({ label, url }: DocumentoImagenProps) {
+  return (
+    <div>
+      <p style={{ marginBottom: 4, fontWeight: 500 }}>{label}</p>
+      {url ? (
+        <a href={url} target="_blank" rel="noopener noreferrer">
+          <img
+            src={url}
+            alt={label}
+            style={{ width: '100%', maxHeight: 180, objectFit: 'cover', borderRadius: 6, border: '1px solid #e5e7eb' }}
+          />
+        </a>
+      ) : (
+        <p className="muted" style={{ fontSize: '0.85rem' }}>
+          No enviado
+        </p>
       )}
     </div>
   )

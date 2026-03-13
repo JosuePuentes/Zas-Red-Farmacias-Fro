@@ -84,6 +84,69 @@
   }
 }
 
+/* ----- Layout específico Delivery ----- */
+
+.delivery-nav-desktop {
+  /* igual que layout-nav por defecto; se esconde en móvil */
+}
+
+.delivery-header-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.delivery-menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  font-size: 1.2rem;
+}
+
+.delivery-sidebar-mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .delivery-nav-desktop {
+    display: none;
+  }
+
+  .delivery-menu-btn {
+    display: inline-flex;
+  }
+
+  .delivery-sidebar-desktop {
+    display: none !important;
+  }
+
+  .layout-main {
+    padding: 0.75rem;
+  }
+
+  .delivery-shell {
+    display: block !important;
+  }
+
+  .delivery-sidebar-mobile {
+    display: block;
+    position: fixed;
+    top: calc(0.75rem + var(--safe-top));
+    left: 0.75rem;
+    bottom: 0.75rem;
+    width: 80%;
+    max-width: 320px;
+    z-index: 30;
+    overflow-y: auto;
+  }
+}
+
 @media (min-width: 768px) {
   .layout-header {
     padding-left: 1.5rem;

@@ -281,7 +281,14 @@ export interface SolicitudDeliveryMaster {
   telefono: string
   correo: string
   numeroLicencia: string
+  /** Placa o matrícula del vehículo, si la hay */
+  matriculaVehiculo?: string
   estado: string
+  /** URLs (absolutas o relativas) a las imágenes cargadas en la solicitud */
+  fotoLicenciaUrl?: string
+  carnetCirculacionUrl?: string
+  fotoCarnetUrl?: string
+  fotoVehiculoUrl?: string
 }
 
 // ===================== API MASTER =====================
