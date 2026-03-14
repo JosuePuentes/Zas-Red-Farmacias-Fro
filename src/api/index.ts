@@ -708,15 +708,26 @@ export const clienteApi = {
 
     const base = getApiBaseUrl()
     const token = getToken()
-    const res = await fetch(`${base}/cliente/recetas/analizar-imagen`, {
-      method: 'POST',
-      headers: {
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
-      body: formData,
-    })
+    let res: Response
+    try {
+      res = await fetch(`${base}/cliente/recetas/analizar-imagen`, {
+        method: 'POST',
+        headers: {
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+        body: formData,
+      })
+    } catch (err) {
+      throw new Error('No se pudo conectar con el servidor. Revisa tu conexión o usa el cuadro de texto para pegar la receta.')
+    }
     const data = await res.json().catch(() => ({})) as AnalisisReceta & { error?: string; message?: string }
-    if (!res.ok) throw new Error(data.error || data.message || 'Error al analizar la imagen de la receta')
+    if (!res.ok) {
+      const msg = data.error || data.message
+      if (res.status === 404) {
+        throw new Error('SERVICIO_NO_DISPONIBLE')
+      }
+      throw new Error(msg || 'Error al analizar la imagen de la receta')
+    }
     return {
       medicamentos: Array.isArray(data.medicamentos) ? data.medicamentos : [],
       es_recipe_valido: Boolean(data.es_recipe_valido),

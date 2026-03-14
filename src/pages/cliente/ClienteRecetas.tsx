@@ -84,16 +84,24 @@ export default function ClienteRecetas() {
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Error al analizar la imagen de la receta'
       const lower = msg.toLowerCase()
+      if (msg === 'SERVICIO_NO_DISPONIBLE') {
+        setError(
+          'El análisis de imagen no está disponible por el momento. Usa el cuadro de texto de arriba: pega el contenido de tu receta o el resultado de un escáner OCR.'
+        )
+        setResultados([])
+        return
+      }
       const noSePudoLeer =
         lower.includes('imposible') ||
         lower.includes('impossible') ||
         lower.includes('no se pudo leer') ||
         lower.includes('unable to read') ||
         lower.includes('cannot read') ||
-        lower.includes('no pudo leer')
+        lower.includes('no pudo leer') ||
+        lower.includes('no se pudo analizar')
       if (noSePudoLeer) {
         setError(
-          'No se pudo leer la imagen. Prueba con una foto más nítida y bien iluminada del récipe, o escribe/pega el texto arriba.'
+          'No se pudo leer la imagen. Prueba con una foto más nítida y bien iluminada del récipe, o escribe/pega el texto en el cuadro de arriba.'
         )
       } else {
         setError(msg)
