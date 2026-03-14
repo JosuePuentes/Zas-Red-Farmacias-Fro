@@ -250,22 +250,49 @@ interface DocumentoImagenProps {
 }
 
 function DocumentoImagen({ label, url }: DocumentoImagenProps) {
+  const [loadError, setLoadError] = useState(false)
+  if (!url) {
+    return (
+      <div>
+        <p style={{ marginBottom: 4, fontWeight: 500 }}>{label}</p>
+        <p className="muted" style={{ fontSize: '0.85rem' }}>No enviado</p>
+      </div>
+    )
+  }
   return (
     <div>
       <p style={{ marginBottom: 4, fontWeight: 500 }}>{label}</p>
-      {url ? (
-        <a href={url} target="_blank" rel="noopener noreferrer">
+      <a href={url} target="_blank" rel="noopener noreferrer">
+        {loadError ? (
+          <div
+            style={{
+              width: '100%',
+              minHeight: 120,
+              background: '#f1f5f9',
+              borderRadius: 6,
+              border: '1px solid #e2e8f0',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 6,
+              padding: 12,
+              fontSize: '0.8rem',
+              color: '#64748b',
+            }}
+          >
+            <span>No se pudo cargar la imagen</span>
+            <span style={{ fontSize: '0.75rem' }}>Abrir enlace para ver</span>
+          </div>
+        ) : (
           <img
             src={url}
             alt={label}
             style={{ width: '100%', maxHeight: 180, objectFit: 'cover', borderRadius: 6, border: '1px solid #e5e7eb' }}
+            onError={() => setLoadError(true)}
           />
-        </a>
-      ) : (
-        <p className="muted" style={{ fontSize: '0.85rem' }}>
-          No enviado
-        </p>
-      )}
+        )}
+      </a>
     </div>
   )
 }

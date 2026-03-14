@@ -65,6 +65,7 @@ export default function DeliveryLayout() {
       </main>
       {menuOpen && (
         <>
+          <div className="delivery-menu-overlay" onClick={() => setMenuOpen(false)} aria-hidden="true" />
           <div className="delivery-sidebar-mobile card">
             <h3>Mi perfil de delivery</h3>
             <p><strong>{user?.nombre} {user?.apellido}</strong></p>
@@ -75,21 +76,21 @@ export default function DeliveryLayout() {
               Tu solicitud debe estar aprobada por el administrador para poder recibir pedidos.
             </p>
             <hr />
-            <nav className="delivery-nav-mobile">
-              <button type="button" className="btn btn-link" onClick={() => { setMenuOpen(false); navigate('/delivery') }}>
+            <p className="delivery-nav-mobile-title">Menú</p>
+            <nav className="delivery-nav-mobile" aria-label="Módulos">
+              <NavLink to="/delivery" end className="delivery-nav-mobile-link" onClick={() => setMenuOpen(false)}>
                 Pedidos
-              </button>
-              <button type="button" className="btn btn-link" onClick={() => { setMenuOpen(false); navigate('/delivery/estadisticas') }}>
+              </NavLink>
+              <NavLink to="/delivery/estadisticas" className="delivery-nav-mobile-link" onClick={() => setMenuOpen(false)}>
                 Mis ganancias
-              </button>
+              </NavLink>
               {isMasterUser(user) && (
-                <button type="button" className="btn btn-link" onClick={() => { setMenuOpen(false); navigate('/elegir-portal') }}>
+                <NavLink to="/elegir-portal" className="delivery-nav-mobile-link" onClick={() => setMenuOpen(false)}>
                   Cambiar portal
-                </button>
+                </NavLink>
               )}
             </nav>
           </div>
-          <div className="modal-overlay" onClick={() => setMenuOpen(false)} />
         </>
       )}
     </div>

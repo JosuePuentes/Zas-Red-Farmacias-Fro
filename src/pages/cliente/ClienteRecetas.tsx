@@ -42,6 +42,15 @@ export default function ClienteRecetas() {
   // Maneja la carga de una imagen de récipe y delega el análisis al backend
   async function handleAnalyzeRecipe(file: File | null) {
     if (!file) return
+    const tipoValido = file.type.startsWith('image/')
+    if (!tipoValido) {
+      setError('Selecciona una imagen (JPG, PNG, etc.). Ese archivo no es una imagen.')
+      return
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setError('La imagen es muy pesada (máx. 10 MB). Prueba con una de menor tamaño.')
+      return
+    }
     setLoading(true)
     setError(null)
     setResultados([])
@@ -73,7 +82,22 @@ export default function ClienteRecetas() {
 
       setResultados(acumulados)
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Error al analizar la imagen de la receta')
+      const msg = e instanceof Error ? e.message : 'Error al analizar la imagen de la receta'
+      const lower = msg.toLowerCase()
+      const noSePudoLeer =
+        lower.includes('imposible') ||
+        lower.includes('impossible') ||
+        lower.includes('no se pudo leer') ||
+        lower.includes('unable to read') ||
+        lower.includes('cannot read') ||
+        lower.includes('no pudo leer')
+      if (noSePudoLeer) {
+        setError(
+          'No se pudo leer la imagen. Prueba con una foto más nítida y bien iluminada del récipe, o escribe/pega el texto arriba.'
+        )
+      } else {
+        setError(msg)
+      }
       setResultados([])
     } finally {
       setLoading(false)

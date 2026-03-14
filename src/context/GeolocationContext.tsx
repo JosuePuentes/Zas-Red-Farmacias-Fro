@@ -32,10 +32,19 @@ export function GeolocationProvider({ children }: { children: React.ReactNode })
       setError('Tu navegador no soporta geolocalización.')
       return Promise.resolve(null)
     }
+    if (typeof window !== 'undefined' && !window.isSecureContext) {
+      setError('La ubicación solo funciona en páginas seguras (HTTPS).')
+      return Promise.resolve(null)
+    }
     setError(null)
     setLoading(true)
     setPermissionAsked(true)
     return new Promise((resolve) => {
+      const options: PositionOptions = {
+        enableHighAccuracy: true,
+        timeout: 30000,
+        maximumAge: 0,
+      }
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const coords: Coords = { lat: pos.coords.latitude, lng: pos.coords.longitude }
@@ -46,15 +55,15 @@ export function GeolocationProvider({ children }: { children: React.ReactNode })
         (err) => {
           const msg =
             err.code === 1
-              ? 'Debes activar la ubicación (GPS) para usar esta función.'
+              ? 'Permite el acceso a la ubicación en tu navegador o en Ajustes del dispositivo (Privacidad > Ubicación) y vuelve a intentar.'
               : err.code === 2
-                ? 'No se pudo obtener tu ubicación.'
-                : 'Tiempo de espera agotado. Intenta de nuevo.'
+                ? 'No se pudo obtener tu ubicación. Comprueba que el GPS esté activado.'
+                : 'Tardó demasiado. Asegúrate de que la ubicación esté activada y vuelve a tocar el botón.'
           setError(msg)
           setLoading(false)
           resolve(null)
         },
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
+        options
       )
     })
   }, [])
