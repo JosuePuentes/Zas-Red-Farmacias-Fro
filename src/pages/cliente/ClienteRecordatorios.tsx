@@ -22,6 +22,8 @@ export default function ClienteRecordatorios() {
   const [busqueda, setBusqueda] = useState('')
   const [resultadosCatalogo, setResultadosCatalogo] = useState<{ id: string; codigo: string; descripcion: string; imagen?: string; precio?: number }[]>([])
   const [agregando, setAgregando] = useState(false)
+  const [horaRecordatorio, setHoraRecordatorio] = useState('')
+  const [diasRecordatorio, setDiasRecordatorio] = useState<string[]>([])
 
   useEffect(() => {
     let cancelled = false
@@ -65,18 +67,36 @@ export default function ClienteRecordatorios() {
     return () => window.clearTimeout(id)
   }, [busqueda])
 
+  const DIAS_OPCIONES = ['lun', 'mar', 'mie', 'jue', 'vie', 'sab', 'dom']
+
   async function agregarRecordatorio(item: { id: string; codigo: string; descripcion: string; imagen?: string; precio?: number }) {
     setAgregando(true)
     setError(null)
     try {
-      await clienteApi.crearRecordatorio({
+      const body: Parameters<typeof clienteApi.crearRecordatorio>[0] = {
         codigo: item.codigo,
         descripcion: item.descripcion,
         imagen: item.imagen,
         precioReferencia: item.precio,
-      })
-      setList((prev) => [...prev, { id: item.id, codigo: item.codigo, descripcion: item.descripcion, imagen: item.imagen, precioReferencia: item.precio }])
+      }
+      if (horaRecordatorio.trim()) body.hora = horaRecordatorio.trim()
+      if (diasRecordatorio.length > 0) body.dias = diasRecordatorio
+      await clienteApi.crearRecordatorio(body)
+      setList((prev) => [
+        ...prev,
+        {
+          id: item.id,
+          codigo: item.codigo,
+          descripcion: item.descripcion,
+          imagen: item.imagen,
+          precioReferencia: item.precio,
+          hora: body.hora,
+          dias: body.dias,
+        },
+      ])
       setResultadosCatalogo((prev) => prev.filter((r) => r.id !== item.id))
+      setHoraRecordatorio('')
+      setDiasRecordatorio([])
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error al agregar recordatorio')
     } finally {
@@ -91,7 +111,9 @@ export default function ClienteRecordatorios() {
 
       <div className="card cliente-recordatorios-buscar">
         <h3>Buscar en el catálogo</h3>
-        <p className="muted" style={{ marginBottom: '0.75rem' }}>Mismo buscador que en Catálogo: escribe código o nombre del producto.</p>
+        <p className="muted" style={{ marginBottom: '0.75rem' }}>
+          Mismo buscador que en Catálogo. Dona puede ayudarte a agregar recordatorios con hora y días para que te avisemos cuando tomes tu medicamento.
+        </p>
         <div className="form-group">
           <input
             type="search"
@@ -99,6 +121,40 @@ export default function ClienteRecordatorios() {
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
           />
+        </div>
+        <div className="form-group" style={{ marginTop: '0.75rem' }}>
+          <label>Hora de toma (opcional)</label>
+          <input
+            type="time"
+            value={horaRecordatorio}
+            onChange={(e) => setHoraRecordatorio(e.target.value)}
+            title="Para que Dona te recuerde a esta hora"
+          />
+        </div>
+        <div className="form-group">
+          <label>Días a recordar (opcional)</label>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+            {DIAS_OPCIONES.map((d) => (
+              <label key={d} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.9rem' }}>
+                <input
+                  type="checkbox"
+                  checked={diasRecordatorio.includes(d)}
+                  onChange={(e) =>
+                    setDiasRecordatorio((prev) =>
+                      e.target.checked ? [...prev, d] : prev.filter((x) => x !== d),
+                    )
+                  }
+                />
+                {d === 'lun' && 'Lun'}
+                {d === 'mar' && 'Mar'}
+                {d === 'mie' && 'Mié'}
+                {d === 'jue' && 'Jue'}
+                {d === 'vie' && 'Vie'}
+                {d === 'sab' && 'Sáb'}
+                {d === 'dom' && 'Dom'}
+              </label>
+            ))}
+          </div>
         </div>
         {resultadosCatalogo.length > 0 && (
           <ul className="cliente-recordatorios-resultados">
@@ -146,6 +202,12 @@ export default function ClienteRecordatorios() {
                 <strong>{r.descripcion ?? r.codigo ?? 'Sin nombre'}</strong>
                 {r.precioReferencia != null && (
                   <p className="precio-ref">Precio de referencia: $ {r.precioReferencia.toFixed(2)}</p>
+                )}
+                {r.hora && (
+                  <p className="muted" style={{ fontSize: '0.85rem' }}>
+                    Dona te recordará a las {r.hora}
+                    {Array.isArray(r.dias) && r.dias.length > 0 && ` (${(r.dias as string[]).join(', ')})`}
+                  </p>
                 )}
                 <p className="countdown">Próxima toma / compra: {formatCountdown(r.proximaFecha)}</p>
               </div>

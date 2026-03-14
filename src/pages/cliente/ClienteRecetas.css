@@ -65,3 +65,53 @@
   font-weight: 600;
   color: var(--color-danger, #dc2626);
 }
+
+.cliente-recetas-lista-por-med {
+  list-style: none;
+  padding: 0;
+  margin: 0.75rem 0 0 0;
+}
+
+.cliente-recetas-item-med {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.cliente-recetas-item-med:last-child {
+  border-bottom: none;
+}
+
+.cliente-recetas-med-nombre {
+  display: block;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
+}
+
+.cliente-recetas-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0 0.35rem 0.75rem;
+  flex-wrap: wrap;
+}
+
+.cliente-recetas-item-row .cliente-recetas-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.cliente-recetas-disp {
+  font-size: 0.85rem;
+  color: var(--color-success, #16a34a);
+  font-weight: 500;
+}
+
+.cliente-recetas-btn-cart {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0.5rem;
+  min-width: 36px;
+}

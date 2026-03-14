@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { masterApi, type DeliveryMaster, type SolicitudDeliveryMaster, getBackendBaseUrl } from '../../api'
+import { masterApi, type DeliveryMaster, type SolicitudDeliveryMaster, getApiBaseUrl } from '../../api'
 
 // Listar solicitudes de delivery pendientes y repartidores ya registrados
 export default function AdminDelivery() {
@@ -93,15 +93,25 @@ export default function AdminDelivery() {
     })
   }, [deliveryRegistrados, busqueda])
 
-  const backendBase = getBackendBaseUrl()
+  const apiBase = getApiBaseUrl()
 
+  /** Usa proxy del backend para evitar CORS: GET /api/admin/documento-imagen?path=... */
   function buildSolicitudImageUrl(path?: string): string | null {
     if (!path) return null
     const raw = String(path).replace(/\\/g, '/').trim()
     if (!raw) return null
-    if (raw.startsWith('http://') || raw.startsWith('https://')) return raw
-    if (!backendBase) return null
-    return `${backendBase}/${raw.replace(/^\/+/, '')}`
+    let pathParam: string
+    if (raw.startsWith('http://') || raw.startsWith('https://')) {
+      try {
+        pathParam = new URL(raw).pathname.replace(/^\/+/, '')
+      } catch {
+        return null
+      }
+    } else {
+      pathParam = raw.replace(/^\/+/, '')
+    }
+    if (!apiBase) return null
+    return `${apiBase}/admin/documento-imagen?path=${encodeURIComponent(pathParam)}`
   }
 
   return (

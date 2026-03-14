@@ -414,6 +414,55 @@
   background: #f9fafb;
 }
 
+.dona-msg-products {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  max-width: 90%;
+}
+
+.dona-product-card {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  align-items: flex-start;
+}
+
+.dona-product-card-img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.dona-product-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.dona-product-card-desc {
+  font-size: 0.85rem;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.dona-product-card-precio {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-primary-dark, #0f766e);
+  margin: 0 0 0.35rem 0;
+}
+
+.dona-product-card-btn {
+  font-size: 0.8rem;
+  padding: 0.3rem 0.6rem;
+}
+
 @media (min-width: 768px) {
   .cliente-menu-btn {
     display: none;

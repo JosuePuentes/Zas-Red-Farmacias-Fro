@@ -688,8 +688,15 @@ export const clienteApi = {
   // ===================== RECORDATORIOS =====================
   /** GET /api/cliente/recordatorios — lista de recordatorios del cliente. */
   recordatorios: () => request<RecordatorioItem[]>('/cliente/recordatorios'),
-  /** POST /api/cliente/recordatorios — crear recordatorio (codigo, descripcion, imagen?, precioReferencia?). */
-  crearRecordatorio: (body: { codigo: string; descripcion: string; imagen?: string; precioReferencia?: number }) =>
+  /** POST /api/cliente/recordatorios — crear recordatorio (codigo, descripcion, imagen?, precioReferencia?, hora?, dias?). */
+  crearRecordatorio: (body: {
+    codigo: string
+    descripcion: string
+    imagen?: string
+    precioReferencia?: number
+    hora?: string
+    dias?: string[] | string
+  }) =>
     request<{ id?: string; ok?: boolean }>('/cliente/recordatorios', { method: 'POST', body: JSON.stringify(body) }),
 
   // ===================== RECETAS =====================
@@ -731,7 +738,7 @@ export const clienteApi = {
     return {
       medicamentos: Array.isArray(data.medicamentos) ? data.medicamentos : [],
       es_recipe_valido: Boolean(data.es_recipe_valido),
-      // compat: seguimos exponiendo el shape viejo
+      texto_receta: typeof data.texto_receta === 'string' ? data.texto_receta : undefined,
       medicamento: data.medicamento || '',
       dosis: data.dosis || '',
       cantidad: data.cantidad || '',
@@ -748,6 +755,10 @@ export interface RecordatorioItem {
   imagen?: string
   precioReferencia?: number
   proximaFecha?: string
+  /** Hora de toma (ej. "14:00") para notificaciones tipo Dona */
+  hora?: string
+  /** Días de la semana para recordar (ej. ["lun","mar","mie"]) o "diario" */
+  dias?: string[] | string
   [key: string]: unknown
 }
 
@@ -770,9 +781,10 @@ export interface AnalisisRecetaMedicamento {
 
 /** Resultado del análisis de una imagen de récipe realizado en el backend (Gemini u otro OCR). */
 export interface AnalisisReceta {
-  // contrato nuevo
   medicamentos: AnalisisRecetaMedicamento[]
   es_recipe_valido: boolean
+  /** Texto OCR de la receta para mostrar en el textarea (opcional, lo devuelve el backend si está disponible). */
+  texto_receta?: string
   // campos viejos (compatibilidad)
   medicamento: string
   dosis: string

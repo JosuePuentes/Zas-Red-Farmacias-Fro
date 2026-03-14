@@ -1,12 +1,83 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { getApiBaseUrl } from '../api'
+import { getApiBaseUrl, buildProductImageUrl, clienteApi } from '../api'
 
 type ChatRole = 'user' | 'assistant'
+
+export interface DonaChatProduct {
+  id: string
+  codigo?: string
+  descripcion: string
+  precio?: number
+  imagen?: string
+  farmaciaId?: string
+}
 
 interface ChatMessage {
   id: string
   role: ChatRole
   content: string
+  products?: DonaChatProduct[]
+}
+
+const PRODUCTOS_MARKER = '\n__PRODUCTOS__\n'
+
+function parseProductosFromContent(text: string): { cleanContent: string; products: DonaChatProduct[] } {
+  const idx = text.indexOf(PRODUCTOS_MARKER)
+  if (idx === -1) return { cleanContent: text.trim(), products: [] }
+  const cleanContent = text.slice(0, idx).trim()
+  const jsonStr = text.slice(idx + PRODUCTOS_MARKER.length).trim()
+  let products: DonaChatProduct[] = []
+  try {
+    const parsed = JSON.parse(jsonStr) as unknown
+    products = Array.isArray(parsed) ? parsed as DonaChatProduct[] : []
+  } catch {
+    // ignore invalid JSON
+  }
+  return { cleanContent, products }
+}
+
+interface DonaProductCardProps {
+  product: DonaChatProduct
+}
+
+function DonaProductCard({ product }: DonaProductCardProps) {
+  const [adding, setAdding] = useState(false)
+  const imgUrl = buildProductImageUrl(product.imagen)
+
+  async function handleAgregar() {
+    setAdding(true)
+    try {
+      if (product.codigo) {
+        await clienteApi.recetasAgregarAlCarrito({ codigo: product.codigo, cantidad: 1 })
+      } else {
+        await clienteApi.recetasAgregarAlCarrito({ productoId: product.id, cantidad: 1 })
+      }
+    } catch {
+      // silent
+    } finally {
+      setAdding(false)
+    }
+  }
+
+  return (
+    <div className="dona-product-card">
+      {imgUrl && <img src={imgUrl} alt="" className="dona-product-card-img" />}
+      <div className="dona-product-card-body">
+        <strong className="dona-product-card-desc">{product.descripcion}</strong>
+        {product.precio != null && (
+          <p className="dona-product-card-precio">$ {product.precio.toFixed(2)}</p>
+        )}
+        <button
+          type="button"
+          className="btn btn-primary btn-sm dona-product-card-btn"
+          onClick={handleAgregar}
+          disabled={adding}
+        >
+          {adding ? 'Agregando…' : 'Agregar al carrito'}
+        </button>
+      </div>
+    </div>
+  )
 }
 
 interface DonaChatProps {
@@ -109,6 +180,15 @@ export default function DonaChat({ userName }: DonaChatProps) {
           )
         }
       }
+
+      const { cleanContent, products } = parseProductosFromContent(currentText)
+      if (cleanContent !== currentText || products.length > 0) {
+        setMessages((curr) =>
+          curr.map((m) =>
+            m.id === idBot ? { ...m, content: cleanContent, products } : m,
+          ),
+        )
+      }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Error al obtener respuesta de Dona.'
       setError(msg)
@@ -158,6 +238,13 @@ export default function DonaChat({ userName }: DonaChatProps) {
                 <div className="dona-msg-bubble">
                   {m.content}
                 </div>
+                {m.role === 'assistant' && m.products && m.products.length > 0 && (
+                  <div className="dona-msg-products">
+                    {m.products.map((p) => (
+                      <DonaProductCard key={p.id || p.codigo || p.descripcion} product={p} />
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
             {streaming && (
